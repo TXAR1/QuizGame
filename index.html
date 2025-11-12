@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -80,48 +81,66 @@
                 if (this.initialized) return;
                 
                 try {
+                    console.log('Firebase init gestartet...');
                     const script = document.createElement('script');
                     script.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js';
                     document.head.appendChild(script);
                     
-                    await new Promise((resolve) => {
+                    await new Promise((resolve, reject) => {
                         script.onload = resolve;
+                        script.onerror = reject;
+                        setTimeout(() => reject(new Error('Firebase App Script Timeout')), 10000);
                     });
 
                     const dbScript = document.createElement('script');
                     dbScript.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js';
                     document.head.appendChild(dbScript);
                     
-                    await new Promise((resolve) => {
+                    await new Promise((resolve, reject) => {
                         dbScript.onload = resolve;
+                        dbScript.onerror = reject;
+                        setTimeout(() => reject(new Error('Firebase Database Script Timeout')), 10000);
                     });
+
+                    console.log('Firebase Scripts geladen');
 
                     if (!window.firebase.apps.length) {
                         window.firebase.initializeApp(FIREBASE_CONFIG);
+                        console.log('Firebase App initialisiert');
                     }
                     
                     this.db = window.firebase.database();
                     this.initialized = true;
+                    console.log('Firebase Database bereit');
                 } catch (error) {
                     console.error('Firebase init error:', error);
+                    alert('Firebase Fehler: ' + error.message);
                 }
             }
 
             async createGame(gameId, initialState) {
                 await this.init();
+                console.log('Erstelle Spiel:', gameId);
                 await this.db.ref(`games/${gameId}`).set(initialState);
+                console.log('Spiel erstellt');
             }
 
             async updateGame(gameId, updates) {
                 await this.init();
+                console.log('Update Spiel:', gameId, updates);
                 await this.db.ref(`games/${gameId}`).update(updates);
             }
 
             onGameChange(gameId, callback) {
                 this.init().then(() => {
+                    console.log('Listener hinzugefügt für:', gameId);
                     this.db.ref(`games/${gameId}`).on('value', (snapshot) => {
+                        console.log('Daten empfangen:', snapshot.val());
                         callback(snapshot.val());
                     });
+                }).catch(err => {
+                    console.error('Listener Fehler:', err);
+                    alert('Fehler beim Verbinden: ' + err.message);
                 });
             }
 
