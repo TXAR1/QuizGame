@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -8,6 +7,9 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase direkt laden -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
     <div id="root"></div>
@@ -82,27 +84,11 @@
                 
                 try {
                     console.log('Firebase init gestartet...');
-                    const script = document.createElement('script');
-                    script.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js';
-                    document.head.appendChild(script);
                     
-                    await new Promise((resolve, reject) => {
-                        script.onload = resolve;
-                        script.onerror = reject;
-                        setTimeout(() => reject(new Error('Firebase App Script Timeout')), 10000);
-                    });
-
-                    const dbScript = document.createElement('script');
-                    dbScript.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js';
-                    document.head.appendChild(dbScript);
-                    
-                    await new Promise((resolve, reject) => {
-                        dbScript.onload = resolve;
-                        dbScript.onerror = reject;
-                        setTimeout(() => reject(new Error('Firebase Database Script Timeout')), 10000);
-                    });
-
-                    console.log('Firebase Scripts geladen');
+                    // Firebase sollte jetzt schon geladen sein
+                    if (!window.firebase) {
+                        throw new Error('Firebase nicht geladen!');
+                    }
 
                     if (!window.firebase.apps.length) {
                         window.firebase.initializeApp(FIREBASE_CONFIG);
@@ -111,37 +97,53 @@
                     
                     this.db = window.firebase.database();
                     this.initialized = true;
-                    console.log('Firebase Database bereit');
+                    console.log('Firebase Database bereit:', this.db);
                 } catch (error) {
                     console.error('Firebase init error:', error);
                     alert('Firebase Fehler: ' + error.message);
+                    throw error;
                 }
             }
 
             async createGame(gameId, initialState) {
-                await this.init();
-                console.log('Erstelle Spiel:', gameId);
-                await this.db.ref(`games/${gameId}`).set(initialState);
-                console.log('Spiel erstellt');
+                try {
+                    await this.init();
+                    console.log('Erstelle Spiel:', gameId, initialState);
+                    await this.db.ref(`games/${gameId}`).set(initialState);
+                    console.log('Spiel erfolgreich erstellt!');
+                } catch (error) {
+                    console.error('Fehler beim Erstellen:', error);
+                    alert('Fehler beim Erstellen: ' + error.message);
+                }
             }
 
             async updateGame(gameId, updates) {
-                await this.init();
-                console.log('Update Spiel:', gameId, updates);
-                await this.db.ref(`games/${gameId}`).update(updates);
+                try {
+                    await this.init();
+                    console.log('Update Spiel:', gameId, updates);
+                    await this.db.ref(`games/${gameId}`).update(updates);
+                    console.log('Update erfolgreich');
+                } catch (error) {
+                    console.error('Update Fehler:', error);
+                }
             }
 
-            onGameChange(gameId, callback) {
-                this.init().then(() => {
+            async onGameChange(gameId, callback) {
+                try {
+                    await this.init();
                     console.log('Listener hinzugefügt für:', gameId);
                     this.db.ref(`games/${gameId}`).on('value', (snapshot) => {
-                        console.log('Daten empfangen:', snapshot.val());
-                        callback(snapshot.val());
+                        const data = snapshot.val();
+                        console.log('Daten empfangen:', data);
+                        callback(data);
+                    }, (error) => {
+                        console.error('Listener Fehler:', error);
+                        alert('Fehler beim Laden: ' + error.message);
                     });
-                }).catch(err => {
-                    console.error('Listener Fehler:', err);
+                } catch (err) {
+                    console.error('onGameChange Fehler:', err);
                     alert('Fehler beim Verbinden: ' + err.message);
-                });
+                }
             }
 
             offGameChange(gameId) {
@@ -522,20 +524,27 @@
             const [loading, setLoading] = useState(true);
 
             useEffect(() => {
+                console.log('QuizGame useEffect gestartet');
                 const params = new URLSearchParams(window.location.search);
                 const joinId = params.get('join');
                 
                 if (joinId) {
+                    console.log('Join Mode - Game ID:', joinId);
                     setIsHost(false);
                     setGameId(joinId);
                     db.onGameChange(joinId, (data) => {
+                        console.log('Join - Daten erhalten:', data);
                         if (data) {
                             setGameState(data);
+                        } else {
+                            console.error('Kein Spiel gefunden!');
                         }
                         setLoading(false);
                     });
                 } else {
+                    console.log('Host Mode - Erstelle neues Spiel');
                     const newGameId = Math.random().toString(36).substr(2, 6).toUpperCase();
+                    console.log('Neue Game ID:', newGameId);
                     setGameId(newGameId);
                     const initialState = {
                         gameId: newGameId,
@@ -545,17 +554,26 @@
                         currentQuestion: 0
                     };
                     
+                    console.log('Initial State:', initialState);
+                    
                     db.createGame(newGameId, initialState).then(() => {
+                        console.log('Spiel erstellt, starte Listener');
                         db.onGameChange(newGameId, (data) => {
+                            console.log('Host - Daten erhalten:', data);
                             if (data) {
                                 setGameState(data);
                             }
                             setLoading(false);
                         });
+                    }).catch(err => {
+                        console.error('Fehler beim Erstellen:', err);
+                        alert('Fehler: ' + err.message);
+                        setLoading(false);
                     });
                 }
 
                 return () => {
+                    console.log('Cleanup');
                     if (gameId) db.offGameChange(gameId);
                 };
             }, []);
@@ -667,3 +685,5 @@
     </script>
 </body>
 </html>
+</html>
+
