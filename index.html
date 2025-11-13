@@ -19,14 +19,13 @@
 
   <style>
     :root {
+      --rtl-orange: #FF6600;
       --rtl-red: #E31F23;
+      --rtl-purple: #7B2CBF;
+      --rtl-green: #22C55E;
       --rtl-black: #0a0a0a;
       --rtl-dark-bg: #131313;
       --rtl-white: #ffffff;
-      --rtl-accent-1: #00B0E8;
-      --rtl-accent-2: #FFB81C;
-      --rtl-orange: #FF6600;
-      --rtl-purple: #7B2CBF;
     }
 
     * {
@@ -57,7 +56,7 @@
     .host-main {
       flex: 2;
       background: var(--rtl-dark-bg);
-      border: 1px solid var(--rtl-red);
+      border: 1px solid var(--rtl-orange);
       padding: 40px;
       display: flex;
       flex-direction: column;
@@ -85,8 +84,8 @@
       left: 20px;
       width: 100px;
       height: 100px;
-      background: conic-gradient(var(--rtl-red) 0deg, var(--rtl-red) var(--progress), rgba(227, 31, 35, 0.1) var(--progress), rgba(227, 31, 35, 0.1) 360deg);
-      border: 2px solid var(--rtl-red);
+      background: conic-gradient(var(--rtl-orange) 0deg, var(--rtl-orange) var(--progress), rgba(255, 102, 0, 0.1) var(--progress), rgba(255, 102, 0, 0.1) 360deg);
+      border: 2px solid var(--rtl-orange);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -96,13 +95,13 @@
     }
 
     .countdown-badge.warning {
-      background: conic-gradient(var(--rtl-accent-2) 0deg, var(--rtl-accent-2) var(--progress), rgba(255, 184, 28, 0.1) var(--progress), rgba(255, 184, 28, 0.1) 360deg);
-      border-color: var(--rtl-accent-2);
+      background: conic-gradient(var(--rtl-red) 0deg, var(--rtl-red) var(--progress), rgba(227, 31, 35, 0.1) var(--progress), rgba(227, 31, 35, 0.1) 360deg);
+      border-color: var(--rtl-red);
     }
 
     .countdown-badge.danger {
-      background: conic-gradient(#FF4444 0deg, #FF4444 var(--progress), rgba(255, 68, 68, 0.1) var(--progress), rgba(255, 68, 68, 0.1) 360deg);
-      border-color: #FF4444;
+      background: conic-gradient(var(--rtl-purple) 0deg, var(--rtl-purple) var(--progress), rgba(123, 44, 191, 0.1) var(--progress), rgba(123, 44, 191, 0.1) 360deg);
+      border-color: var(--rtl-purple);
       animation: pulse-danger 0.5s infinite;
     }
 
@@ -115,6 +114,15 @@
       width: 100%;
       padding: 30px;
       margin-bottom: 40px;
+      position: relative;
+    }
+
+    .question-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      gap: 20px;
     }
 
     .question-text {
@@ -138,7 +146,7 @@
       position: relative;
       padding: 30px;
       background: var(--rtl-dark-bg);
-      border: 2px solid var(--rtl-accent-1);
+      border: 2px solid var(--rtl-purple);
       font-size: 1.8rem;
       font-weight: 700;
       text-align: center;
@@ -153,8 +161,8 @@
     }
 
     .answer-btn.highlighted {
-      background: var(--rtl-red);
-      border-color: var(--rtl-red);
+      background: var(--rtl-orange);
+      border-color: var(--rtl-orange);
       transform: scale(1.02);
     }
 
@@ -166,15 +174,16 @@
       font-size: 2.5rem;
       font-weight: 900;
       margin-bottom: 30px;
-      color: var(--rtl-red);
+      color: var(--rtl-orange);
     }
 
     .correct-answer {
       font-size: 2rem;
       margin-bottom: 40px;
       padding: 20px;
-      background: var(--rtl-dark-bg);
-      border-left: 3px solid var(--rtl-red);
+      background: rgba(34, 197, 94, 0.2);
+      border-left: 3px solid var(--rtl-green);
+      border: 3px solid var(--rtl-green);
     }
 
     .result-answer-grid {
@@ -186,17 +195,20 @@
 
     .result-answer {
       padding: 20px;
-      border-left: 3px solid;
+      border: 3px solid;
       font-weight: 600;
       background: var(--rtl-dark-bg);
     }
 
     .result-answer.correct {
-      border-left-color: var(--rtl-red);
+      border-color: var(--rtl-green);
+      background: rgba(34, 197, 94, 0.2);
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
     }
 
     .result-answer.incorrect {
-      border-left-color: var(--rtl-accent-1);
+      border-color: var(--rtl-purple);
+      background: rgba(123, 44, 191, 0.1);
     }
 
     .result-voters {
@@ -210,7 +222,7 @@
       background: var(--rtl-dark-bg);
       padding: 24px;
       overflow: auto;
-      border: 1px solid rgba(227, 31, 35, 0.3);
+      border: 1px solid rgba(255, 102, 0, 0.3);
     }
 
     .leaderboard-title {
@@ -219,8 +231,8 @@
       margin-bottom: 15px;
       text-transform: uppercase;
       letter-spacing: 1.5px;
-      color: var(--rtl-red);
-      border-bottom: 2px solid var(--rtl-red);
+      color: var(--rtl-orange);
+      border-bottom: 2px solid var(--rtl-orange);
       padding-bottom: 10px;
     }
 
@@ -229,21 +241,21 @@
       justify-between;
       align-items: center;
       padding: 12px 15px;
-      background: rgba(227, 31, 35, 0.1);
+      background: rgba(255, 102, 0, 0.1);
       margin-bottom: 10px;
-      border-left: 3px solid var(--rtl-red);
+      border-left: 3px solid var(--rtl-orange);
       transition: all 0.2s ease;
     }
 
     .player-item:hover {
-      background: rgba(227, 31, 35, 0.15);
+      background: rgba(255, 102, 0, 0.15);
       transform: translateX(5px);
     }
 
     .player-rank {
       font-weight: 900;
       font-size: 1.1rem;
-      color: var(--rtl-accent-2);
+      color: var(--rtl-purple);
       margin-right: 10px;
       min-width: 25px;
     }
@@ -255,7 +267,7 @@
 
     .player-score {
       font-weight: 900;
-      color: var(--rtl-red);
+      color: var(--rtl-green);
       font-size: 1.1rem;
     }
 
@@ -267,7 +279,7 @@
       font-size: 3rem;
       font-weight: 900;
       margin-bottom: 30px;
-      color: var(--rtl-red);
+      color: var(--rtl-orange);
     }
 
     .summary-podium {
@@ -295,7 +307,7 @@
     .podium-score {
       font-weight: 900;
       font-size: 1.4rem;
-      color: var(--rtl-red);
+      color: var(--rtl-green);
     }
 
     .podium-bar {
@@ -311,20 +323,20 @@
     }
 
     .podium-bar.gold {
-      border-top-color: var(--rtl-red);
-      background: linear-gradient(180deg, rgba(227, 31, 35, 0.3), rgba(227, 31, 35, 0.1));
+      border-top-color: var(--rtl-orange);
+      background: linear-gradient(180deg, rgba(255, 102, 0, 0.3), rgba(255, 102, 0, 0.1));
       height: 250px;
     }
 
     .podium-bar.silver {
-      border-top-color: var(--rtl-accent-1);
-      background: linear-gradient(180deg, rgba(0, 176, 232, 0.2), rgba(0, 176, 232, 0.05));
+      border-top-color: var(--rtl-purple);
+      background: linear-gradient(180deg, rgba(123, 44, 191, 0.2), rgba(123, 44, 191, 0.05));
       height: 200px;
     }
 
     .podium-bar.bronze {
-      border-top-color: var(--rtl-accent-2);
-      background: linear-gradient(180deg, rgba(255, 184, 28, 0.2), rgba(255, 184, 28, 0.05));
+      border-top-color: var(--rtl-green);
+      background: linear-gradient(180deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.05));
       height: 150px;
     }
 
@@ -332,7 +344,7 @@
       font-size: 3.5rem;
       font-weight: 900;
       margin-bottom: 40px;
-      color: var(--rtl-red);
+      color: var(--rtl-orange);
     }
 
     .finished-list {
@@ -340,7 +352,6 @@
       overflow-y: auto;
     }
 
-    /* RTL Logo SVG */
     .rtl-logo-svg {
       height: 60px;
       width: auto;
@@ -367,7 +378,7 @@
       width: 100%;
       background: var(--rtl-dark-bg);
       padding: 40px;
-      border: 2px solid var(--rtl-red);
+      border: 2px solid var(--rtl-orange);
       position: relative;
       overflow: hidden;
     }
@@ -383,27 +394,36 @@
     }
 
     .btn-host {
-      background: var(--rtl-red) !important;
+      background: var(--rtl-orange) !important;
       color: white !important;
     }
 
     .btn-host:hover {
-      background: #c91c1f !important;
+      background: #e55a00 !important;
+    }
+
+    .btn-show-results {
+      background: var(--rtl-green) !important;
+      color: white !important;
+    }
+
+    .btn-show-results:hover {
+      background: #16a34a !important;
     }
 
     .btn-join {
-      background: var(--rtl-accent-1) !important;
+      background: var(--rtl-purple) !important;
       color: white !important;
     }
 
     .btn-join:hover {
-      background: #0095cc !important;
+      background: #6b21a8 !important;
     }
 
     input {
       background: rgba(255, 255, 255, 0.05) !important;
       color: white !important;
-      border: 1px solid var(--rtl-red) !important;
+      border: 1px solid var(--rtl-orange) !important;
     }
 
     input::placeholder {
@@ -492,15 +512,12 @@
 
     return (
       <svg viewBox="0 0 1520 300" height={h} width={w} xmlns="http://www.w3.org/2000/svg">
-        {/* Orange R */}
         <rect x="0" y="0" width="490" height="300" fill="#FF6600"/>
         <text x="245" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">R</text>
         
-        {/* Red T */}
         <rect x="515" y="0" width="490" height="300" fill="#E31F23"/>
         <text x="760" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">T</text>
         
-        {/* Purple L */}
         <rect x="1030" y="0" width="490" height="300" fill="#7B2CBF"/>
         <text x="1275" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">L</text>
       </svg>
@@ -551,7 +568,7 @@
             <span className="rtl-logo-text">AdAlliance Quiz</span>
           </div>
           
-          <h1 className="text-4xl font-bold mb-4 text-center" style={{color: 'var(--rtl-red)'}}>🎯 Quiz Master</h1>
+          <h1 className="text-4xl font-bold mb-4 text-center" style={{color: 'var(--rtl-orange)'}}>🎯 Quiz Master</h1>
           <p className="text-sm mb-6 text-center" style={{color: 'rgba(245, 245, 245, 0.7)'}}>
             Host erstellt Spiel oder Spieler treten per Code/QR bei
           </p>
@@ -576,14 +593,14 @@
             </button>
           </div>
 
-          <p className="text-xs text-center" style={{color: 'rgba(227, 31, 35, 0.8)'}}>ℹ️ Host ist Quizmaster und wird nicht als Spieler gezählt</p>
+          <p className="text-xs text-center" style={{color: 'rgba(255, 102, 0, 0.8)'}}>ℹ️ Host ist Quizmaster und wird nicht als Spieler gezählt</p>
         </div>
       </div>
     );
   }
 
   // HOST CONTROLLER
-  function HostController({ gameId, meta, startNextRound }) {
+  function HostController({ gameId, meta, startNextRound, showResultsNow }) {
     const [players, setPlayers] = useState({});
     
     useEffect(() => {
@@ -645,12 +662,12 @@
     }
 
     return (
-      <div className="space-y-3 bg-black/50 p-4 border border-red-600">
+      <div className="space-y-3 bg-black/50 p-4 border border-orange-600">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="text-sm" style={{color: 'rgba(245, 245, 245, 0.9)'}}>Phase: <strong style={{color: 'var(--rtl-red)'}}>{meta.phase}</strong></div>
-            <div className="text-sm" style={{color: 'rgba(245, 245, 245, 0.9)'}}>Runde: <strong style={{color: 'var(--rtl-red)'}}>{meta.round || 1}/{TOTAL_ROUNDS}</strong></div>
-            <div className="text-sm" style={{color: 'rgba(245, 245, 245, 0.9)'}}>Frage: <strong style={{color: 'var(--rtl-red)'}}>{(meta.questionIndex || 0) + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</strong></div>
+            <div className="text-sm" style={{color: 'rgba(245, 245, 245, 0.9)'}}>Phase: <strong style={{color: 'var(--rtl-orange)'}}>{meta.phase}</strong></div>
+            <div className="text-sm" style={{color: 'rgba(245, 245, 245, 0.9)'}}>Runde: <strong style={{color: 'var(--rtl-orange)'}}>{meta.round || 1}/{TOTAL_ROUNDS}</strong></div>
+            <div className="text-sm" style={{color: 'rgba(245, 245, 245, 0.9)'}}>Frage: <strong style={{color: 'var(--rtl-orange)'}}>{(meta.questionIndex || 0) + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</strong></div>
           </div>
           <div className="text-right">
             <div className="text-xs" style={{color: 'rgba(245, 245, 245, 0.8)'}}>👥 Spieler: {Object.keys(players).length}</div>
@@ -659,8 +676,9 @@
 
         <div className="flex gap-2 flex-wrap">
           {(meta.phase === 'lobby' || !meta.phase) && <button className="btn-host px-4 py-2 text-sm font-bold" onClick={startGame}>Spiel starten</button>}
-          {meta.phase === 'results' && <button className="btn-join px-4 py-2 text-sm font-bold" onClick={nextQuestion}>Nächste Frage</button>}
-          {meta.phase === 'roundSummary' && <button className="btn-join px-4 py-2 text-sm font-bold" onClick={startNextRound}>Nächste Runde</button>}
+          {meta.phase === 'question' && <button className="btn-show-results px-4 py-2 text-sm font-bold" onClick={showResultsNow}>📊 Ergebnisse</button>}
+          {meta.phase === 'results' && <button className="btn-host px-4 py-2 text-sm font-bold" onClick={nextQuestion}>Nächste Frage</button>}
+          {meta.phase === 'roundSummary' && <button className="btn-host px-4 py-2 text-sm font-bold" onClick={startNextRound}>Nächste Runde</button>}
           {meta.phase === 'finished' && <div className="text-green-300 font-bold px-3 py-2 text-sm">✓ Spiel beendet</div>}
         </div>
       </div>
@@ -689,26 +707,8 @@
         const rem = Math.max(0, QUESTION_TIME - elapsed);
         setTimeLeft(rem);
         
-        // Automatisch Ergebnisse anzeigen wenn Zeit abläuft
         if (rem === 0) {
-          try {
-            const snap = await db.ref(`games/${gameId}`).get();
-            const g = snap.val();
-            if (!g) return;
-            const qIndex = g.meta?.questionIndex || 0;
-            const q = (g.questions || [])[qIndex];
-            if (!q) return;
-            const playerObj = g.players || {};
-            const updates = {};
-            Object.entries(playerObj).forEach(([pid, p]) => {
-              const ans = p.currentAnswer;
-              const correct = typeof ans === 'number' && ans === q.correct;
-              const newScore = (p.score || 0) + (correct ? 100 : 0);
-              updates[`games/${gameId}/players/${pid}/score`] = newScore;
-            });
-            await db.ref().update(updates);
-            await db.ref(`games/${gameId}/meta`).update({ phase: 'results' });
-          } catch (err) { console.error(err); }
+          await showResultsNow();
         }
       };
       tick();
@@ -716,6 +716,27 @@
       timerRef.current = setInterval(tick, 500);
       return () => clearInterval(timerRef.current);
     }, [meta?.phase, meta?.questionStartTime, gameId]);
+
+    const showResultsNow = async () => {
+      try {
+        const snap = await db.ref(`games/${gameId}`).get();
+        const g = snap.val();
+        if (!g) return;
+        const qIndex = g.meta?.questionIndex || 0;
+        const q = (g.questions || [])[qIndex];
+        if (!q) return;
+        const playerObj = g.players || {};
+        const updates = {};
+        Object.entries(playerObj).forEach(([pid, p]) => {
+          const ans = p.currentAnswer;
+          const correct = typeof ans === 'number' && ans === q.correct;
+          const newScore = (p.score || 0) + (correct ? 100 : 0);
+          updates[`games/${gameId}/players/${pid}/score`] = newScore;
+        });
+        await db.ref().update(updates);
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'results' });
+      } catch (err) { console.error(err); }
+    };
 
     const startNextRound = async () => {
       if (!meta) return;
@@ -761,11 +782,19 @@
 
           {meta.phase === 'question' && question && (
             <div className="question-container">
-              <div 
-                className={`countdown-badge ${countdownClass}`}
-                style={{'--progress': `${countdownProgress}deg`}}
-              >
-                {timeLeft}
+              <div className="question-top-bar">
+                <div 
+                  className={`countdown-badge ${countdownClass}`}
+                  style={{'--progress': `${countdownProgress}deg`}}
+                >
+                  {timeLeft}
+                </div>
+                <button 
+                  className="btn-show-results px-6 py-3 text-lg font-bold"
+                  onClick={showResultsNow}
+                >
+                  📊 Ergebnisse zeigen
+                </button>
               </div>
               <div className="question-text">{question.question}</div>
               <div className="answers-grid">
@@ -825,9 +854,9 @@
               {playersArr.length > 3 && (
                 <div className="mt-8">
                   {playersArr.slice(3).map((p, i) => (
-                    <div key={p.pid} className="flex justify-between items-center p-3 bg-white/5 mb-2 border border-red-600/30">
+                    <div key={p.pid} className="flex justify-between items-center p-3 bg-white/5 mb-2 border" style={{borderColor: 'var(--rtl-orange)'}}>
                       <div className="text-lg font-bold">#{i + 4} {p.name}</div>
-                      <div className="text-lg font-bold" style={{color: 'var(--rtl-red)'}}>{p.score || 0} pts</div>
+                      <div className="text-lg font-bold" style={{color: 'var(--rtl-green)'}}>{p.score || 0} pts</div>
                     </div>
                   ))}
                 </div>
@@ -840,9 +869,9 @@
               <h2 className="finished-title">🎉 Spiel beendet!</h2>
               <div className="finished-list">
                 {playersArr.map((p, i) => (
-                  <div key={p.pid} className="flex justify-between items-center bg-white/5 p-4 mb-3 border-l-4" style={{borderLeftColor: 'var(--rtl-red)'}}>
+                  <div key={p.pid} className="flex justify-between items-center bg-white/5 p-4 mb-3 border-l-4" style={{borderLeftColor: 'var(--rtl-orange)'}}>
                     <div className="text-2xl font-bold">#{i + 1} {p.name}</div>
-                    <div className="text-2xl font-extrabold" style={{color: 'var(--rtl-red)'}}>{p.score || 0} pts</div>
+                    <div className="text-2xl font-extrabold" style={{color: 'var(--rtl-green)'}}>{p.score || 0} pts</div>
                   </div>
                 ))}
               </div>
@@ -851,7 +880,7 @@
         </div>
 
         <div className="host-side">
-          <HostController gameId={gameId} meta={meta} startNextRound={startNextRound} />
+          <HostController gameId={gameId} meta={meta} startNextRound={startNextRound} showResultsNow={showResultsNow} />
 
           <div className="mb-6 mt-6">
             <h3 className="leaderboard-title">🏅 Spieler & Punkte</h3>
@@ -868,7 +897,7 @@
 
           <div>
             <h3 className="leaderboard-title mt-6">ℹ️ Code & QR</h3>
-            <div className="text-sm bg-black/50 p-3 border border-red-600/30 mb-2">
+            <div className="text-sm bg-black/50 p-3 border mb-2" style={{borderColor: 'var(--rtl-orange)'}}>
               <span className="font-mono bg-white text-black px-2 py-1 text-xs">{gameId}</span>
             </div>
             <img src={qrUrlForGame(gameId)} alt="QR Code" className="w-full" />
@@ -914,12 +943,12 @@
     if (meta.phase === 'lobby') {
       return (
         <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--rtl-black)' }}>
-          <div className="bg-white/5 p-6 w-full max-w-md text-center border-2" style={{borderColor: 'var(--rtl-red)'}}>
+          <div className="bg-white/5 p-6 w-full max-w-md text-center border-2" style={{borderColor: 'var(--rtl-orange)'}}>
             <div className="rtl-logo-container mb-4">
               <RTLLogo size="sm" />
               <span className="rtl-logo-text">AdAlliance</span>
             </div>
-            <h2 className="text-2xl font-bold mb-2" style={{color: 'var(--rtl-red)'}}>Warte auf Start</h2>
+            <h2 className="text-2xl font-bold mb-2" style={{color: 'var(--rtl-orange)'}}>Warte auf Start</h2>
             <p className="mb-2">Spielcode: <span className="font-mono bg-white text-black px-2 py-1">{gameId}</span></p>
             <p className="text-sm">Bitte warte, bis der Host das Spiel startet.</p>
             <p className="text-sm mt-3">Dein Name: <strong>{player.name}</strong></p>
@@ -932,10 +961,10 @@
       const hasAnswered = player.currentAnswer !== null && player.currentAnswer !== undefined;
       return (
         <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--rtl-black)' }}>
-          <div className="bg-white/5 p-6 w-full max-w-md border-2" style={{borderColor: 'var(--rtl-red)'}}>
+          <div className="bg-white/5 p-6 w-full max-w-md border-2" style={{borderColor: 'var(--rtl-orange)'}}>
             <div className="flex justify-between items-center mb-4">
               <div>Runde {meta.round}/{TOTAL_ROUNDS}</div>
-              <div className="text-lg font-bold" style={{color: 'var(--rtl-red)'}}>{timeLeft}s</div>
+              <div className="text-lg font-bold" style={{color: 'var(--rtl-orange)'}}>{timeLeft}s</div>
             </div>
             <h3 className="text-xl font-bold mb-4">{question.question}</h3>
 
@@ -949,7 +978,7 @@
                     disabled={disabled}
                     onClick={() => db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i)}
                     className={`p-3 font-bold text-left transition-all ${disabled ? (isSelected ? 'text-white' : 'bg-white/10 text-white/80') : 'text-white'}`}
-                    style={disabled && isSelected ? {background: 'var(--rtl-red)', color: 'white', border: '2px solid var(--rtl-red)'} : disabled ? {border: '2px solid var(--rtl-red)', background: 'transparent'} : {background: 'var(--rtl-accent-1)', color: 'white', border: '2px solid var(--rtl-accent-1)'}}
+                    style={disabled && isSelected ? {background: 'var(--rtl-purple)', color: 'white', border: '2px solid var(--rtl-purple)'} : disabled ? {border: '2px solid var(--rtl-purple)', background: 'transparent'} : {background: 'var(--rtl-purple)', color: 'white', border: '2px solid var(--rtl-purple)'}}
                   >
                     {String.fromCharCode(65 + i)}. {ans}
                   </button>
@@ -960,7 +989,7 @@
             <div className="mt-4 text-sm">
               {player.currentAnswer === null ? "Noch nicht geantwortet" : `Du hast Antwort ${String.fromCharCode(65 + player.currentAnswer)} gewählt`}
             </div>
-            <div className="mt-4 text-sm">Punkte: <strong style={{color: 'var(--rtl-red)'}}>{player.score || 0}</strong></div>
+            <div className="mt-4 text-sm">Punkte: <strong style={{color: 'var(--rtl-green)'}}>{player.score || 0}</strong></div>
           </div>
         </div>
       );
@@ -970,10 +999,10 @@
       const wasCorrect = player.currentAnswer === question.correct;
       return (
         <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--rtl-black)' }}>
-          <div className="bg-white/5 p-6 w-full max-w-md text-center border-2" style={{borderColor: 'var(--rtl-red)'}}>
-            <h3 className="text-3xl font-bold mb-3" style={{color: wasCorrect ? 'var(--rtl-red)' : '#FF6B6B'}}>{wasCorrect ? 'Richtig! 🎉' : 'Falsch 😕'}</h3>
-            <p className="mb-2">Richtige Antwort: <strong>{question.answers[question.correct]}</strong></p>
-            <p className="mb-2">Dein Punktestand: <strong style={{color: 'var(--rtl-red)'}}>{player.score || 0}</strong></p>
+          <div className="bg-white/5 p-6 w-full max-w-md text-center border-2" style={{borderColor: 'var(--rtl-orange)'}}>
+            <h3 className="text-3xl font-bold mb-3" style={{color: wasCorrect ? 'var(--rtl-green)' : '#FF6B6B'}}>{wasCorrect ? 'Richtig! 🎉' : 'Falsch 😕'}</h3>
+            <p className="mb-2">Richtige Antwort: <strong style={{color: 'var(--rtl-green)'}}>{question.answers[question.correct]}</strong></p>
+            <p className="mb-2">Dein Punktestand: <strong style={{color: 'var(--rtl-green)'}}>{player.score || 0}</strong></p>
             <p className="text-sm">Warte auf den Host für die nächste Frage.</p>
           </div>
         </div>
@@ -984,10 +1013,10 @@
       const playersSorted = Object.values(game.players || {}).sort((a, b) => (b.score || 0) - (a.score || 0));
       return (
         <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--rtl-black)' }}>
-          <div className="bg-white/5 p-6 w-full max-w-md border-2" style={{borderColor: 'var(--rtl-red)'}}>
-            <h3 className="text-2xl font-bold mb-3" style={{color: 'var(--rtl-red)'}}>Zwischenstand Runde {meta.round}</h3>
+          <div className="bg-white/5 p-6 w-full max-w-md border-2" style={{borderColor: 'var(--rtl-orange)'}}>
+            <h3 className="text-2xl font-bold mb-3" style={{color: 'var(--rtl-orange)'}}>Zwischenstand Runde {meta.round}</h3>
             <div className="bg-white/10 p-3 mb-3">
-              {playersSorted.map((p, i) => <div key={i} className="flex justify-between py-1">{i + 1}. {p.name} <span style={{color: 'var(--rtl-red)'}}>{p.score || 0} pts</span></div>)}
+              {playersSorted.map((p, i) => <div key={i} className="flex justify-between py-1">{i + 1}. {p.name} <span style={{color: 'var(--rtl-green)'}}>{p.score || 0} pts</span></div>)}
             </div>
             <p className="text-sm">Host startet die nächste Runde, sobald er bereit ist.</p>
           </div>
@@ -999,10 +1028,10 @@
       const playersSorted = Object.values(game.players || {}).sort((a, b) => (b.score || 0) - (a.score || 0));
       return (
         <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--rtl-black)' }}>
-          <div className="bg-white/5 p-6 w-full max-w-md border-2" style={{borderColor: 'var(--rtl-red)'}}>
-            <h3 className="text-3xl font-bold mb-3" style={{color: 'var(--rtl-red)'}}>Spiel beendet</h3>
+          <div className="bg-white/5 p-6 w-full max-w-md border-2" style={{borderColor: 'var(--rtl-orange)'}}>
+            <h3 className="text-3xl font-bold mb-3" style={{color: 'var(--rtl-orange)'}}>Spiel beendet</h3>
             <div className="bg-white/10 p-3 mb-3">
-              {playersSorted.map((p, i) => <div key={i} className="flex justify-between py-1">{i + 1}. {p.name} <span style={{color: 'var(--rtl-red)'}}>{p.score || 0} pts</span></div>)}
+              {playersSorted.map((p, i) => <div key={i} className="flex justify-between py-1">{i + 1}. {p.name} <span style={{color: 'var(--rtl-green)'}}>{p.score || 0} pts</span></div>)}
             </div>
           </div>
         </div>
@@ -1033,15 +1062,15 @@
 
     return (
       <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--rtl-black)' }}>
-        <div className="bg-white/5 p-6 w-full max-w-md border-2" style={{borderColor: 'var(--rtl-red)'}}>
+        <div className="bg-white/5 p-6 w-full max-w-md border-2" style={{borderColor: 'var(--rtl-orange)'}}>
           <div className="rtl-logo-container mb-4">
             <RTLLogo size="sm" />
             <span className="rtl-logo-text">AdAlliance</span>
           </div>
-          <h2 className="text-2xl font-bold mb-3 text-center" style={{color: 'var(--rtl-red)'}}>Spiel beitreten</h2>
+          <h2 className="text-2xl font-bold mb-3 text-center" style={{color: 'var(--rtl-orange)'}}>Spiel beitreten</h2>
           <p className="mb-3 text-sm text-center">Code: <span className="font-mono">{joinGameId}</span></p>
           <input className="w-full p-3 mb-3" placeholder="Dein Name" value={name} onChange={e => setName(e.target.value)} />
-          <button className="btn-join px-4 py-3 w-full font-bold" onClick={handleJoin} disabled={!name}>Beitreten</button>
+          <button className="btn-host px-4 py-3 w-full font-bold" onClick={handleJoin} disabled={!name}>Beitreten</button>
           {error && <div className="text-red-300 mt-3 text-sm">{error}</div>}
         </div>
       </div>
