@@ -19,30 +19,30 @@
 
   <style>
     :root {
-      /* RTL AdAlliance Corporate Colors */
       --rtl-red: #E31F23;
-      --rtl-black: #1a1a1a;
+      --rtl-black: #0a0a0a;
+      --rtl-dark-bg: #131313;
       --rtl-white: #ffffff;
-      --rtl-gold: #D4AF37;
       --rtl-accent-1: #00B0E8;
       --rtl-accent-2: #FFB81C;
-      --rtl-accent-3: #9B59B6;
-      --rtl-dark-bg: #0F0F0F;
-      --rtl-light-text: #F5F5F5;
+      --rtl-orange: #FF6600;
+      --rtl-purple: #7B2CBF;
     }
 
-    html, body, #root { 
-      height: 100%; 
+    * {
+      border-radius: 0 !important;
+    }
+
+    html, body, #root {
+      height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     }
-    
-    /* RTL AdAlliance Background */
+
     body {
-      background: linear-gradient(135deg, var(--rtl-dark-bg) 0%, #1f1f1f 100%);
-      color: var(--rtl-light-text);
+      background: var(--rtl-black);
+      color: var(--rtl-white);
     }
 
-    /* Host full-screen styles */
     .host-screen {
       display: flex;
       flex-direction: row;
@@ -51,14 +51,13 @@
       height: 100%;
       padding: 24px;
       box-sizing: border-box;
-      background: linear-gradient(135deg, var(--rtl-dark-bg) 0%, #1a1a1a 100%);
+      background: var(--rtl-black);
     }
 
     .host-main {
       flex: 2;
-      background: linear-gradient(135deg, rgba(227, 31, 35, 0.05), rgba(0, 176, 232, 0.05));
-      border: 2px solid var(--rtl-red);
-      border-radius: 12px;
+      background: var(--rtl-dark-bg);
+      border: 1px solid var(--rtl-red);
       padding: 40px;
       display: flex;
       flex-direction: column;
@@ -75,38 +74,35 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--rtl-red), var(--rtl-accent-1), var(--rtl-accent-2));
+      height: 3px;
+      background: linear-gradient(90deg, var(--rtl-orange), var(--rtl-red), var(--rtl-purple));
       z-index: 1;
     }
 
-    /* RTL Countdown Badge */
     .countdown-badge {
       position: absolute;
       top: 20px;
       left: 20px;
       width: 100px;
       height: 100px;
-      background: conic-gradient(var(--rtl-red) 0deg, var(--rtl-red) var(--progress), rgba(227, 31, 35, 0.2) var(--progress), rgba(227, 31, 35, 0.2) 360deg);
-      border-radius: 50%;
+      background: conic-gradient(var(--rtl-red) 0deg, var(--rtl-red) var(--progress), rgba(227, 31, 35, 0.1) var(--progress), rgba(227, 31, 35, 0.1) 360deg);
+      border: 2px solid var(--rtl-red);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 2.5rem;
       font-weight: 900;
-      box-shadow: 0 8px 32px rgba(227, 31, 35, 0.3);
-      border: 3px solid rgba(255, 255, 255, 0.2);
       z-index: 10;
     }
 
     .countdown-badge.warning {
-      background: conic-gradient(var(--rtl-accent-2) 0deg, var(--rtl-accent-2) var(--progress), rgba(255, 184, 28, 0.2) var(--progress), rgba(255, 184, 28, 0.2) 360deg);
-      box-shadow: 0 8px 32px rgba(255, 184, 28, 0.3);
+      background: conic-gradient(var(--rtl-accent-2) 0deg, var(--rtl-accent-2) var(--progress), rgba(255, 184, 28, 0.1) var(--progress), rgba(255, 184, 28, 0.1) 360deg);
+      border-color: var(--rtl-accent-2);
     }
 
     .countdown-badge.danger {
-      background: conic-gradient(#FF4444 0deg, #FF4444 var(--progress), rgba(255, 68, 68, 0.2) var(--progress), rgba(255, 68, 68, 0.2) 360deg);
-      box-shadow: 0 8px 32px rgba(255, 68, 68, 0.3);
+      background: conic-gradient(#FF4444 0deg, #FF4444 var(--progress), rgba(255, 68, 68, 0.1) var(--progress), rgba(255, 68, 68, 0.1) 360deg);
+      border-color: #FF4444;
       animation: pulse-danger 0.5s infinite;
     }
 
@@ -115,7 +111,6 @@
       50% { transform: scale(1.05); }
     }
 
-    /* Question Display - RTL Style */
     .question-container {
       width: 100%;
       padding: 30px;
@@ -131,7 +126,6 @@
       letter-spacing: -0.5px;
     }
 
-    /* Answer Buttons Grid - RTL AdAlliance Style */
     .answers-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -143,9 +137,8 @@
     .answer-btn {
       position: relative;
       padding: 30px;
-      background: linear-gradient(135deg, rgba(0, 176, 232, 0.2), rgba(155, 89, 182, 0.1));
+      background: var(--rtl-dark-bg);
       border: 2px solid var(--rtl-accent-1);
-      border-radius: 8px;
       font-size: 1.8rem;
       font-weight: 700;
       text-align: center;
@@ -160,13 +153,11 @@
     }
 
     .answer-btn.highlighted {
-      background: linear-gradient(135deg, rgba(227, 31, 35, 0.8), rgba(212, 175, 55, 0.4));
+      background: var(--rtl-red);
       border-color: var(--rtl-red);
-      box-shadow: 0 0 40px rgba(227, 31, 35, 0.6);
       transform: scale(1.02);
     }
 
-    /* Results Phase */
     .results-section {
       width: 100%;
     }
@@ -182,9 +173,8 @@
       font-size: 2rem;
       margin-bottom: 40px;
       padding: 20px;
-      background: rgba(227, 31, 35, 0.15);
-      border-left: 4px solid var(--rtl-red);
-      border-radius: 8px;
+      background: var(--rtl-dark-bg);
+      border-left: 3px solid var(--rtl-red);
     }
 
     .result-answer-grid {
@@ -196,37 +186,33 @@
 
     .result-answer {
       padding: 20px;
-      border-radius: 8px;
-      border-left: 4px solid;
+      border-left: 3px solid;
       font-weight: 600;
+      background: var(--rtl-dark-bg);
     }
 
     .result-answer.correct {
-      background: rgba(227, 31, 35, 0.2);
       border-left-color: var(--rtl-red);
     }
 
     .result-answer.incorrect {
-      background: rgba(0, 176, 232, 0.1);
       border-left-color: var(--rtl-accent-1);
     }
 
     .result-voters {
       font-size: 0.9rem;
       margin-top: 10px;
-      color: rgba(255, 255, 255, 0.8);
+      color: rgba(255, 255, 255, 0.7);
     }
 
     .host-side {
       flex: 1;
-      background: linear-gradient(135deg, rgba(227, 31, 35, 0.03), rgba(0, 176, 232, 0.03));
-      border-radius: 12px;
+      background: var(--rtl-dark-bg);
       padding: 24px;
       overflow: auto;
-      border: 2px solid rgba(227, 31, 35, 0.3);
+      border: 1px solid rgba(227, 31, 35, 0.3);
     }
 
-    /* Leaderboard Styles - RTL */
     .leaderboard-title {
       font-size: 1.3rem;
       font-weight: 900;
@@ -243,15 +229,14 @@
       justify-between;
       align-items: center;
       padding: 12px 15px;
-      background: linear-gradient(90deg, rgba(227, 31, 35, 0.1), rgba(0, 176, 232, 0.05));
-      border-radius: 8px;
+      background: rgba(227, 31, 35, 0.1);
       margin-bottom: 10px;
-      border-left: 4px solid var(--rtl-red);
+      border-left: 3px solid var(--rtl-red);
       transition: all 0.2s ease;
     }
 
     .player-item:hover {
-      background: linear-gradient(90deg, rgba(227, 31, 35, 0.2), rgba(0, 176, 232, 0.1));
+      background: rgba(227, 31, 35, 0.15);
       transform: translateX(5px);
     }
 
@@ -274,7 +259,6 @@
       font-size: 1.1rem;
     }
 
-    /* Round Summary */
     .round-summary {
       text-align: center;
     }
@@ -302,11 +286,6 @@
       flex: 1;
     }
 
-    .podium-player {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
     .podium-name {
       font-weight: 700;
       font-size: 1.2rem;
@@ -321,36 +300,34 @@
 
     .podium-bar {
       width: 100%;
-      background: linear-gradient(180deg, rgba(227, 31, 35, 0.6), rgba(227, 31, 35, 0.3));
-      border-radius: 8px 8px 0 0;
+      background: var(--rtl-dark-bg);
       display: flex;
       align-items: flex-end;
       justify-content: center;
       color: white;
       font-weight: 900;
       font-size: 2rem;
-      border-top: 3px solid var(--rtl-red);
+      border-top: 3px solid;
     }
 
     .podium-bar.gold {
-      background: linear-gradient(180deg, var(--rtl-red), rgba(227, 31, 35, 0.5));
       border-top-color: var(--rtl-red);
+      background: linear-gradient(180deg, rgba(227, 31, 35, 0.3), rgba(227, 31, 35, 0.1));
       height: 250px;
     }
 
     .podium-bar.silver {
-      background: linear-gradient(180deg, var(--rtl-accent-1), rgba(0, 176, 232, 0.3));
       border-top-color: var(--rtl-accent-1);
+      background: linear-gradient(180deg, rgba(0, 176, 232, 0.2), rgba(0, 176, 232, 0.05));
       height: 200px;
     }
 
     .podium-bar.bronze {
-      background: linear-gradient(180deg, var(--rtl-accent-2), rgba(255, 184, 28, 0.3));
       border-top-color: var(--rtl-accent-2);
+      background: linear-gradient(180deg, rgba(255, 184, 28, 0.2), rgba(255, 184, 28, 0.05));
       height: 150px;
     }
 
-    /* Game Finished */
     .finished-title {
       font-size: 3.5rem;
       font-weight: 900;
@@ -363,43 +340,33 @@
       overflow-y: auto;
     }
 
-    /* RTL Logo/Branding */
-    .rtl-header {
+    /* RTL Logo SVG */
+    .rtl-logo-svg {
+      height: 60px;
+      width: auto;
+      display: inline-block;
+    }
+
+    .rtl-logo-container {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       margin-bottom: 20px;
-      font-size: 0.9rem;
-      color: var(--rtl-light-text);
-    }
-
-    .rtl-logo-box {
-      display: inline-flex;
-      gap: 3px;
-      padding: 4px 8px;
-      background: linear-gradient(90deg, var(--rtl-red), var(--rtl-accent-1), var(--rtl-accent-2));
-      border-radius: 4px;
-      font-weight: 900;
-      letter-spacing: 1px;
-      font-size: 1.1rem;
-    }
-
-    /* Start Screen */
-    .start-screen-rtl {
-      min-h-screen;
-      display: flex;
-      align-items: center;
       justify-content: center;
-      padding: 24px;
-      background: linear-gradient(135deg, var(--rtl-dark-bg) 0%, #1a1a1a 100%);
+    }
+
+    .rtl-logo-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--rtl-white);
+      letter-spacing: 1px;
     }
 
     .start-card {
       max-width: 600px;
       width: 100%;
-      background: linear-gradient(135deg, rgba(227, 31, 35, 0.1), rgba(0, 176, 232, 0.05));
+      background: var(--rtl-dark-bg);
       padding: 40px;
-      border-radius: 12px;
       border: 2px solid var(--rtl-red);
       position: relative;
       overflow: hidden;
@@ -411,8 +378,8 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--rtl-red), var(--rtl-accent-1), var(--rtl-accent-2));
+      height: 3px;
+      background: linear-gradient(90deg, var(--rtl-orange), var(--rtl-red), var(--rtl-purple));
     }
 
     .btn-host {
@@ -434,17 +401,17 @@
     }
 
     input {
-      background: rgba(255, 255, 255, 0.1) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
       color: white !important;
       border: 1px solid var(--rtl-red) !important;
     }
 
     input::placeholder {
-      color: rgba(255, 255, 255, 0.6) !important;
+      color: rgba(255, 255, 255, 0.5) !important;
     }
   </style>
 </head>
-<body>
+<body class="bg-black text-white">
   <div id="root" class="h-full"></div>
 
   <script type="text/babel">
@@ -513,6 +480,33 @@
     { question: "Was ist 12 × 12?", answers: ["144","124","132","156"], correct: 0 },
   ];
 
+  // RTL Logo SVG Component
+  function RTLLogo({ size = 'md' }) {
+    const sizeMap = {
+      sm: 40,
+      md: 60,
+      lg: 100
+    };
+    const h = sizeMap[size];
+    const w = (h / 300) * 1520;
+
+    return (
+      <svg viewBox="0 0 1520 300" height={h} width={w} xmlns="http://www.w3.org/2000/svg">
+        {/* Orange R */}
+        <rect x="0" y="0" width="490" height="300" fill="#FF6600"/>
+        <text x="245" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">R</text>
+        
+        {/* Red T */}
+        <rect x="515" y="0" width="490" height="300" fill="#E31F23"/>
+        <text x="760" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">T</text>
+        
+        {/* Purple L */}
+        <rect x="1030" y="0" width="490" height="300" fill="#7B2CBF"/>
+        <text x="1275" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">L</text>
+      </svg>
+    );
+  }
+
   // Helper Functions
   function shuffle(arr) {
     const a = [...arr];
@@ -544,37 +538,37 @@
     return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
   }
 
-  // START SCREEN mit RTL AdAlliance CI
+  // START SCREEN
   function StartScreen({ onCreate, onJoin }) {
     const [name, setName] = useState('');
     const [code, setCode] = useState('');
 
     return (
-      <div className="start-screen-rtl">
+      <div className="min-h-screen flex items-center justify-center px-6" style={{ background: 'var(--rtl-black)' }}>
         <div className="start-card">
-          <div className="rtl-header mb-6">
-            <div className="rtl-logo-box">RTL</div>
-            <span>AdAlliance Quiz</span>
+          <div className="rtl-logo-container">
+            <RTLLogo size="md" />
+            <span className="rtl-logo-text">AdAlliance Quiz</span>
           </div>
           
-          <h1 className="text-4xl font-bold mb-4" style={{color: 'var(--rtl-red)'}}>🎯 Quiz Master</h1>
-          <p className="text-sm mb-6" style={{color: 'rgba(245, 245, 245, 0.8)'}}>
+          <h1 className="text-4xl font-bold mb-4 text-center" style={{color: 'var(--rtl-red)'}}>🎯 Quiz Master</h1>
+          <p className="text-sm mb-6 text-center" style={{color: 'rgba(245, 245, 245, 0.7)'}}>
             Host erstellt Spiel oder Spieler treten per Code/QR bei
           </p>
 
-          <input className="w-full p-3 rounded mb-4" placeholder="Dein Name" value={name} onChange={e => setName(e.target.value)} />
+          <input className="w-full p-3 mb-4" placeholder="Dein Name" value={name} onChange={e => setName(e.target.value)} />
 
           <div className="flex gap-3 mb-3">
             <button 
-              className="flex-1 btn-host px-4 py-3 rounded font-bold disabled:opacity-60" 
+              className="flex-1 btn-host px-4 py-3 font-bold disabled:opacity-60" 
               disabled={!name} 
               onClick={() => onCreate(name)}
             >
               🎬 Host werden
             </button>
-            <input className="w-40 p-2 rounded" placeholder="Code" value={code} onChange={e => setCode(e.target.value.toUpperCase())} />
+            <input className="w-40 p-2" placeholder="Code" value={code} onChange={e => setCode(e.target.value.toUpperCase())} />
             <button 
-              className="btn-join px-3 py-3 rounded font-bold disabled:opacity-60" 
+              className="btn-join px-3 py-3 font-bold disabled:opacity-60" 
               disabled={!name || !code} 
               onClick={() => onJoin(name, code)}
             >
@@ -582,7 +576,92 @@
             </button>
           </div>
 
-          <p className="text-xs" style={{color: 'rgba(227, 31, 35, 0.8)'}}>ℹ️ Host ist Quizmaster und wird nicht als Spieler gezählt</p>
+          <p className="text-xs text-center" style={{color: 'rgba(227, 31, 35, 0.8)'}}>ℹ️ Host ist Quizmaster und wird nicht als Spieler gezählt</p>
+        </div>
+      </div>
+    );
+  }
+
+  // HOST CONTROLLER
+  function HostController({ gameId, meta, startNextRound }) {
+    const [players, setPlayers] = useState({});
+    
+    useEffect(() => {
+      const ref = db.ref(`games/${gameId}/players`);
+      ref.on('value', snap => setPlayers(snap.val() || {}));
+      return () => ref.off();
+    }, [gameId]);
+
+    const startGame = async () => {
+      const questions = generateQuestions();
+      const metaObj = {
+        phase: 'question',
+        questionIndex: 0,
+        round: 1,
+        questionStartTime: Date.now(),
+        nextQuestionIndex: null
+      };
+      await db.ref(`games/${gameId}/questions`).set(questions);
+      const pSnap = await db.ref(`games/${gameId}/players`).get();
+      const pObj = pSnap.val() || {};
+      const updates = {};
+      Object.keys(pObj).forEach(pid => {
+        updates[`games/${gameId}/players/${pid}/score`] = 0;
+        updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
+      });
+      await db.ref().update(updates);
+      await db.ref(`games/${gameId}/meta`).set(metaObj);
+    };
+
+    const nextQuestion = async () => {
+      const snap = await db.ref(`games/${gameId}/meta`).get();
+      const metaVal = snap.val();
+      const cur = metaVal?.questionIndex || 0;
+      const next = cur + 1;
+      const isGameEnd = next >= TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
+      const isEndOfRound = (cur + 1) % QUESTIONS_PER_ROUND === 0;
+
+      if (isGameEnd) {
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+      } else if (isEndOfRound) {
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', nextQuestionIndex: next });
+      } else {
+        const pSnap = await db.ref(`games/${gameId}/players`).get();
+        const pObj = pSnap.val() || {};
+        const updates = {};
+        Object.keys(pObj).forEach(pid => updates[`games/${gameId}/players/${pid}/currentAnswer`] = null);
+        await db.ref().update(updates);
+        await db.ref(`games/${gameId}/meta`).update({
+          questionIndex: next,
+          phase: 'question',
+          questionStartTime: Date.now(),
+          round: Math.floor(next / QUESTIONS_PER_ROUND) + 1
+        });
+      }
+    };
+
+    if (!meta) {
+      return <div className="text-center p-3" style={{color: 'rgba(245, 245, 245, 0.7)'}}>Warten...</div>;
+    }
+
+    return (
+      <div className="space-y-3 bg-black/50 p-4 border border-red-600">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <div className="text-sm" style={{color: 'rgba(245, 245, 245, 0.9)'}}>Phase: <strong style={{color: 'var(--rtl-red)'}}>{meta.phase}</strong></div>
+            <div className="text-sm" style={{color: 'rgba(245, 245, 245, 0.9)'}}>Runde: <strong style={{color: 'var(--rtl-red)'}}>{meta.round || 1}/{TOTAL_ROUNDS}</strong></div>
+            <div className="text-sm" style={{color: 'rgba(245, 245, 245, 0.9)'}}>Frage: <strong style={{color: 'var(--rtl-red)'}}>{(meta.questionIndex || 0) + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</strong></div>
+          </div>
+          <div className="text-right">
+            <div className="text-xs" style={{color: 'rgba(245, 245, 245, 0.8)'}}>👥 Spieler: {Object.keys(players).length}</div>
+          </div>
+        </div>
+
+        <div className="flex gap-2 flex-wrap">
+          {(meta.phase === 'lobby' || !meta.phase) && <button className="btn-host px-4 py-2 text-sm font-bold" onClick={startGame}>Spiel starten</button>}
+          {meta.phase === 'results' && <button className="btn-join px-4 py-2 text-sm font-bold" onClick={nextQuestion}>Nächste Frage</button>}
+          {meta.phase === 'roundSummary' && <button className="btn-join px-4 py-2 text-sm font-bold" onClick={startNextRound}>Nächste Runde</button>}
+          {meta.phase === 'finished' && <div className="text-green-300 font-bold px-3 py-2 text-sm">✓ Spiel beendet</div>}
         </div>
       </div>
     );
@@ -605,16 +684,38 @@
 
     useEffect(() => {
       if (!meta || meta.phase !== 'question' || !meta.questionStartTime) { setTimeLeft(0); return; }
-      const tick = () => {
+      const tick = async () => {
         const elapsed = Math.floor((Date.now() - meta.questionStartTime) / 1000);
         const rem = Math.max(0, QUESTION_TIME - elapsed);
         setTimeLeft(rem);
+        
+        // Automatisch Ergebnisse anzeigen wenn Zeit abläuft
+        if (rem === 0) {
+          try {
+            const snap = await db.ref(`games/${gameId}`).get();
+            const g = snap.val();
+            if (!g) return;
+            const qIndex = g.meta?.questionIndex || 0;
+            const q = (g.questions || [])[qIndex];
+            if (!q) return;
+            const playerObj = g.players || {};
+            const updates = {};
+            Object.entries(playerObj).forEach(([pid, p]) => {
+              const ans = p.currentAnswer;
+              const correct = typeof ans === 'number' && ans === q.correct;
+              const newScore = (p.score || 0) + (correct ? 100 : 0);
+              updates[`games/${gameId}/players/${pid}/score`] = newScore;
+            });
+            await db.ref().update(updates);
+            await db.ref(`games/${gameId}/meta`).update({ phase: 'results' });
+          } catch (err) { console.error(err); }
+        }
       };
       tick();
       clearInterval(timerRef.current);
       timerRef.current = setInterval(tick, 500);
       return () => clearInterval(timerRef.current);
-    }, [meta?.phase, meta?.questionStartTime]);
+    }, [meta?.phase, meta?.questionStartTime, gameId]);
 
     const startNextRound = async () => {
       if (!meta) return;
@@ -648,13 +749,13 @@
         <div className="host-main">
           {meta.phase === 'lobby' && (
             <div>
-              <div className="rtl-header justify-center mb-6">
-                <div className="rtl-logo-box">RTL</div>
-                <span>AdAlliance Quiz</span>
+              <div className="rtl-logo-container mb-6">
+                <RTLLogo size="lg" />
+                <span className="rtl-logo-text text-2xl">AdAlliance Quiz</span>
               </div>
               <h2 className="text-5xl font-bold mb-2">⏳ Warte auf Spieler</h2>
               <p className="text-2xl mt-8">Spielcode:</p>
-              <p className="font-mono bg-white text-black px-6 py-2 rounded text-3xl font-bold mt-2">{gameId}</p>
+              <p className="font-mono bg-white text-black px-6 py-2 text-3xl font-bold mt-2">{gameId}</p>
             </div>
           )}
 
@@ -709,7 +810,7 @@
                   const position = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
                   return (
                     <div key={p.pid} className="podium-item">
-                      <div className="podium-player">
+                      <div>
                         <div className="text-3xl">{position}</div>
                         <div className="podium-name">{p.name}</div>
                         <div className="podium-score">{p.score || 0} Pts</div>
@@ -724,7 +825,7 @@
               {playersArr.length > 3 && (
                 <div className="mt-8">
                   {playersArr.slice(3).map((p, i) => (
-                    <div key={p.pid} className="flex justify-between items-center p-3 bg-white/5 rounded mb-2">
+                    <div key={p.pid} className="flex justify-between items-center p-3 bg-white/5 mb-2 border border-red-600/30">
                       <div className="text-lg font-bold">#{i + 4} {p.name}</div>
                       <div className="text-lg font-bold" style={{color: 'var(--rtl-red)'}}>{p.score || 0} pts</div>
                     </div>
@@ -739,7 +840,7 @@
               <h2 className="finished-title">🎉 Spiel beendet!</h2>
               <div className="finished-list">
                 {playersArr.map((p, i) => (
-                  <div key={p.pid} className="flex justify-between items-center bg-white/5 p-4 rounded mb-3 border-l-4" style={{borderLeftColor: 'var(--rtl-red)'}}>
+                  <div key={p.pid} className="flex justify-between items-center bg-white/5 p-4 mb-3 border-l-4" style={{borderLeftColor: 'var(--rtl-red)'}}>
                     <div className="text-2xl font-bold">#{i + 1} {p.name}</div>
                     <div className="text-2xl font-extrabold" style={{color: 'var(--rtl-red)'}}>{p.score || 0} pts</div>
                   </div>
@@ -767,118 +868,11 @@
 
           <div>
             <h3 className="leaderboard-title mt-6">ℹ️ Code & QR</h3>
-            <div className="text-sm bg-white/5 p-3 rounded mb-2">
-              <span className="font-mono bg-white text-black px-2 py-1 rounded text-xs">{gameId}</span>
+            <div className="text-sm bg-black/50 p-3 border border-red-600/30 mb-2">
+              <span className="font-mono bg-white text-black px-2 py-1 text-xs">{gameId}</span>
             </div>
-            <img src={qrUrlForGame(gameId)} alt="QR Code" className="w-full rounded" />
+            <img src={qrUrlForGame(gameId)} alt="QR Code" className="w-full" />
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  // HOST CONTROLLER
-  function HostController({ gameId, meta, startNextRound }) {
-    const [players, setPlayers] = useState({});
-    
-    useEffect(() => {
-      const ref = db.ref(`games/${gameId}/players`);
-      ref.on('value', snap => setPlayers(snap.val() || {}));
-      return () => ref.off();
-    }, [gameId]);
-
-    const startGame = async () => {
-      const questions = generateQuestions();
-      const metaObj = {
-        phase: 'question',
-        questionIndex: 0,
-        round: 1,
-        questionStartTime: Date.now(),
-        nextQuestionIndex: null
-      };
-      await db.ref(`games/${gameId}/questions`).set(questions);
-      const pSnap = await db.ref(`games/${gameId}/players`).get();
-      const pObj = pSnap.val() || {};
-      const updates = {};
-      Object.keys(pObj).forEach(pid => {
-        updates[`games/${gameId}/players/${pid}/score`] = 0;
-        updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-      });
-      await db.ref().update(updates);
-      await db.ref(`games/${gameId}/meta`).set(metaObj);
-    };
-
-    const showResultsNow = async () => {
-      try {
-        const snap = await db.ref(`games/${gameId}`).get();
-        const g = snap.val();
-        if (!g) return;
-        const qIndex = g.meta?.questionIndex || 0;
-        const q = (g.questions || [])[qIndex];
-        if (!q) return;
-        const playerObj = g.players || {};
-        const updates = {};
-        Object.entries(playerObj).forEach(([pid, p]) => {
-          const ans = p.currentAnswer;
-          const correct = typeof ans === 'number' && ans === q.correct;
-          const newScore = (p.score || 0) + (correct ? 100 : 0);
-          updates[`games/${gameId}/players/${pid}/score`] = newScore;
-        });
-        await db.ref().update(updates);
-        await db.ref(`games/${gameId}/meta`).update({ phase: 'results' });
-      } catch (err) { console.error(err); }
-    };
-
-    const nextQuestion = async () => {
-      const snap = await db.ref(`games/${gameId}/meta`).get();
-      const metaVal = snap.val();
-      const cur = metaVal?.questionIndex || 0;
-      const next = cur + 1;
-      const isGameEnd = next >= TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
-      const isEndOfRound = (cur + 1) % QUESTIONS_PER_ROUND === 0;
-
-      if (isGameEnd) {
-        await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
-      } else if (isEndOfRound) {
-        await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', nextQuestionIndex: next });
-      } else {
-        const pSnap = await db.ref(`games/${gameId}/players`).get();
-        const pObj = pSnap.val() || {};
-        const updates = {};
-        Object.keys(pObj).forEach(pid => updates[`games/${gameId}/players/${pid}/currentAnswer`] = null);
-        await db.ref().update(updates);
-        await db.ref(`games/${gameId}/meta`).update({
-          questionIndex: next,
-          phase: 'question',
-          questionStartTime: Date.now(),
-          round: Math.floor(next / QUESTIONS_PER_ROUND) + 1
-        });
-      }
-    };
-
-    if (!meta) {
-      return <div className="text-center p-3" style={{color: 'rgba(245, 245, 245, 0.7)'}}>Warten auf Spielmeta...</div>;
-    }
-
-    return (
-      <div className="space-y-3 bg-white/5 p-4 rounded">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <div className="text-sm" style={{color: 'rgba(245, 245, 245, 0.9)'}}>Phase: <strong style={{color: 'var(--rtl-red)'}}>{meta.phase}</strong></div>
-            <div className="text-sm" style={{color: 'rgba(245, 245, 245, 0.9)'}}>Runde: <strong style={{color: 'var(--rtl-red)'}}>{meta.round || 1}/{TOTAL_ROUNDS}</strong></div>
-            <div className="text-sm" style={{color: 'rgba(245, 245, 245, 0.9)'}}>Frage: <strong style={{color: 'var(--rtl-red)'}}>{(meta.questionIndex || 0) + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</strong></div>
-          </div>
-          <div className="text-right">
-            <div className="text-xs" style={{color: 'rgba(245, 245, 245, 0.8)'}}>👥 Spieler: {Object.keys(players).length}</div>
-          </div>
-        </div>
-
-        <div className="flex gap-2 flex-wrap">
-          {(meta.phase === 'lobby' || !meta.phase) && <button className="btn-host px-4 py-2 rounded text-sm font-bold" onClick={startGame}>Spiel starten</button>}
-          {meta.phase === 'question' && <button className="btn-join px-4 py-2 rounded text-sm font-bold" onClick={showResultsNow}>Ergebnisse</button>}
-          {meta.phase === 'results' && <button className="btn-join px-4 py-2 rounded text-sm font-bold" onClick={nextQuestion}>Nächste Frage</button>}
-          {meta.phase === 'roundSummary' && <button className="btn-join px-4 py-2 rounded text-sm font-bold" onClick={startNextRound}>Nächste Runde</button>}
-          {meta.phase === 'finished' && <div className="text-green-300 font-bold px-3 py-2 rounded text-sm">✓ Spiel beendet</div>}
         </div>
       </div>
     );
@@ -919,14 +913,14 @@
 
     if (meta.phase === 'lobby') {
       return (
-        <div className="min-h-screen flex items-center justify-center p-6">
-          <div className="bg-white/5 p-6 rounded w-full max-w-md text-center border-2" style={{borderColor: 'var(--rtl-red)'}}>
-            <div className="rtl-header justify-center mb-4">
-              <div className="rtl-logo-box">RTL</div>
-              <span>AdAlliance</span>
+        <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--rtl-black)' }}>
+          <div className="bg-white/5 p-6 w-full max-w-md text-center border-2" style={{borderColor: 'var(--rtl-red)'}}>
+            <div className="rtl-logo-container mb-4">
+              <RTLLogo size="sm" />
+              <span className="rtl-logo-text">AdAlliance</span>
             </div>
             <h2 className="text-2xl font-bold mb-2" style={{color: 'var(--rtl-red)'}}>Warte auf Start</h2>
-            <p className="mb-2">Spielcode: <span className="font-mono bg-white text-black px-2 py-1 rounded">{gameId}</span></p>
+            <p className="mb-2">Spielcode: <span className="font-mono bg-white text-black px-2 py-1">{gameId}</span></p>
             <p className="text-sm">Bitte warte, bis der Host das Spiel startet.</p>
             <p className="text-sm mt-3">Dein Name: <strong>{player.name}</strong></p>
           </div>
@@ -937,8 +931,8 @@
     if (meta.phase === 'question' && question) {
       const hasAnswered = player.currentAnswer !== null && player.currentAnswer !== undefined;
       return (
-        <div className="min-h-screen flex items-center justify-center p-6">
-          <div className="bg-white/5 p-6 rounded w-full max-w-md border-2" style={{borderColor: 'var(--rtl-red)'}}>
+        <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--rtl-black)' }}>
+          <div className="bg-white/5 p-6 w-full max-w-md border-2" style={{borderColor: 'var(--rtl-red)'}}>
             <div className="flex justify-between items-center mb-4">
               <div>Runde {meta.round}/{TOTAL_ROUNDS}</div>
               <div className="text-lg font-bold" style={{color: 'var(--rtl-red)'}}>{timeLeft}s</div>
@@ -954,8 +948,8 @@
                     key={i}
                     disabled={disabled}
                     onClick={() => db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i)}
-                    className={`p-3 rounded font-bold text-left transition-all ${disabled ? (isSelected ? 'text-white' : 'bg-white/10 text-white/80') : 'text-white'}`}
-                    style={disabled && isSelected ? {background: 'var(--rtl-red)', color: 'white'} : disabled ? {} : {background: 'var(--rtl-accent-1)', color: 'white'}}
+                    className={`p-3 font-bold text-left transition-all ${disabled ? (isSelected ? 'text-white' : 'bg-white/10 text-white/80') : 'text-white'}`}
+                    style={disabled && isSelected ? {background: 'var(--rtl-red)', color: 'white', border: '2px solid var(--rtl-red)'} : disabled ? {border: '2px solid var(--rtl-red)', background: 'transparent'} : {background: 'var(--rtl-accent-1)', color: 'white', border: '2px solid var(--rtl-accent-1)'}}
                   >
                     {String.fromCharCode(65 + i)}. {ans}
                   </button>
@@ -975,8 +969,8 @@
     if (meta.phase === 'results' && question) {
       const wasCorrect = player.currentAnswer === question.correct;
       return (
-        <div className="min-h-screen flex items-center justify-center p-6">
-          <div className="bg-white/5 p-6 rounded w-full max-w-md text-center border-2" style={{borderColor: 'var(--rtl-red)'}}>
+        <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--rtl-black)' }}>
+          <div className="bg-white/5 p-6 w-full max-w-md text-center border-2" style={{borderColor: 'var(--rtl-red)'}}>
             <h3 className="text-3xl font-bold mb-3" style={{color: wasCorrect ? 'var(--rtl-red)' : '#FF6B6B'}}>{wasCorrect ? 'Richtig! 🎉' : 'Falsch 😕'}</h3>
             <p className="mb-2">Richtige Antwort: <strong>{question.answers[question.correct]}</strong></p>
             <p className="mb-2">Dein Punktestand: <strong style={{color: 'var(--rtl-red)'}}>{player.score || 0}</strong></p>
@@ -989,10 +983,10 @@
     if (meta.phase === 'roundSummary') {
       const playersSorted = Object.values(game.players || {}).sort((a, b) => (b.score || 0) - (a.score || 0));
       return (
-        <div className="min-h-screen flex items-center justify-center p-6">
-          <div className="bg-white/5 p-6 rounded w-full max-w-md border-2" style={{borderColor: 'var(--rtl-red)'}}>
+        <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--rtl-black)' }}>
+          <div className="bg-white/5 p-6 w-full max-w-md border-2" style={{borderColor: 'var(--rtl-red)'}}>
             <h3 className="text-2xl font-bold mb-3" style={{color: 'var(--rtl-red)'}}>Zwischenstand Runde {meta.round}</h3>
-            <div className="bg-white/10 p-3 rounded mb-3">
+            <div className="bg-white/10 p-3 mb-3">
               {playersSorted.map((p, i) => <div key={i} className="flex justify-between py-1">{i + 1}. {p.name} <span style={{color: 'var(--rtl-red)'}}>{p.score || 0} pts</span></div>)}
             </div>
             <p className="text-sm">Host startet die nächste Runde, sobald er bereit ist.</p>
@@ -1004,10 +998,10 @@
     if (meta.phase === 'finished') {
       const playersSorted = Object.values(game.players || {}).sort((a, b) => (b.score || 0) - (a.score || 0));
       return (
-        <div className="min-h-screen flex items-center justify-center p-6">
-          <div className="bg-white/5 p-6 rounded w-full max-w-md border-2" style={{borderColor: 'var(--rtl-red)'}}>
+        <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--rtl-black)' }}>
+          <div className="bg-white/5 p-6 w-full max-w-md border-2" style={{borderColor: 'var(--rtl-red)'}}>
             <h3 className="text-3xl font-bold mb-3" style={{color: 'var(--rtl-red)'}}>Spiel beendet</h3>
-            <div className="bg-white/10 p-3 rounded mb-3">
+            <div className="bg-white/10 p-3 mb-3">
               {playersSorted.map((p, i) => <div key={i} className="flex justify-between py-1">{i + 1}. {p.name} <span style={{color: 'var(--rtl-red)'}}>{p.score || 0} pts</span></div>)}
             </div>
           </div>
@@ -1038,32 +1032,30 @@
     };
 
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="bg-white/5 p-6 rounded w-full max-w-md border-2" style={{borderColor: 'var(--rtl-red)'}}>
-          <div className="rtl-header justify-center mb-4">
-            <div className="rtl-logo-box">RTL</div>
-            <span>AdAlliance</span>
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'var(--rtl-black)' }}>
+        <div className="bg-white/5 p-6 w-full max-w-md border-2" style={{borderColor: 'var(--rtl-red)'}}>
+          <div className="rtl-logo-container mb-4">
+            <RTLLogo size="sm" />
+            <span className="rtl-logo-text">AdAlliance</span>
           </div>
-          <h2 className="text-2xl font-bold mb-3" style={{color: 'var(--rtl-red)'}}>Spiel beitreten</h2>
-          <p className="mb-3 text-sm">Code: <span className="font-mono">{joinGameId}</span></p>
-          <input className="w-full p-3 rounded mb-3" placeholder="Dein Name" value={name} onChange={e => setName(e.target.value)} />
-          <button className="btn-join px-4 py-3 rounded w-full font-bold" onClick={handleJoin} disabled={!name}>Beitreten</button>
+          <h2 className="text-2xl font-bold mb-3 text-center" style={{color: 'var(--rtl-red)'}}>Spiel beitreten</h2>
+          <p className="mb-3 text-sm text-center">Code: <span className="font-mono">{joinGameId}</span></p>
+          <input className="w-full p-3 mb-3" placeholder="Dein Name" value={name} onChange={e => setName(e.target.value)} />
+          <button className="btn-join px-4 py-3 w-full font-bold" onClick={handleJoin} disabled={!name}>Beitreten</button>
           {error && <div className="text-red-300 mt-3 text-sm">{error}</div>}
         </div>
       </div>
     );
   }
 
-  // APP MAIN COMPONENT
+  // APP MAIN
   function App() {
     const [mode, setMode] = useState('start');
     const [gameId, setGameId] = useState('');
     const [playerId, setPlayerId] = useState('');
     const [playerName, setPlayerName] = useState('');
     const [hostName, setHostName] = useState('');
-    const [isHost, setIsHost] = useState(false);
 
-    // Check URL for ?join=CODE
     useEffect(() => {
       const params = new URLSearchParams(window.location.search);
       const joinCode = params.get('join');
@@ -1075,7 +1067,6 @@
 
     const handleCreate = async (name) => {
       setHostName(name);
-      setIsHost(true);
       const gid = randomGameID();
       setGameId(gid);
       await db.ref(`games/${gid}/meta`).set({ phase: 'lobby' });
@@ -1092,8 +1083,6 @@
         setGameId(code);
         setPlayerId(pid);
         setPlayerName(name);
-        localStorage.setItem(`quiz_player_${code}`, pid);
-        localStorage.setItem(`quiz_name_${code}`, name);
         setMode('playerGame');
       } catch (err) { console.error(err); alert('Fehler'); }
     };
