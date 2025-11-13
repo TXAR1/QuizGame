@@ -217,18 +217,7 @@
   }
 
   // HOST CONTROLLER (kleine Steuerleiste; in HostScreen auch groß sichtbar)
-  function HostController({ gameId }) {
-    const [meta, setMeta] = useState(null);
-    const [players, setPlayers] = useState({});
-    useEffect(() => {
-      const ref = db.ref(`games/${gameId}/meta`);
-      ref.on('value', snap => setMeta(snap.val()));
-      const p = db.ref(`games/${gameId}/players`);
-      p.on('value', snap => setPlayers(snap.val() || {}));
-      return () => { ref.off(); p.off(); };
-    }, [gameId]);}
-
-    function HostLobby({ gameId, hostName }) {
+  function HostController({ gameId, hostName }) {
   const [players, setPlayers] = useState({});
   useEffect(() => {
     const ref = db.ref(`games/${gameId}/players`);
