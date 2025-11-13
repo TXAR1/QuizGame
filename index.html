@@ -164,7 +164,7 @@
 
     /* results layout */
     .result-title{ font-size:1.8rem; font-weight:900; color:var(--rtl-orange); margin-bottom:10px; }
-    .correct-answer{ background: rgba(34,197,94,0.12); border-left:4px solid var(--rtl-green); padding:12px; font-weight:700; margin-bottom:12px; color:var(--tile); }
+    .correct-answer{ background: rgba(255,255,255,0.05); border-left:4px solid rgba(255,255,255,0.2); padding:12px; font-weight:700; margin-bottom:12px; color:var(--tile); }
 
     .result-answer-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
     .result-answer{ padding:12px; border:2px solid rgba(0,0,0,0.06); background:rgba(255,255,255,0.02); font-weight:700; color:var(--tile); }
@@ -173,7 +173,7 @@
     .result-answer.correct {
       background: #ffffff;
       color: #0b0b0b;
-      border: 2px solid var(--rtl-green);
+      border: 2px solid rgba(255,255,255,0.3);
     }
     .result-answer.incorrect {
       background: #0b0b0b;
@@ -349,12 +349,16 @@
           <div style={{textAlign:'right', color:'var(--muted)'}}>👥 Spieler: {Object.keys(players).length}</div>
         </div>
 
-        <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-2 flex-wrap">
           {(meta.phase === 'lobby' || !meta.phase) && <button className="btn btn-host" onClick={startGame}>Spiel starten</button>}
           {meta.phase === 'question' && <button className="btn btn-show-results" onClick={showResultsNow}>📊 Ergebnisse</button>}
-          {meta.phase === 'results' && <button className="btn btn-host" onClick={startNextRound}>Nächste Frage</button>}
-          {meta.phase === 'roundSummary' && <button className="btn btn-host" onClick={startNextRound}>Nächste Runde</button>}
-          {meta.phase === 'finished' && <div style={{color:'var(--rtl-green)', fontWeight:800}}>✓ Spiel beendet</div>}
+          {meta.phase === 'results' && <button className="btn btn-host" onClick={startNextRound}>Weiter →</button>}
+          {meta.phase === 'roundSummary' && <button className="btn btn-host" onClick={startNextRound}>Nächste Runde →</button>}
+          {meta.phase === 'finished' && (
+            <div style={{display:'flex', gap:8}}>
+              <button className="btn btn-host" onClick={backToLobby}>🔄 Zurück zur Lobby</button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -420,8 +424,26 @@
 
     const startNextRound = async ()=>{
       if(!meta) return;
-      const nextIndex = meta.nextQuestionIndex ?? (meta.questionIndex ?? 0) + 1;
-      const round = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
+      const currentIndex = meta.questionIndex ?? 0;
+      const nextIndex = currentIndex + 1;
+      const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
+      
+      // Check if we've completed all questions
+      if(nextIndex >= totalQuestions){
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+        return;
+      }
+      
+      const currentRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
+      const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
+      
+      // Check if we're moving to a new round
+      if(nextRound > currentRound){
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary' });
+        return;
+      }
+      
+      // Continue with next question in same round
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const pObj = pSnap.val() || {};
       const updates = {};
@@ -433,8 +455,7 @@
         questionIndex: nextIndex,
         phase: 'question',
         questionStartTime: Date.now(),
-        round: round,
-        nextQuestionIndex: null
+        round: nextRound
       });
     };
 
@@ -444,8 +465,7 @@
         phase: 'question',
         questionIndex: 0,
         round: 1,
-        questionStartTime: Date.now(),
-        nextQuestionIndex: null
+        questionStartTime: Date.now()
       };
       await db.ref(`games/${gameId}/questions`).set(questions);
       const pSnap = await db.ref(`games/${gameId}/players`).get();
@@ -454,11 +474,28 @@
       Object.keys(pObj).forEach(pid=>{
         updates[`games/${gameId}/players/${pid}/score`] = 0;
         updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-        updates[`games/${gameId}/players/${pid}/boostUsed`] = pObj[pid]?.boostUsed || false;
+        updates[`games/${gameId}/players/${pid}/boostUsed`] = false;
         updates[`games/${gameId}/players/${pid}/boostForRound`] = null;
       });
       await db.ref().update(updates);
       await db.ref(`games/${gameId}/meta`).set(metaObj);
+    };
+
+    const backToLobby = async ()=>{
+      // Reset game to lobby
+      await db.ref(`games/${gameId}/meta`).set({ phase: 'lobby' });
+      await db.ref(`games/${gameId}/questions`).remove();
+      // Reset all players
+      const pSnap = await db.ref(`games/${gameId}/players`).get();
+      const pObj = pSnap.val() || {};
+      const updates = {};
+      Object.keys(pObj).forEach(pid=>{
+        updates[`games/${gameId}/players/${pid}/score`] = 0;
+        updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
+        updates[`games/${gameId}/players/${pid}/boostUsed`] = false;
+        updates[`games/${gameId}/players/${pid}/boostForRound`] = null;
+      });
+      await db.ref().update(updates);
     };
 
     if(!meta || !game) return <div className="min-h-screen flex items-center justify-center">Lade Spiel...</div>;
@@ -486,6 +523,20 @@
               <h2 style={{fontSize:36, fontWeight:900}}>⏳ Warte auf Spieler</h2>
               <p style={{color:'var(--muted)'}}>Spielcode:</p>
               <div style={{fontFamily:'monospace', background:'#fff', color:'#000', padding:'8px 12px', fontSize:24, fontWeight:900}}>{gameId}</div>
+              
+              {playersArr.length > 0 && (
+                <div style={{marginTop:20, width:'100%', maxWidth:600}}>
+                  <h3 style={{fontSize:18, fontWeight:800, marginBottom:12, color:'var(--rtl-orange)'}}>Angemeldete Spieler ({playersArr.length})</h3>
+                  <div style={{display:'grid', gap:8}}>
+                    {playersArr.map((p,i)=>(
+                      <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:12, background:'rgba(255,255,255,0.02)', borderLeft:'3px solid var(--rtl-purple)'}}>
+                        <div style={{fontWeight:700}}>{p.name}</div>
+                        <div style={{color:'var(--muted)'}}>Bereit ✓</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -550,37 +601,94 @@
           {/* Round summary */}
           {meta.phase === 'roundSummary' && (
             <div className="round-summary">
-              <h2 className="result-title">🏆 Zwischenstand Runde {meta.round}</h2>
-              <div style={{display:'flex', gap:12, alignItems:'flex-end'}}>
-                {playersArr.slice(0,3).map((p,i)=>{
-                  const pos = i===0?'🥇':i===1?'🥈':'🥉';
+              <h2 className="result-title">🏆 Zwischenstand nach Runde {meta.round}</h2>
+              <p style={{color:'var(--muted)', marginBottom:20}}>Hier ist der aktuelle Stand aller Spieler</p>
+              
+              <div style={{display:'grid', gap:12, maxWidth:800, margin:'0 auto'}}>
+                {playersArr.map((p,i)=>{
+                  const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+                  const boostStatus = p.boostUsed ? '🔥 Verwendet' : '⚡ Verfügbar';
+                  const boostColor = p.boostUsed ? 'rgba(255,255,255,0.4)' : 'var(--rtl-orange)';
                   return (
-                    <div key={p.pid} style={{flex:1, textAlign:'center'}}>
-                      <div style={{fontSize:28}}>{pos}</div>
-                      <div style={{fontWeight:800}}>{p.name}</div>
-                      <div style={{color:'var(--rtl-green)', fontWeight:900}}>{p.score || 0} pts</div>
+                    <div key={p.pid} style={{
+                      display:'flex', 
+                      justifyContent:'space-between', 
+                      alignItems:'center',
+                      padding:16, 
+                      background: i < 3 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.01)',
+                      borderLeft:`4px solid ${i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'rgba(255,255,255,0.1)'}`
+                    }}>
+                      <div style={{display:'flex', gap:12, alignItems:'center', flex:1}}>
+                        <div style={{fontSize:20, width:40}}>{medal || `#${i+1}`}</div>
+                        <div style={{fontWeight:800, fontSize:18}}>{p.name}</div>
+                      </div>
+                      <div style={{display:'flex', gap:20, alignItems:'center'}}>
+                        <div style={{fontSize:14, color:boostColor, fontWeight:700}}>{boostStatus}</div>
+                        <div style={{fontSize:22, fontWeight:900, color:'var(--tile)', minWidth:80, textAlign:'right'}}>{p.score || 0} pts</div>
+                      </div>
                     </div>
                   );
                 })}
               </div>
               
-              <div style={{marginTop:20}}>
-                <button className="btn btn-host" onClick={startNextRound}>Nächste Runde →</button>
+              <div style={{marginTop:30, textAlign:'center'}}>
+                <button className="btn btn-host" style={{fontSize:18, padding:'14px 28px'}} onClick={startNextRound}>Weiter zur nächsten Runde →</button>
               </div>
             </div>
           )}
 
           {/* Finished */}
           {meta.phase === 'finished' && (
-            <div>
-              <h2 className="result-title">🎉 Spiel beendet!</h2>
-              <div style={{display:'grid', gap:8}}>
-                {playersArr.map((p,i)=>(
-                  <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:12, borderLeft:'4px solid var(--rtl-orange)', background:'rgba(255,255,255,0.01)'}}>
-                    <div style={{fontWeight:900}}>#{i+1} {p.name}</div>
-                    <div style={{color:'var(--rtl-green)', fontWeight:900}}>{p.score || 0} pts</div>
+            <div style={{textAlign:'center', maxWidth:900, margin:'0 auto'}}>
+              <h2 className="result-title" style={{fontSize:'2.5rem', marginBottom:8}}>🎉 Spiel beendet!</h2>
+              <p style={{color:'var(--muted)', fontSize:18, marginBottom:30}}>Das Quiz ist vorbei - hier sind die finalen Ergebnisse</p>
+              
+              {/* Top 3 Podium */}
+              <div style={{display:'flex', gap:20, justifyContent:'center', alignItems:'flex-end', marginBottom:40}}>
+                {playersArr.slice(0,3).map((p,i)=>{
+                  const heights = {0: 180, 1: 140, 2: 110};
+                  const colors = {0: '#FFD700', 1: '#C0C0C0', 2: '#CD7F32'};
+                  const order = i===0 ? 1 : i===1 ? 0 : 2;
+                  const medals = ['🥇','🥈','🥉'];
+                  return (
+                    <div key={p.pid} style={{order, flex:1, maxWidth:200}}>
+                      <div style={{fontSize:48, marginBottom:8}}>{medals[i]}</div>
+                      <div style={{fontWeight:900, fontSize:20, marginBottom:8}}>{p.name}</div>
+                      <div style={{fontSize:28, fontWeight:900, color:colors[i], marginBottom:12}}>{p.score || 0} pts</div>
+                      <div style={{
+                        height:heights[i], 
+                        background:`linear-gradient(180deg, ${colors[i]}, ${colors[i]}CC)`,
+                        display:'flex',
+                        alignItems:'center',
+                        justifyContent:'center',
+                        fontSize:32,
+                        fontWeight:900,
+                        color:'#0b0b0b'
+                      }}>
+                        #{i+1}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Alle weiteren Spieler */}
+              {playersArr.length > 3 && (
+                <div style={{marginTop:40}}>
+                  <h3 style={{fontSize:20, fontWeight:800, marginBottom:16, color:'var(--rtl-orange)'}}>Weitere Platzierungen</h3>
+                  <div style={{display:'grid', gap:8}}>
+                    {playersArr.slice(3).map((p,i)=>(
+                      <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:12, background:'rgba(255,255,255,0.01)', borderLeft:'4px solid rgba(255,255,255,0.1)'}}>
+                        <div style={{fontWeight:700}}>#{i+4} {p.name}</div>
+                        <div style={{fontWeight:900, color:'var(--tile)'}}>{p.score || 0} pts</div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+              )}
+
+              <div style={{marginTop:40}}>
+                <button className="btn btn-host" style={{fontSize:18, padding:'14px 28px'}} onClick={backToLobby}>🔄 Zurück zur Lobby</button>
               </div>
             </div>
           )}
@@ -755,14 +863,44 @@
     // round summary / finished
     if(meta.phase === 'roundSummary' || meta.phase === 'finished'){
       const playersSorted = Object.values(game.players || {}).sort((a,b)=>(b.score||0)-(a.score||0));
+      const title = meta.phase === 'finished' ? '🎉 Spiel beendet!' : `🏆 Zwischenstand nach Runde ${meta.round}`;
+      const subtitle = meta.phase === 'finished' ? 'Das Quiz ist vorbei - hier sind die finalen Ergebnisse' : 'Hier ist der aktuelle Stand';
+      
       return (
         <div className="min-h-screen" style={{padding:20, background:'var(--bg)'}}>
           <div className="player-card">
-            <h3 style={{fontSize:18, fontWeight:900, color:'var(--rtl-orange)'}}>Zwischenstand Runde {meta.round}</h3>
-            <div style={{marginTop:8, background:'rgba(255,255,255,0.01)', padding:8}}>
-              {playersSorted.map((p,i)=>(<div key={i} style={{display:'flex', justifyContent:'space-between', padding:'6px 0'}}>{i+1}. {p.name} <span style={{color:'var(--rtl-green)'}}>{p.score || 0} pts</span></div>))}
+            <h3 style={{fontSize:20, fontWeight:900, color:'var(--rtl-orange)', textAlign:'center', marginBottom:8}}>{title}</h3>
+            <p style={{textAlign:'center', color:'var(--muted)', marginBottom:16}}>{subtitle}</p>
+            
+            <div style={{marginTop:12, background:'rgba(255,255,255,0.01)', padding:8}}>
+              {playersSorted.map((p,i)=>{
+                const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+                const boostIcon = p.boostUsed ? '🔥' : '⚡';
+                const boostColor = p.boostUsed ? 'rgba(255,255,255,0.4)' : 'var(--rtl-orange)';
+                return (
+                  <div key={i} style={{
+                    display:'flex', 
+                    justifyContent:'space-between', 
+                    alignItems:'center',
+                    padding:'10px 0',
+                    borderBottom: i < playersSorted.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none'
+                  }}>
+                    <div style={{display:'flex', gap:8, alignItems:'center', flex:1}}>
+                      <span style={{fontSize:16, minWidth:30}}>{medal || `#${i+1}`}</span>
+                      <span style={{fontWeight:700}}>{p.name}</span>
+                    </div>
+                    <div style={{display:'flex', gap:12, alignItems:'center'}}>
+                      <span style={{fontSize:16, color:boostColor}}>{boostIcon}</span>
+                      <span style={{fontWeight:900, minWidth:60, textAlign:'right'}}>{p.score || 0} pts</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <p style={{marginTop:8, color:'var(--muted)'}}>Host startet die nächste Runde, sobald er bereit ist.</p>
+            
+            <p style={{marginTop:16, color:'var(--muted)', textAlign:'center', fontSize:14}}>
+              {meta.phase === 'finished' ? 'Warte auf den Host...' : 'Host startet die nächste Runde, sobald er bereit ist.'}
+            </p>
           </div>
         </div>
       );
@@ -856,6 +994,7 @@
   </script>
 </body>
 </html>
+
 
 
 
