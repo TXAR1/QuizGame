@@ -178,43 +178,66 @@
     );
   }
 
-  // HOST LOBBY (vor Start) - zeigt QR, Spieler, Start-Button
-  function HostLobby({ gameId, hostName }) {
-    const [players, setPlayers] = useState({});
-    useEffect(() => {
-      const ref = db.ref(`games/${gameId}/players`);
-      ref.on('value', snap => setPlayers(snap.val() || {}));
-      return () => ref.off();
-    }, [gameId]);
+ function HostLobby({ gameId, hostName }) {
+  const [players, setPlayers] = useState({});
+  useEffect(() => {
+    const ref = db.ref(`games/${gameId}/players`);
+    ref.on('value', snap => setPlayers(snap.val() || {}));
+    return () => ref.off();
+  }, [gameId]);
 
-    return (
-      <div className="min-h-screen host-screen">
-        <div className="host-main">
-          <h2 className="text-4xl font-bold mb-4">Quizmaster: {hostName}</h2>
-          <div className="mb-4">
-            <div className="text-xl mb-2">Spielcode: <span className="font-mono bg-white text-black px-3 py-1 rounded ml-2">{gameId}</span></div>
-            <img src={qrUrlForGame(gameId)} alt="QR zum Joinen" className="mx-auto rounded-md shadow-md mb-3" />
-            <div className="text-sm">Scanner den QR-Code mit dem Smartphone oder öffne: <span className="underline">{window.location.origin + window.location.pathname}?join={gameId}</span></div>
-          </div>
+  // StartGame-Funktion direkt hier definieren
+  const startGame = async () => {
+    const questions = generateQuestions();
+    const metaObj = {
+      phase: 'question',
+      questionIndex: 0,
+      round: 1,
+      questionStartTime: Date.now(),
+      nextQuestionIndex: null
+    };
+    await db.ref(`games/${gameId}/questions`).set(questions);
+    const pSnap = await db.ref(`games/${gameId}/players`).get();
+    const pObj = pSnap.val() || {};
+    const updates = {};
+    Object.keys(pObj).forEach(pid => {
+      updates[`games/${gameId}/players/${pid}/score`] = 0;
+      updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
+    });
+    await db.ref().update(updates);
+    await db.ref(`games/${gameId}/meta`).set(metaObj);
+  };
 
-          <div className="mt-auto text-sm text-white/80">Sobald genug Spieler da sind, starte das Spiel Rechts.</div>
+  return (
+    <div className="min-h-screen host-screen">
+      <div className="host-main">
+        <h2 className="text-4xl font-bold mb-4">Quizmaster: {hostName}</h2>
+        <div className="mb-4">
+          <div className="text-xl mb-2">Spielcode: <span className="font-mono bg-white text-black px-3 py-1 rounded ml-2">{gameId}</span></div>
+          <img src={qrUrlForGame(gameId)} alt="QR zum Joinen" className="mx-auto rounded-md shadow-md mb-3" />
+          <div className="text-sm">Scanner den QR-Code mit dem Smartphone oder öffne: <span className="underline">{window.location.origin + window.location.pathname}?join={gameId}</span></div>
         </div>
 
-        <div className="host-side">
-          <h3 className="text-xl font-bold mb-2">Aktive Spieler</h3>
-          <div className="space-y-2">
-            {Object.entries(players).length === 0 && <div className="text-sm text-white/70">Keine Spieler</div>}
-            {Object.entries(players).map(([pid,p]) => (
-              <div key={pid} className="flex justify-between items-center bg-white/5 p-2 rounded">
-                <div>{p.name}</div>
-                <div className="text-sm">{p.score || 0} pts</div>
-              </div>
-            ))}
-          </div>
+        <button className="bg-green-500 px-6 py-3 rounded text-xl font-bold mt-6" onClick={startGame}>
+          Spiel starten
+        </button>
+      </div>
+
+      <div className="host-side">
+        <h3 className="text-xl font-bold mb-2">Aktive Spieler</h3>
+        <div className="space-y-2">
+          {Object.entries(players).length === 0 && <div className="text-sm text-white/70">Keine Spieler</div>}
+          {Object.entries(players).map(([pid,p]) => (
+            <div key={pid} className="flex justify-between items-center bg-white/5 p-2 rounded">
+              <div>{p.name}</div>
+              <div className="text-sm">{p.score || 0} pts</div>
+            </div>
+          ))}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   // HOST CONTROLLER (kleine Steuerleiste; in HostScreen auch groß sichtbar)
   function HostController({ gameId, hostName }) {
