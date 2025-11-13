@@ -36,8 +36,19 @@
       color:var(--tile);
     }
 
-    /* reset weird global border-radius */
-    * { box-sizing: border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    /* reset weird global border-radius - ALLE ECKEN ECKIG */
+    * { box-sizing: border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; border-radius: 0 !important; }
+
+    /* Input Felder - schwarzer Text für Sichtbarkeit */
+    input, textarea, select {
+      background: white !important;
+      color: #0b0b0b !important;
+      border: 1px solid rgba(0,0,0,0.1);
+      padding: 10px;
+    }
+    input::placeholder {
+      color: rgba(0,0,0,0.5) !important;
+    }
 
     .host-screen{
       display:flex;
@@ -59,12 +70,22 @@
       min-height:0;
     }
 
+    /* Host main fullwidth when game running */
+    .host-main.fullwidth {
+      flex: 1;
+    }
+
     .host-side{
       flex:1;
       background: rgba(255,255,255,0.02);
       border: 1px solid rgba(255,255,255,0.03);
       padding:18px;
       overflow:auto;
+    }
+
+    /* Hide sidebar during game */
+    .host-side.hidden {
+      display: none;
     }
 
     /* top header area */
@@ -147,6 +168,18 @@
 
     .result-answer-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
     .result-answer{ padding:12px; border:2px solid rgba(0,0,0,0.06); background:rgba(255,255,255,0.02); font-weight:700; color:var(--tile); }
+    
+    /* Richtige Antwort = weiße Kachel, falsche = schwarze Kachel */
+    .result-answer.correct {
+      background: #ffffff;
+      color: #0b0b0b;
+      border: 2px solid var(--rtl-green);
+    }
+    .result-answer.incorrect {
+      background: #0b0b0b;
+      color: #ffffff;
+      border: 2px solid rgba(255,255,255,0.1);
+    }
 
     /* host-side items */
     .leaderboard-title{ font-weight:900; letter-spacing:1px; color:var(--rtl-orange); margin-bottom:8px; border-bottom:2px solid rgba(255,255,255,0.03); padding-bottom:8px; display:inline-block; }
@@ -161,7 +194,7 @@
       background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
     }
 
-    /* buttons */
+    /* buttons - ECKIG */
     .btn{
       display:inline-flex;
       align-items:center;
@@ -169,7 +202,6 @@
       gap:8px;
       font-weight:800;
       padding:10px 14px;
-      border-radius:6px;
       cursor:pointer;
       border:none;
     }
@@ -180,8 +212,8 @@
 
     /* player view */
     .player-card{ max-width:520px; margin:20px auto; padding:20px; border:1px solid rgba(255,255,255,0.03); background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); }
-    .player-answers button{ width:100%; text-align:left; padding:14px; font-weight:800; border-radius:6px; border:2px solid rgba(255,255,255,0.04); background:white; color:#0b0b0b; }
-    .boost-btn{ padding:10px 12px; border-radius:8px; font-weight:900; }
+    .player-answers button{ width:100%; text-align:left; padding:14px; font-weight:800; border:2px solid rgba(255,255,255,0.04); background:white; color:#0b0b0b; }
+    .boost-btn{ padding:10px 12px; font-weight:900; }
     .boost-available{ background:linear-gradient(90deg, #ffb347, #ff6600); color:#000; }
     .boost-used{ background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.6); border:1px dashed rgba(255,255,255,0.04); }
 
@@ -206,7 +238,7 @@
   const QUESTION_TIME = 40;
   const BASE_POINTS = 100; // base points for correct answer
 
-  // Firebase Config (aus deinem Code übernommen)
+  // Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyCsxAEsivsJVFVcnerdAWezFpruoCv7Z2I",
     authDomain: "qiuz-64055.firebaseapp.com",
@@ -220,14 +252,18 @@
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  /************ Frage-Pool (gekürzt/weiterhin verwendbar) ************/
+  /************ Frage-Pool ************/
   const QUESTION_POOL = [
     { question: "Was ist die Hauptstadt von Österreich?", answers: ["Wien","Graz","Salzburg","Innsbruck"], correct: 0 },
     { question: "Welcher Planet ist der größte?", answers: ["Mars","Saturn","Jupiter","Neptun"], correct: 2 },
     { question: "Wer malte die Mona Lisa?", answers: ["Picasso","Van Gogh","Da Vinci","Monet"], correct: 2 },
     { question: "In welchem Jahr fiel die Berliner Mauer?", answers: ["1987","1989","1991","1993"], correct: 1 },
     { question: "Was ist die chemische Formel für Wasser?", answers: ["CO2","H2O","O2","NaCl"], correct: 1 },
-    // ... (der Rest aus deinem Pool kann hier stehen — ich hab ihn aus Platzgründen nicht nochmal komplettiert)
+    { question: "Wie viele Kontinente gibt es?", answers: ["5","6","7","8"], correct: 2 },
+    { question: "Welches ist das größte Säugetier?", answers: ["Elefant","Blauwal","Giraffe","Nashorn"], correct: 1 },
+    { question: "Wer schrieb 'Romeo und Julia'?", answers: ["Goethe","Shakespeare","Schiller","Molière"], correct: 1 },
+    { question: "Welches Land hat die meisten Einwohner?", answers: ["Indien","China","USA","Indonesien"], correct: 1 },
+    { question: "Was ist die Hauptstadt von Frankreich?", answers: ["Lyon","Marseille","Paris","Nizza"], correct: 2 },
   ];
 
   /************ Helfer ************/
@@ -246,7 +282,7 @@
     return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
   }
 
-  /************ RTL Logo (vereinfachte SVG wie zuvor) ************/
+  /************ RTL Logo ************/
   function RTLLogo({size='md'}){
     const sizeMap={sm:40,md:60,lg:100};
     const h = sizeMap[size]||60;
@@ -282,7 +318,7 @@
             <input className="w-full p-3 mb-3" placeholder="Dein Name" value={name} onChange={e=>setName(e.target.value)} />
             <div className="flex gap-3">
               <button className="btn btn-host flex-1" onClick={()=>onCreate(name)} disabled={!name}>🎬 Host werden</button>
-              <input className="p-2" placeholder="Code" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} />
+              <input className="p-2" placeholder="Code" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} style={{width:'120px'}} />
               <button className="btn btn-join" onClick={()=>onJoin(name,code)} disabled={!name || !code}>Beitreten</button>
             </div>
             <p className="text-sm mt-3" style={{color:'var(--muted)'}}>ℹ️ Host ist Quizmaster und wird nicht als Spieler gezählt</p>
@@ -355,7 +391,6 @@
       return ()=> clearInterval(timerRef.current);
     },[meta?.phase, meta?.questionStartTime, gameId]);
 
-    // Show results: compute scores, respect boostForRound
     const showResultsNow = async ()=>{
       try{
         const snap = await db.ref(`games/${gameId}`).get();
@@ -371,7 +406,6 @@
           const ans = p.currentAnswer;
           const correct = typeof ans === 'number' && ans === q.correct;
           let points = correct ? BASE_POINTS : 0;
-          // apply boost if player had boostForRound == current round
           const boostForRound = p.boostForRound || null;
           if(correct && boostForRound && boostForRound === g.meta.round){
             points = Math.round(points * 1.5);
@@ -384,12 +418,10 @@
       }catch(e){ console.error(e); }
     };
 
-    // start next question / round
     const startNextRound = async ()=>{
       if(!meta) return;
       const nextIndex = meta.nextQuestionIndex ?? (meta.questionIndex ?? 0) + 1;
       const round = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
-      // clear currentAnswer for players
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const pObj = pSnap.val() || {};
       const updates = {};
@@ -415,7 +447,6 @@
         questionStartTime: Date.now(),
         nextQuestionIndex: null
       };
-      // set questions + ensure players initialized
       await db.ref(`games/${gameId}/questions`).set(questions);
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const pObj = pSnap.val() || {};
@@ -423,7 +454,7 @@
       Object.keys(pObj).forEach(pid=>{
         updates[`games/${gameId}/players/${pid}/score`] = 0;
         updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-        updates[`games/${gameId}/players/${pid}/boostUsed`] = pObj[pid]?.boostUsed || false; // keep if already used
+        updates[`games/${gameId}/players/${pid}/boostUsed`] = pObj[pid]?.boostUsed || false;
         updates[`games/${gameId}/players/${pid}/boostForRound`] = null;
       });
       await db.ref().update(updates);
@@ -439,9 +470,12 @@
     const countdownProgress = (timeLeft/QUESTION_TIME) * 360;
     const countdownClass = timeLeft <= 10 ? 'danger' : timeLeft <= 20 ? 'warning' : '';
 
+    // Sidebar nur in Lobby anzeigen
+    const showSidebar = meta.phase === 'lobby';
+
     return (
       <div className="min-h-screen host-screen">
-        <div className="host-main">
+        <div className={`host-main ${!showSidebar ? 'fullwidth' : ''}`}>
           {/* Lobby header */}
           {meta.phase === 'lobby' && (
             <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:12}}>
@@ -469,7 +503,6 @@
                   </div>
                 </div>
 
-                {/* Host "Ergebnisse" button - rechts ausgerichtet, verhindert overlap */}
                 <div style={{display:'flex', gap:8}}>
                   <button className="btn btn-show-results" onClick={showResultsNow}>📊 Ergebnisse</button>
                 </div>
@@ -489,7 +522,7 @@
             </div>
           )}
 
-          {/* Results */}
+          {/* Results - Richtige Antwort weiß, Rest schwarz */}
           {meta.phase === 'results' && question && (
             <div className="results-section">
               <h2 className="result-title">📊 Ergebnisse</h2>
@@ -499,12 +532,17 @@
                   const voters = playersArr.filter(p => p.currentAnswer === i);
                   const isCorrect = i === question.correct;
                   return (
-                    <div key={i} className="result-answer" style={{borderColor: isCorrect ? 'var(--rtl-green)' : 'rgba(255,255,255,0.03)'}}>
+                    <div key={i} className={`result-answer ${isCorrect ? 'correct' : 'incorrect'}`}>
                       <div style={{fontWeight:900}}>{String.fromCharCode(65+i)}. {a}</div>
-                      <div style={{color:'var(--muted)', marginTop:8}}>{voters.length > 0 ? voters.map(p => p.name + (p.boostForRound === meta.round ? ' 🔥' : '')).join(', ') : '(Niemand)'}</div>
+                      <div style={{opacity:0.7, marginTop:8}}>{voters.length > 0 ? voters.map(p => p.name + (p.boostForRound === meta.round ? ' 🔥' : '')).join(', ') : '(Niemand)'}</div>
                     </div>
                   );
                 })}
+              </div>
+              
+              {/* Next button directly in results */}
+              <div style={{marginTop:20}}>
+                <button className="btn btn-host" onClick={startNextRound}>Nächste Frage →</button>
               </div>
             </div>
           )}
@@ -515,7 +553,6 @@
               <h2 className="result-title">🏆 Zwischenstand Runde {meta.round}</h2>
               <div style={{display:'flex', gap:12, alignItems:'flex-end'}}>
                 {playersArr.slice(0,3).map((p,i)=>{
-                  const cls = i===0?'gold':i===1?'silver':'bronze';
                   const pos = i===0?'🥇':i===1?'🥈':'🥉';
                   return (
                     <div key={p.pid} style={{flex:1, textAlign:'center'}}>
@@ -525,6 +562,10 @@
                     </div>
                   );
                 })}
+              </div>
+              
+              <div style={{marginTop:20}}>
+                <button className="btn btn-host" onClick={startNextRound}>Nächste Runde →</button>
               </div>
             </div>
           )}
@@ -545,37 +586,35 @@
           )}
         </div>
 
-        <div className="host-side">
-          <HostController gameId={gameId} meta={meta} startNextRound={startNextRound} showResultsNow={showResultsNow} startGame={startGame} />
+        {/* Sidebar nur in Lobby */}
+        {showSidebar && (
+          <div className="host-side">
+            <HostController gameId={gameId} meta={meta} startNextRound={startNextRound} showResultsNow={showResultsNow} startGame={startGame} />
 
-          <div style={{marginTop:16}}>
-            <h3 className="leaderboard-title">🏅 Spieler & Punkte</h3>
-            <div style={{maxHeight:220, overflow:'auto', marginTop:8}}>
-              {playersArr.map((p,idx)=>(
-                <div key={p.pid} className="player-item">
-                  <div style={{display:'flex', gap:8, alignItems:'center'}}>
-                    <div style={{fontWeight:900, color:'var(--rtl-purple)'}}>#{idx+1}</div>
-                    <div style={{fontWeight:700}}>{p.name}</div>
+            <div style={{marginTop:16}}>
+              <h3 className="leaderboard-title">🏅 Spieler & Punkte</h3>
+              <div style={{maxHeight:220, overflow:'auto', marginTop:8}}>
+                {playersArr.map((p,idx)=>(
+                  <div key={p.pid} className="player-item">
+                    <div style={{display:'flex', gap:8, alignItems:'center'}}>
+                      <div style={{fontWeight:900, color:'var(--rtl-purple)'}}>#{idx+1}</div>
+                      <div style={{fontWeight:700}}>{p.name}</div>
+                    </div>
+                    <div style={{fontWeight:900, color:'var(--rtl-green)'}}>{p.score || 0}</div>
                   </div>
-                  <div style={{fontWeight:900, color:'var(--rtl-green)'}}>{p.score || 0}</div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div style={{marginTop:18}}>
-            <h3 className="leaderboard-title">ℹ️ Code & QR</h3>
-            <div style={{marginTop:8}}>
-              <div style={{marginBottom:8}}><span style={{fontFamily:'monospace', background:'#fff', color:'#000', padding:'4px 8px'}}>{gameId}</span></div>
-              {/* QR nur in Lobby sichtbar */}
-              {meta.phase === 'lobby' ? (
+            <div style={{marginTop:18}}>
+              <h3 className="leaderboard-title">ℹ️ Code & QR</h3>
+              <div style={{marginTop:8}}>
+                <div style={{marginBottom:8}}><span style={{fontFamily:'monospace', background:'#fff', color:'#000', padding:'4px 8px'}}>{gameId}</span></div>
                 <img src={qrUrlForGame(gameId)} alt="QR Code" style={{width:'100%'}} />
-              ) : (
-                <div style={{color:'var(--muted)', fontSize:14}}>QR-Code verschwindet nach Spielstart</div>
-              )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }
@@ -642,7 +681,6 @@
       };
 
       const activateBoost = async ()=>{
-        // only allow activating during a question phase and only once per game; make boost active for current round
         if(!boostAvailable) return;
         const updates = {};
         updates[`games/${gameId}/players/${playerId}/boostUsed`] = true;
@@ -787,7 +825,6 @@
       setHostName(name);
       const gid = randomGameID();
       setGameId(gid);
-      // create game meta in db
       await db.ref(`games/${gid}/meta`).set({ phase: 'lobby' });
       setMode('hostLobby');
     };
@@ -819,7 +856,6 @@
   </script>
 </body>
 </html>
-
 
 
 
