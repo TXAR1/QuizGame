@@ -19,6 +19,7 @@
 
   <style>
     html,body,#root { height: 100%; }
+    
     /* Host full-screen styles for large display */
     .host-screen {
       display:flex;
@@ -31,21 +32,307 @@
     }
     .host-main {
       flex:2;
-      background:rgba(255,255,255,0.06);
-      border-radius:12px;
-      padding:28px;
+      background: linear-gradient(135deg, rgba(79,70,229,0.1), rgba(139,92,246,0.1));
+      border-radius:20px;
+      padding:40px;
       display:flex;
       flex-direction:column;
       justify-content:center;
       align-items:center;
       text-align:center;
+      border: 2px solid rgba(139,92,246,0.3);
+      position: relative;
+      overflow: hidden;
     }
+
+    /* Millionenshow Style Counter */
+    .countdown-badge {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 100px;
+      height: 100px;
+      background: conic-gradient(#10b981 0deg, #10b981 var(--progress), rgba(16,185,129,0.2) var(--progress), rgba(16,185,129,0.2) 360deg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 900;
+      box-shadow: 0 8px 32px rgba(16,185,129,0.3);
+      border: 3px solid rgba(255,255,255,0.2);
+      z-index: 10;
+    }
+
+    .countdown-badge.warning {
+      background: conic-gradient(#f59e0b 0deg, #f59e0b var(--progress), rgba(245,158,11,0.2) var(--progress), rgba(245,158,11,0.2) 360deg);
+      box-shadow: 0 8px 32px rgba(245,158,11,0.3);
+    }
+
+    .countdown-badge.danger {
+      background: conic-gradient(#ef4444 0deg, #ef4444 var(--progress), rgba(239,68,68,0.2) var(--progress), rgba(239,68,68,0.2) 360deg);
+      box-shadow: 0 8px 32px rgba(239,68,68,0.3);
+      animation: pulse-danger 0.5s infinite;
+    }
+
+    @keyframes pulse-danger {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Question Display */
+    .question-container {
+      width: 100%;
+      padding: 30px;
+      margin-bottom: 40px;
+    }
+
+    .question-text {
+      font-size: 3.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #ffffff, #e0e7ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 50px;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      line-height: 1.2;
+    }
+
+    /* Answer Buttons Grid */
+    .answers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .answer-btn {
+      position: relative;
+      padding: 30px;
+      background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(139,92,246,0.3));
+      border: 2px solid rgba(139,92,246,0.5);
+      border-radius: 12px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      text-align: center;
+      cursor: default;
+      transition: all 0.3s ease;
+      color: white;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 0.5px;
+    }
+
+    .answer-btn.highlighted {
+      background: linear-gradient(135deg, rgba(16,185,129,0.6), rgba(34,197,94,0.6));
+      border-color: rgba(16,185,129,0.8);
+      box-shadow: 0 0 30px rgba(16,185,129,0.4);
+      transform: scale(1.02);
+    }
+
+    /* Results Phase */
+    .results-section {
+      width: 100%;
+    }
+
+    .result-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 30px;
+      color: #10b981;
+    }
+
+    .correct-answer {
+      font-size: 2rem;
+      margin-bottom: 40px;
+      padding: 20px;
+      background: rgba(16,185,129,0.2);
+      border-left: 4px solid #10b981;
+      border-radius: 8px;
+    }
+
+    .result-answer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      width: 100%;
+    }
+
+    .result-answer {
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid;
+      font-weight: 600;
+    }
+
+    .result-answer.correct {
+      background: rgba(16,185,129,0.2);
+      border-left-color: #10b981;
+    }
+
+    .result-answer.incorrect {
+      background: rgba(239,68,68,0.1);
+      border-left-color: #ef4444;
+    }
+
+    .result-voters {
+      font-size: 0.9rem;
+      margin-top: 10px;
+      color: rgba(255,255,255,0.8);
+    }
+
     .host-side {
       flex:1;
-      background:rgba(255,255,255,0.04);
-      border-radius:12px;
-      padding:18px;
+      background: linear-gradient(135deg, rgba(79,70,229,0.05), rgba(139,92,246,0.05));
+      border-radius:20px;
+      padding:24px;
       overflow:auto;
+      border: 2px solid rgba(139,92,246,0.2);
+    }
+
+    /* Leaderboard Styles */
+    .leaderboard-title {
+      font-size: 1.3rem;
+      font-weight: 900;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #a78bfa;
+    }
+
+    .player-item {
+      display: flex;
+      justify-between;
+      align-items: center;
+      padding: 12px 15px;
+      background: linear-gradient(90deg, rgba(139,92,246,0.2), rgba(79,70,229,0.1));
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border-left: 4px solid #a78bfa;
+      transition: all 0.2s ease;
+    }
+
+    .player-item:hover {
+      background: linear-gradient(90deg, rgba(139,92,246,0.3), rgba(79,70,229,0.2));
+      transform: translateX(5px);
+    }
+
+    .player-rank {
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: #fbbf24;
+      margin-right: 10px;
+      min-width: 25px;
+    }
+
+    .player-name {
+      flex: 1;
+      font-weight: 600;
+    }
+
+    .player-score {
+      font-weight: 900;
+      color: #10b981;
+      font-size: 1.1rem;
+    }
+
+    /* Round Summary */
+    .round-summary {
+      text-align: center;
+    }
+
+    .summary-title {
+      font-size: 3rem;
+      font-weight: 900;
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .summary-podium {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 20px;
+      height: 300px;
+      margin: 30px 0;
+    }
+
+    .podium-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+
+    .podium-player {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .podium-name {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 5px;
+    }
+
+    .podium-score {
+      font-weight: 900;
+      font-size: 1.4rem;
+      color: #10b981;
+    }
+
+    .podium-bar {
+      width: 100%;
+      background: linear-gradient(180deg, rgba(139,92,246,0.6), rgba(79,70,229,0.3));
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 2rem;
+      border-top: 3px solid #a78bfa;
+    }
+
+    .podium-bar.gold {
+      background: linear-gradient(180deg, rgba(251,191,36,0.8), rgba(217,119,6,0.4));
+      border-top-color: #fbbf24;
+      height: 250px;
+    }
+
+    .podium-bar.silver {
+      background: linear-gradient(180deg, rgba(209,213,219,0.6), rgba(107,114,128,0.3));
+      border-top-color: #d1d5db;
+      height: 200px;
+    }
+
+    .podium-bar.bronze {
+      background: linear-gradient(180deg, rgba(217,119,6,0.6), rgba(120,53,15,0.3));
+      border-top-color: #d97706;
+      height: 150px;
+    }
+
+    /* Game Finished */
+    .finished-title {
+      font-size: 3.5rem;
+      font-weight: 900;
+      margin-bottom: 40px;
+      background: linear-gradient(135deg, #10b981, #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .finished-list {
+      max-height: 400px;
+      overflow-y: auto;
     }
   </style>
 </head>
@@ -178,78 +465,14 @@
     );
   }
 
- function HostLobby({ gameId, hostName }) {
-  const [players, setPlayers] = useState({});
-  useEffect(() => {
-    const ref = db.ref(`games/${gameId}/players`);
-    ref.on('value', snap => setPlayers(snap.val() || {}));
-    return () => ref.off();
-  }, [gameId]);
-
-  // StartGame-Funktion direkt hier definieren
-  const startGame = async () => {
-    const questions = generateQuestions();
-    const metaObj = {
-      phase: 'question',
-      questionIndex: 0,
-      round: 1,
-      questionStartTime: Date.now(),
-      nextQuestionIndex: null
-    };
-    await db.ref(`games/${gameId}/questions`).set(questions);
-    const pSnap = await db.ref(`games/${gameId}/players`).get();
-    const pObj = pSnap.val() || {};
-    const updates = {};
-    Object.keys(pObj).forEach(pid => {
-      updates[`games/${gameId}/players/${pid}/score`] = 0;
-      updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-    });
-    await db.ref().update(updates);
-    await db.ref(`games/${gameId}/meta`).set(metaObj);
-  };
-
-  return (
-    <div className="min-h-screen host-screen">
-      <div className="host-main">
-        <h2 className="text-4xl font-bold mb-4">Quizmaster: {hostName}</h2>
-        <div className="mb-4">
-          <div className="text-xl mb-2">Spielcode: <span className="font-mono bg-white text-black px-3 py-1 rounded ml-2">{gameId}</span></div>
-          <img src={qrUrlForGame(gameId)} alt="QR zum Joinen" className="mx-auto rounded-md shadow-md mb-3" />
-          <div className="text-sm">Scanner den QR-Code mit dem Smartphone oder öffne: <span className="underline">{window.location.origin + window.location.pathname}?join={gameId}</span></div>
-        </div>
-
-        <button className="bg-green-500 px-6 py-3 rounded text-xl font-bold mt-6" onClick={startGame}>
-          Spiel starten
-        </button>
-      </div>
-
-      <div className="host-side">
-        <h3 className="text-xl font-bold mb-2">Aktive Spieler</h3>
-        <div className="space-y-2">
-          {Object.entries(players).length === 0 && <div className="text-sm text-white/70">Keine Spieler</div>}
-          {Object.entries(players).map(([pid,p]) => (
-            <div key={pid} className="flex justify-between items-center bg-white/5 p-2 rounded">
-              <div>{p.name}</div>
-              <div className="text-sm">{p.score || 0} pts</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-  // HOST CONTROLLER (kleine Steuerleiste)
-  function HostController({ gameId, meta, startNextRound }) {
+  function HostLobby({ gameId, hostName }) {
     const [players, setPlayers] = useState({});
-    
     useEffect(() => {
       const ref = db.ref(`games/${gameId}/players`);
       ref.on('value', snap => setPlayers(snap.val() || {}));
       return () => ref.off();
     }, [gameId]);
 
-    // start game: write questions + meta
     const startGame = async () => {
       const questions = generateQuestions();
       const metaObj = {
@@ -271,7 +494,69 @@
       await db.ref(`games/${gameId}/meta`).set(metaObj);
     };
 
-    // compute results (host triggers) -> update scores and set phase results
+    return (
+      <div className="min-h-screen host-screen">
+        <div className="host-main">
+          <h2 className="text-4xl font-bold mb-4">Quizmaster: {hostName}</h2>
+          <div className="mb-4">
+            <div className="text-xl mb-2">Spielcode: <span className="font-mono bg-white text-black px-3 py-1 rounded ml-2">{gameId}</span></div>
+            <img src={qrUrlForGame(gameId)} alt="QR zum Joinen" className="mx-auto rounded-md shadow-md mb-3" />
+            <div className="text-sm">Scanner den QR-Code mit dem Smartphone oder öffne: <span className="underline">{window.location.origin + window.location.pathname}?join={gameId}</span></div>
+          </div>
+
+          <button className="bg-green-500 px-6 py-3 rounded text-xl font-bold mt-6" onClick={startGame}>
+            Spiel starten
+          </button>
+        </div>
+
+        <div className="host-side">
+          <h3 className="leaderboard-title">Aktive Spieler</h3>
+          <div className="space-y-2">
+            {Object.entries(players).length === 0 && <div className="text-sm text-white/70">Keine Spieler</div>}
+            {Object.entries(players).map(([pid,p], idx) => (
+              <div key={pid} className="player-item">
+                <div className="player-rank">#{idx+1}</div>
+                <div className="player-name">{p.name}</div>
+                <div className="player-score">{p.score || 0} pts</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // HOST CONTROLLER (kleine Steuerleiste)
+  function HostController({ gameId, meta, startNextRound }) {
+    const [players, setPlayers] = useState({});
+    
+    useEffect(() => {
+      const ref = db.ref(`games/${gameId}/players`);
+      ref.on('value', snap => setPlayers(snap.val() || {}));
+      return () => ref.off();
+    }, [gameId]);
+
+    const startGame = async () => {
+      const questions = generateQuestions();
+      const metaObj = {
+        phase: 'question',
+        questionIndex: 0,
+        round: 1,
+        questionStartTime: Date.now(),
+        nextQuestionIndex: null
+      };
+      await db.ref(`games/${gameId}/questions`).set(questions);
+      const pSnap = await db.ref(`games/${gameId}/players`).get();
+      const pObj = pSnap.val() || {};
+      const updates = {};
+      Object.keys(pObj).forEach(pid => {
+        updates[`games/${gameId}/players/${pid}/score`] = 0;
+        updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
+      });
+      await db.ref().update(updates);
+      await db.ref(`games/${gameId}/meta`).set(metaObj);
+    };
+
     const showResultsNow = async () => {
       try {
         const snap = await db.ref(`games/${gameId}`).get();
@@ -293,7 +578,6 @@
       } catch (err) { console.error(err); }
     };
 
-    // Next Question or RoundSummary
     const nextQuestion = async () => {
       const snap = await db.ref(`games/${gameId}/meta`).get();
       const metaVal = snap.val();
@@ -322,28 +606,28 @@
     };
 
     if (!meta) {
-      return <div className="text-center p-3">Warten auf Spielmeta...</div>;
+      return <div className="text-center p-3 text-white/70">Warten auf Spielmeta...</div>;
     }
 
     return (
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="text-sm">Phase: <strong>{meta.phase}</strong></div>
-            <div className="text-sm">Runde: <strong>{meta.round || 1}/{TOTAL_ROUNDS}</strong></div>
-            <div className="text-sm">Frage: <strong>{(meta.questionIndex || 0) + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</strong></div>
+            <div className="text-sm text-white/90">Phase: <strong>{meta.phase}</strong></div>
+            <div className="text-sm text-white/90">Runde: <strong>{meta.round || 1}/{TOTAL_ROUNDS}</strong></div>
+            <div className="text-sm text-white/90">Frage: <strong>{(meta.questionIndex || 0) + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</strong></div>
           </div>
           <div className="text-right">
-            <div className="text-xs text-white/80">Spieler: {Object.keys(players).length}</div>
+            <div className="text-xs text-white/80">👥 Spieler: {Object.keys(players).length}</div>
           </div>
         </div>
 
         <div className="flex gap-2 flex-wrap">
-          { (meta.phase === 'lobby' || !meta.phase) && <button className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded" onClick={startGame}>Spiel starten</button> }
-          { meta.phase === 'question' && <button className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded" onClick={showResultsNow}>Ergebnisse anzeigen</button> }
-          { meta.phase === 'results' && <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded" onClick={nextQuestion}>Nächste Frage</button> }
-          { meta.phase === 'roundSummary' && <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded" onClick={startNextRound}>Nächste Runde starten</button> }
-          { meta.phase === 'finished' && <div className="text-green-300 font-bold px-3 py-2 rounded">Spiel beendet</div> }
+          { (meta.phase === 'lobby' || !meta.phase) && <button className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded text-sm font-bold" onClick={startGame}>Spiel starten</button> }
+          { meta.phase === 'question' && <button className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded text-sm font-bold" onClick={showResultsNow}>Ergebnisse anzeigen</button> }
+          { meta.phase === 'results' && <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm font-bold" onClick={nextQuestion}>Nächste Frage</button> }
+          { meta.phase === 'roundSummary' && <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm font-bold" onClick={startNextRound}>Nächste Runde</button> }
+          { meta.phase === 'finished' && <div className="text-green-300 font-bold px-3 py-2 rounded text-sm">✓ Spiel beendet</div> }
         </div>
       </div>
     );
@@ -377,7 +661,6 @@
       return () => clearInterval(timerRef.current);
     }, [meta?.phase, meta?.questionStartTime]);
 
-    // startNextRound für HostController
     const startNextRound = async () => {
       if (!meta) return;
       const nextIndex = meta.nextQuestionIndex ?? (meta.questionIndex ?? 0);
@@ -402,110 +685,143 @@
     const question = (game.questions || [])[qIndex];
     const playersArr = Object.entries(game.players || {}).map(([pid,p]) => ({ pid, ...p })).sort((a,b) => (b.score || 0) - (a.score || 0));
 
+    // Berechne Countdown-Progress für die CSS-Animation
+    const countdownProgress = (timeLeft / QUESTION_TIME) * 360;
+    const countdownClass = timeLeft <= 10 ? 'danger' : timeLeft <= 20 ? 'warning' : '';
+
     return (
       <div className="min-h-screen host-screen">
         <div className="host-main">
-          <div style={{width:'100%'}}>
-            <div className="text-left mb-4 text-sm text-white/80">Quizmaster: <strong>{hostName}</strong></div>
-            { meta.phase === 'lobby' && (
-              <div>
-                <h2 className="text-5xl font-bold mb-2">Warte auf Spieler</h2>
-                <p className="text-xl">Spielcode: <span className="font-mono bg-white text-black px-3 py-1 rounded">{gameId}</span></p>
-              </div>
-            )}
+          { meta.phase === 'lobby' && (
+            <div>
+              <h2 className="text-5xl font-bold mb-2">⏳ Warte auf Spieler</h2>
+              <p className="text-2xl mt-8">Spielcode:</p>
+              <p className="font-mono bg-white text-black px-6 py-2 rounded text-3xl font-bold mt-2">{gameId}</p>
+            </div>
+          )}
 
-            { meta.phase === 'question' && question && (
-              <div>
-                <div className="text-6xl font-extrabold mb-6">{question.question}</div>
-                <div className="flex items-center justify-center gap-6">
-                  <div className="text-7xl font-bold">{timeLeft}s</div>
-                </div>
-                <div className="mt-8 grid grid-cols-2 gap-4">
-                  {question.answers.map((a,i) => <div key={i} className="bg-white/6 p-4 rounded text-xl font-semibold">{String.fromCharCode(65+i)}. {a}</div>)}
-                </div>
+          { meta.phase === 'question' && question && (
+            <div className="question-container">
+              <div 
+                className={`countdown-badge ${countdownClass}`}
+                style={{'--progress': `${countdownProgress}deg`}}
+              >
+                {timeLeft}
               </div>
-            )}
+              <div className="question-text">{question.question}</div>
+              <div className="answers-grid">
+                {question.answers.map((a, i) => (
+                  <div key={i} className="answer-btn">
+                    <span>{String.fromCharCode(65+i)}. {a}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-            { meta.phase === 'results' && question && (
-              <div>
-                <div className="text-5xl font-bold mb-4">Ergebnisse</div>
-                <div className="text-3xl mb-6">Richtige Antwort: <strong>{question.answers[question.correct]}</strong></div>
-                <div className="grid grid-cols-2 gap-3">
-                  {question.answers.map((a,i) => {
-                    const voters = playersArr.filter(p => p.currentAnswer === i).map(p => p.name).join(', ');
-                    const isCorrect = i === question.correct;
-                    return (
-                      <div key={i} className={`p-4 rounded ${isCorrect ? 'bg-green-600' : 'bg-white/6'}`}>
-                        <div className="text-xl font-bold">{String.fromCharCode(65+i)}. {a}</div>
-                        <div className="mt-2 text-sm">Antworten: {voters || 'Niemand'}</div>
+          { meta.phase === 'results' && question && (
+            <div className="results-section">
+              <h2 className="result-title">📊 Ergebnisse</h2>
+              <div className="correct-answer">
+                ✓ Richtige Antwort: <strong>{question.answers[question.correct]}</strong>
+              </div>
+              <div className="result-answer-grid">
+                {question.answers.map((a, i) => {
+                  const voters = playersArr.filter(p => p.currentAnswer === i);
+                  const isCorrect = i === question.correct;
+                  return (
+                    <div key={i} className={`result-answer ${isCorrect ? 'correct' : 'incorrect'}`}>
+                      <div className="font-bold">{String.fromCharCode(65+i)}. {a}</div>
+                      <div className="result-voters">
+                        {voters.length > 0 ? voters.map(p => p.name).join(', ') : '(Niemand)'}
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
               </div>
-            )}
+            </div>
+          )}
 
-            { meta.phase === 'roundSummary' && (
-              <div>
-                <h2 className="text-5xl font-bold mb-4">Zwischenstand - Runde {meta.round}</h2>
-                <div className="max-h-96 overflow-auto">
-                  {playersArr.map((p,i) => (
-                    <div key={p.pid} className="flex justify-between items-center bg-white/5 p-3 rounded mb-2">
-                      <div className="text-2xl font-bold">{i+1}. {p.name}</div>
-                      <div className="text-2xl font-extrabold">{p.score || 0} pts</div>
+          { meta.phase === 'roundSummary' && (
+            <div className="round-summary">
+              <h2 className="summary-title">🏆 Zwischenstand Runde {meta.round}</h2>
+              <div className="summary-podium">
+                {playersArr.slice(0, 3).map((p, i) => {
+                  const podiumClass = i === 0 ? 'gold' : i === 1 ? 'silver' : 'bronze';
+                  const position = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
+                  return (
+                    <div key={p.pid} className="podium-item">
+                      <div className="podium-player">
+                        <div className="text-3xl">{position}</div>
+                        <div className="podium-name">{p.name}</div>
+                        <div className="podium-score">{p.score || 0} Pts</div>
+                      </div>
+                      <div className={`podium-bar ${podiumClass}`}>
+                        {p.score || 0}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {playersArr.length > 3 && (
+                <div className="mt-8">
+                  {playersArr.slice(3).map((p, i) => (
+                    <div key={p.pid} className="flex justify-between items-center p-3 bg-white/5 rounded mb-2">
+                      <div className="text-lg font-bold">#{i+4} {p.name}</div>
+                      <div className="text-lg font-bold text-green-400">{p.score || 0} pts</div>
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          )}
 
-            { meta.phase === 'finished' && (
-              <div>
-                <h2 className="text-6xl font-bold mb-6">Spiel beendet</h2>
-                <div className="max-h-96 overflow-auto">
-                  {playersArr.map((p,i) => (
-                    <div key={p.pid} className="flex justify-between items-center bg-white/5 p-3 rounded mb-2">
-                      <div className="text-2xl font-bold">{i+1}. {p.name}</div>
-                      <div className="text-2xl font-extrabold">{p.score || 0} pts</div>
-                    </div>
-                  ))}
-                </div>
+          { meta.phase === 'finished' && (
+            <div>
+              <h2 className="finished-title">🎉 Spiel beendet!</h2>
+              <div className="finished-list">
+                {playersArr.map((p, i) => (
+                  <div key={p.pid} className="flex justify-between items-center bg-white/5 p-4 rounded mb-3 border-l-4 border-purple-500">
+                    <div className="text-2xl font-bold">#{i+1} {p.name}</div>
+                    <div className="text-2xl font-extrabold text-green-400">{p.score || 0} pts</div>
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div className="host-side">
-          <div className="mb-4">
+          <div className="mb-6">
             <HostController gameId={gameId} meta={meta} startNextRound={startNextRound} />
           </div>
 
-          <div className="mb-4">
-            <h3 className="text-xl font-bold mb-2">Spieler & Punkte</h3>
+          <div className="mb-6">
+            <h3 className="leaderboard-title">🏅 Spieler & Punkte</h3>
             <div className="space-y-2 max-h-72 overflow-auto">
-              {playersArr.map(p => (
-                <div key={p.pid} className="flex justify-between items-center bg-white/5 p-2 rounded">
-                  <div>{p.name}</div>
-                  <div className="text-sm">{p.score || 0} pts</div>
+              {playersArr.map((p, idx) => (
+                <div key={p.pid} className="player-item">
+                  <div className="player-rank">#{idx+1}</div>
+                  <div className="player-name text-sm">{p.name}</div>
+                  <div className="player-score text-sm">{p.score || 0}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="mb-4">
-            <h3 className="text-lg font-bold mb-2">Spiel Info</h3>
-            <div className="text-sm">Code: <span className="font-mono bg-white text-black px-2 py-1 rounded">{gameId}</span></div>
-            <div className="text-xs mt-2">QR-Code zum Scannen:</div>
-            <img src={qrUrlForGame(gameId)} alt="QR Code" className="mt-2 rounded" />
+          <div className="mb-6">
+            <h3 className="leaderboard-title">ℹ️ Spiel-Info</h3>
+            <div className="text-sm bg-white/5 p-3 rounded mb-2">Code: <span className="font-mono bg-white text-black px-2 py-1 rounded text-xs">{gameId}</span></div>
+            <img src={qrUrlForGame(gameId)} alt="QR Code" className="w-full rounded" />
           </div>
 
           <div>
-            <h3 className="text-lg font-bold mb-2">Kurz-Anleitung</h3>
-            <ol className="text-sm list-decimal list-inside space-y-1">
-              <li>Spieler scannen QR oder geben Code ein.</li>
-              <li>Wenn Frage startet: 40s Zeit zum Antworten.</li>
-              <li>Host zeigt Ergebnisse, dann "Nächste Frage".</li>
-              <li>Am Ende jeder Runde: Host zeigt Zwischenstand.</li>
+            <h3 className="leaderboard-title">📋 Anleitung</h3>
+            <ol className="text-xs list-decimal list-inside space-y-1 bg-white/5 p-3 rounded">
+              <li>QR-Code oder Code eingeben</li>
+              <li>40s Zeit zum Antworten</li>
+              <li>Host zeigt Ergebnisse</li>
+              <li>Zwischenstand nach Runde</li>
             </ol>
           </div>
         </div>
@@ -588,7 +904,7 @@
             </div>
 
             <div className="mt-4 text-sm">
-              {player.currentAnswer === null ? "Noch nicht geantwortet" : `Du hast Antwort ${player.currentAnswer + 1} gewählt`}
+              {player.currentAnswer === null ? "Noch nicht geantwortet" : `Du hast Antwort ${String.fromCharCode(65 + player.currentAnswer)} gewählt`}
             </div>
             <div className="mt-4 text-sm">Punkte: <strong>{player.score || 0}</strong></div>
           </div>
@@ -675,14 +991,13 @@
 
   /************ App (Single File) ************/
   function App() {
-    const [mode, setMode] = useState('start'); // start | host-lobby | host-screen | player-join | player-play
+    const [mode, setMode] = useState('start');
     const [gameId, setGameId] = useState('');
     const [playerId, setPlayerId] = useState('');
     const [playerName, setPlayerName] = useState('');
     const [hostName, setHostName] = useState('');
     const [isHost, setIsHost] = useState(false);
 
-    // on load: if ?join=code present -> go to player join
     useEffect(() => {
       const params = new URLSearchParams(window.location.search);
       const join = params.get('join');
@@ -692,7 +1007,6 @@
       }
     }, []);
 
-    // Create Game (host) — host is NOT added as player
     const createGame = async (host) => {
       const id = randomGameID();
       const questions = generateQuestions();
@@ -711,7 +1025,6 @@
       setMode('host-lobby');
     };
 
-    // Join as player by code from start-screen
     const joinGameFromStart = async (name, id) => {
       const snap = await db.ref(`games/${id}`).get();
       if (!snap.exists()) { alert('Spiel nicht gefunden'); return; }
@@ -726,7 +1039,6 @@
       setMode('player-play');
     };
 
-    // After join via ?join=ID screen
     const onJoined = (id, pid, name) => {
       setGameId(id);
       setPlayerId(pid);
@@ -735,14 +1047,12 @@
       setMode('player-play');
     };
 
-    // If user returns with localStorage for a given gameId from join link, auto-enter.
     useEffect(() => {
       if (mode !== 'player-join') return;
       if (!gameId) return;
       const storedPid = localStorage.getItem(`quiz_player_${gameId}`);
       const storedName = localStorage.getItem(`quiz_name_${gameId}`);
       if (storedPid && storedName) {
-        // ensure player exists on server
         db.ref(`games/${gameId}/players/${storedPid}`).get().then(snap => {
           if (!snap.exists()) {
             db.ref(`games/${gameId}/players/${storedPid}`).set({ name: storedName, score: 0, currentAnswer: null, joinedAt: Date.now() });
@@ -754,10 +1064,8 @@
       }
     }, [mode, gameId]);
 
-    // If host goes from lobby to playing, open host screen
     useEffect(() => {
       if (mode !== 'host-lobby') return;
-      // watch meta phase to auto-show host-screen when meta.phase !== 'lobby'
       const ref = db.ref(`games/${gameId}/meta`);
       const handler = (snap) => {
         const val = snap.val();
