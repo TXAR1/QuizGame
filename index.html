@@ -228,6 +228,14 @@
       return () => { ref.off(); p.off(); };
     }, [gameId]);
 
+    function HostLobby({ gameId, hostName }) {
+  const [players, setPlayers] = useState({});
+  useEffect(() => {
+    const ref = db.ref(`games/${gameId}/players`);
+    ref.on('value', snap => setPlayers(snap.val() || {}));
+    return () => ref.off();
+  }, [gameId]);
+
     // start game: write questions + meta
 // --- alte Funktion startGame ersetzt durch diese ---
 const startGame = async () => {
@@ -790,6 +798,7 @@ const startGame = async () => {
   </script>
 </body>
 </html>
+
 
 
 
