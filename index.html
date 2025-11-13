@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Multiplayer Quiz (Host & Smartphone)</title>
+  <title>Multiplayer Quiz (Host & Smartphones)</title>
 
   <!-- React + Babel -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -18,24 +18,49 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
   <style>
-    /* kleine mobile-Optimierung */
-    body { -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    html,body,#root { height: 100%; }
+    /* Host full-screen styles for large display */
+    .host-screen {
+      display:flex;
+      flex-direction:row;
+      gap:24px;
+      align-items:stretch;
+      height:100%;
+      padding:24px;
+      box-sizing:border-box;
+    }
+    .host-main {
+      flex:2;
+      background:rgba(255,255,255,0.06);
+      border-radius:12px;
+      padding:28px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+    }
+    .host-side {
+      flex:1;
+      background:rgba(255,255,255,0.04);
+      border-radius:12px;
+      padding:18px;
+      overflow:auto;
+    }
   </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-700 to-purple-700 min-h-screen flex items-center justify-center text-white">
-  <div id="root" class="w-full max-w-5xl px-4 py-8"></div>
+<body class="bg-gradient-to-br from-indigo-800 to-purple-700 text-white">
+  <div id="root" class="h-full"></div>
 
   <script type="text/babel">
   const { useState, useEffect, useRef } = React;
 
-  /*****************
-   *  CONFIG
-   *****************/
+  /************ CONFIG ************/
   const TOTAL_ROUNDS = 4;
   const QUESTIONS_PER_ROUND = 10;
   const QUESTION_TIME = 40; // Sekunden
 
-  // --- Firebase Config: ERSETZE HIER DURCH DEINE DATEN ---
+  // --- Firebase Config: ERSETZE MIT DEINEN WERTEN ---
   const firebaseConfig = {
     apiKey: "DEIN_API_KEY_HIER",
     authDomain: "deinprojekt.firebaseapp.com",
@@ -45,16 +70,13 @@
     messagingSenderId: "123456789",
     appId: "1:123456789:web:abcdef123456"
   };
-  /*****************
-   *  ENDE CONFIG
-   *****************/
+  /********** END CONFIG **********/
 
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  // Beispiel-Fragen (große Liste oder generieren)
-  // Hier als Beispiel: wir haben genügend Fragen — man kann die Liste beliebig erweitern
-  const SAMPLE_QUESTIONS = [
+  // Pool mit Fragen (mindestens 40 sinnvoll). Erweitere bei Bedarf.
+  const QUESTION_POOL = [
     { question: "Was ist die Hauptstadt von Österreich?", answers: ["Wien","Graz","Salzburg","Innsbruck"], correct: 0 },
     { question: "Welcher Planet ist der größte?", answers: ["Mars","Saturn","Jupiter","Neptun"], correct: 2 },
     { question: "Wer malte die Mona Lisa?", answers: ["Picasso","Van Gogh","Da Vinci","Monet"], correct: 2 },
@@ -62,7 +84,7 @@
     { question: "Was ist die chemische Formel für Wasser?", answers: ["CO2","H2O","O2","NaCl"], correct: 1 },
     { question: "Welches ist der längste Fluss der Welt?", answers: ["Nil","Amazonas","Yangtze","Mississippi"], correct: 0 },
     { question: "Wie viele Kontinente gibt es?", answers: ["5","6","7","8"], correct: 2 },
-    { question: "Welches Tier ist am schnellsten an Land?", answers: ["Löwe","Gepard","Antilope","Pferd"], correct: 1 },
+    { question: "Welches Tier ist das schnellste an Land?", answers: ["Löwe","Gepard","Antilope","Pferd"], correct: 1 },
     { question: "Wer schrieb 'Romeo und Julia'?", answers: ["Goethe","Shakespeare","Schiller","Kafka"], correct: 1 },
     { question: "Welches ist das größte Säugetier?", answers: ["Elefant","Blauwal","Giraffe","Nilpferd"], correct: 1 },
     { question: "In welchem Land steht der Eiffelturm?", answers: ["Italien","Spanien","Frankreich","Deutschland"], correct: 2 },
@@ -89,29 +111,32 @@
     { question: "Welcher Fluss fließt durch London?", answers: ["Seine","Donau","Themse","Rhein"], correct: 2 },
     { question: "Was ist die kleinste Primzahl?", answers: ["0","1","2","3"], correct: 2 },
     { question: "Welches Land hat die meisten Einwohner?", answers: ["Indien","China","USA","Indonesien"], correct: 1 },
-    { question: "Welche Farbe hat ein Smiley standardmäßig?", answers: ["Blau","Rot","Gelb","Grün"], correct: 2 },
     { question: "Wie viele Spieler hat eine Fußballmannschaft auf dem Feld?", answers: ["9","10","11","12"], correct: 2 },
     { question: "Welche Sprache wird in Brasilien gesprochen?", answers: ["Spanisch","Portugiesisch","Französisch","Englisch"], correct: 1 },
-    { question: "Wie heißt das chemische Symbol für Wasserstoff?", answers: ["H","He","O","W"], correct: 0 }
+    { question: "Wie heißt das chemische Symbol für Wasserstoff?", answers: ["H","He","O","W"], correct: 0 },
+    { question: "Was ist die Hauptstadt von Frankreich?", answers: ["Paris","Lyon","Marseille","Bordeaux"], correct: 0 },
+    { question: "Wie viele Tage hat ein Schaltjahr?", answers: ["365","366","364","367"], correct: 1 },
+    { question: "Was ist 12 × 12?", answers: ["144","124","132","156"], correct: 0 },
   ];
 
-  // Erzeuge eine Fragen-Liste mit genau TOTAL_ROUNDS * QUESTIONS_PER_ROUND Fragen (zufällig aus dem Pool)
-  function generateQuestions() {
-    const needed = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
-    const pool = [...SAMPLE_QUESTIONS];
-    // Falls Pool zu klein, duplicate mit shuffle
-    while (pool.length < needed) {
-      pool.push(...SAMPLE_QUESTIONS);
-    }
-    // Fisher-Yates shuffle
-    for (let i = pool.length - 1; i > 0; i--) {
+  // Hilfsfunktionen
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
+      [a[i], a[j]] = [a[j], a[i]];
     }
-    return pool.slice(0, needed).map((q, idx) => ({ id: idx, ...q }));
+    return a;
   }
 
-  // Hilfsfunktionen
+  function generateQuestions() {
+    const needed = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
+    let pool = [...QUESTION_POOL];
+    while (pool.length < needed) pool = pool.concat(QUESTION_POOL);
+    pool = shuffle(pool).slice(0, needed).map((q, idx) => ({ id: idx, ...q }));
+    return pool;
+  }
+
   function randomGameID() {
     return Math.random().toString(36).substr(2,6).toUpperCase();
   }
@@ -120,39 +145,40 @@
     return Date.now().toString(36) + Math.random().toString(36).substr(2,4);
   }
 
-  // QR-URL (Google Chart API)
+  // QuickChart QR URL
   function qrUrlForGame(gameId) {
     const url = `${window.location.origin}${window.location.pathname}?join=${gameId}`;
-    return `https://chart.googleapis.com/chart?cht=qr&chs=240x240&chl=${encodeURIComponent(url)}`;
+    return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
   }
 
-  /*****************
-   *  Components
-   *****************/
+  /************ Components ************/
 
-  // StartScreen: Erstellen oder Beitreten
+  // START SCREEN
   function StartScreen({ onCreate, onJoin }) {
     const [name, setName] = useState('');
     const [code, setCode] = useState('');
 
     return (
-      <div className="max-w-3xl mx-auto text-center">
-        <h1 className="text-5xl font-bold mb-6">🎯 Multiplayer Quiz</h1>
-        <div className="bg-white/10 p-6 rounded-xl mb-6">
-          <input className="w-full p-3 rounded mb-3 text-black" placeholder="Dein Name" value={name} onChange={e => setName(e.target.value)} />
-          <div className="flex gap-3 justify-center">
-            <button className="bg-green-500 px-5 py-3 rounded font-bold hover:bg-green-600 disabled:opacity-60" onClick={() => name && onCreate(name)} disabled={!name}>Neues Spiel (Host)</button>
-            <input className="p-3 rounded text-black w-40" placeholder="Spielcode" value={code} onChange={e => setCode(e.target.value.toUpperCase())} />
-            <button className="bg-blue-500 px-4 py-3 rounded font-bold hover:bg-blue-600 disabled:opacity-60" onClick={() => name && code && onJoin(name, code)} disabled={!name || !code}>Beitreten</button>
-          </div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center px-6">
+        <div className="max-w-2xl w-full bg-white/5 p-6 rounded-xl">
+          <h1 className="text-4xl font-bold mb-4">🎯 Multiplayer Quiz</h1>
+          <p className="text-sm mb-4">Host erstellt Spiel (Quizmaster) oder Spieler treten per Code/QR bei.</p>
 
-        <p className="text-sm text-white/80">Host erstellt ein Spiel und verteilt den Code oder QR. Spieler scannen QR oder geben Code ein.</p>
+          <input className="w-full p-3 rounded mb-3 text-black" placeholder="Dein Name (wird im Spiel angezeigt)" value={name} onChange={e => setName(e.target.value)} />
+
+          <div className="flex gap-3 mb-3">
+            <button className="flex-1 bg-green-500 hover:bg-green-600 px-4 py-3 rounded font-bold disabled:opacity-60" disabled={!name} onClick={() => onCreate(name)}>Neues Spiel (Host)</button>
+            <input className="w-40 p-2 rounded text-black" placeholder="Spielcode" value={code} onChange={e => setCode(e.target.value.toUpperCase())} />
+            <button className="bg-blue-500 hover:bg-blue-600 px-3 py-3 rounded font-bold disabled:opacity-60" disabled={!name || !code} onClick={() => onJoin(name, code)}>Beitreten</button>
+          </div>
+
+          <p className="text-xs text-white/70">HINWEIS: Host ist nur Quizmaster und wird nicht als Spieler gezählt.</p>
+        </div>
       </div>
     );
   }
 
-  // Host-Lobby: QR + Spieler-Liste + Start-Button
+  // HOST LOBBY (vor Start) - zeigt QR, Spieler, Start-Button
   function HostLobby({ gameId, hostName }) {
     const [players, setPlayers] = useState({});
     useEffect(() => {
@@ -161,261 +187,329 @@
       return () => ref.off();
     }, [gameId]);
 
-    const playerCount = Object.keys(players).length;
-    const url = `${window.location.origin}${window.location.pathname}?join=${gameId}`;
-
     return (
-      <div className="max-w-4xl mx-auto bg-white/10 p-6 rounded-xl">
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold mb-2">Host: {hostName}</h2>
-            <p className="mb-4">Spielcode: <span className="font-mono bg-white text-black px-2 py-1 rounded">{gameId}</span></p>
-            <img src={qrUrlForGame(gameId)} alt="QR" className="mx-auto mb-4" />
-            <p className="text-sm">Link: <a className="underline" href={url} target="_blank" rel="noreferrer">{url}</a></p>
+      <div className="min-h-screen host-screen">
+        <div className="host-main">
+          <h2 className="text-4xl font-bold mb-4">Quizmaster: {hostName}</h2>
+          <div className="mb-4">
+            <div className="text-xl mb-2">Spielcode: <span className="font-mono bg-white text-black px-3 py-1 rounded ml-2">{gameId}</span></div>
+            <img src={qrUrlForGame(gameId)} alt="QR zum Joinen" className="mx-auto rounded-md shadow-md mb-3" />
+            <div className="text-sm">Scanner den QR-Code mit dem Smartphone oder öffne: <span className="underline">{window.location.origin + window.location.pathname}?join={gameId}</span></div>
           </div>
-          <div className="w-80 bg-white/20 p-4 rounded">
-            <h3 className="font-bold mb-2">Spieler ({playerCount})</h3>
-            <div className="space-y-2 max-h-56 overflow-auto">
-              {Object.entries(players).map(([pid, p]) => (
-                <div key={pid} className="flex justify-between items-center bg-white/10 p-2 rounded">
-                  <div>{p.name}</div>
-                  <div className="text-sm">{p.score || 0} pts</div>
-                </div>
-              ))}
-              {playerCount === 0 && <div className="text-sm text-white/70">Warte auf Spieler...</div>}
-            </div>
+
+          <div className="mt-auto text-sm text-white/80">Sobald genug Spieler da sind, starte das Spiel Rechts.</div>
+        </div>
+
+        <div className="host-side">
+          <h3 className="text-xl font-bold mb-2">Aktive Spieler</h3>
+          <div className="space-y-2">
+            {Object.entries(players).length === 0 && <div className="text-sm text-white/70">Keine Spieler</div>}
+            {Object.entries(players).map(([pid,p]) => (
+              <div key={pid} className="flex justify-between items-center bg-white/5 p-2 rounded">
+                <div>{p.name}</div>
+                <div className="text-sm">{p.score || 0} pts</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     );
   }
 
-  // Player Join Screen (when opening with ?join=ID or manual join)
-  function PlayerJoin({ joinGameId, onJoined }) {
-    const [name, setName] = useState('');
-    const [joining, setJoining] = useState(false);
-    const [error, setError] = useState('');
-
-    const handleJoin = async () => {
-      setError('');
-      setJoining(true);
-      try {
-        const snap = await db.ref(`games/${joinGameId}`).get();
-        if (!snap.exists()) {
-          setError('Spiel nicht gefunden.');
-          setJoining(false);
-          return;
-        }
-        const pid = makePlayerId();
-        const playerObj = { name, score: 0, currentAnswer: null, joinedAt: Date.now() };
-        await db.ref(`games/${joinGameId}/players/${pid}`).set(playerObj);
-        // speichere playerId lokal, damit der Client weiß, wer er ist
-        localStorage.setItem(`quiz_player_${joinGameId}`, pid);
-        localStorage.setItem(`quiz_name_${joinGameId}`, name);
-        onJoined(joinGameId, pid, name);
-      } catch (err) {
-        console.error(err);
-        setError('Fehler beim Beitreten');
-        setJoining(false);
-      }
-    };
-
-    return (
-      <div className="max-w-md mx-auto bg-white/10 p-6 rounded-xl">
-        <h2 className="text-2xl font-bold mb-4">Spiel beitreten: {joinGameId}</h2>
-        <input className="w-full p-3 rounded mb-3 text-black" placeholder="Dein Name" value={name} onChange={e => setName(e.target.value)} />
-        <div className="flex gap-3">
-          <button className="bg-blue-500 px-4 py-2 rounded font-bold hover:bg-blue-600" onClick={handleJoin} disabled={!name || joining}>Beitreten</button>
-        </div>
-        {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
-      </div>
-    );
-  }
-
-  // Host: Game Controller (start, next, force results)
+  // HOST CONTROLLER (kleine Steuerleiste; in HostScreen auch groß sichtbar)
   function HostController({ gameId }) {
-    const [state, setState] = useState(null);
+    const [meta, setMeta] = useState(null);
     const [players, setPlayers] = useState({});
-    const timerRef = useRef(null);
-    const [timeLeft, setTimeLeft] = useState(0);
-
     useEffect(() => {
       const ref = db.ref(`games/${gameId}/meta`);
-      ref.on('value', snap => setState(snap.val()));
-      const pref = db.ref(`games/${gameId}/players`);
-      pref.on('value', snap => setPlayers(snap.val() || {}));
-      return () => { ref.off(); pref.off(); clearInterval(timerRef.current); };
+      ref.on('value', snap => setMeta(snap.val()));
+      const p = db.ref(`games/${gameId}/players`);
+      p.on('value', snap => setPlayers(snap.val() || {}));
+      return () => { ref.off(); p.off(); };
     }, [gameId]);
 
-    // Start Game: set phase question, questionIndex=0, set questionStartTime
-    const startGame = async () => {
-      try {
-        await db.ref(`games/${gameId}/meta`).update({
-          phase: 'question',
-          questionIndex: 0,
-          round: 1,
-          questionStartTime: Date.now(),
-        });
-        // reset scores & answers
-        const updates = {};
-        Object.keys(players).forEach(pid => {
-          updates[`games/${gameId}/players/${pid}/score`] = 0;
-          updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-        });
-        await db.ref().update(updates);
-      } catch (err) { console.error(err); }
-    };
+    // start game: write questions + meta
+// --- alte Funktion startGame ersetzt durch diese ---
+const startGame = async () => {
+  const questions = generateQuestions();
+  const metaObj = {
+    phase: 'question',
+    questionIndex: 0,
+    round: 1,
+    questionStartTime: Date.now(),
+    nextQuestionIndex: null
+  };
+  await db.ref(`games/${gameId}/questions`).set(questions);
+  // Spieler ggf. resetten (auch wenn es keine gibt)
+  const pSnap = await db.ref(`games/${gameId}/players`).get();
+  const pObj = pSnap.val() || {};
+  const updates = {};
+  Object.keys(pObj).forEach(pid => {
+    updates[`games/${gameId}/players/${pid}/score`] = 0;
+    updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
+  });
+  await db.ref().update(updates);
+  await db.ref(`games/${gameId}/meta`).set(metaObj);
+};
 
-    // Force show results (host-trigger) — compute scores and set phase to results
+    // compute results (host triggers) -> update scores and set phase results
     const showResultsNow = async () => {
       try {
         const snap = await db.ref(`games/${gameId}`).get();
         const g = snap.val();
         if (!g) return;
         const qIndex = g.meta?.questionIndex || 0;
-        const currentQ = g.questions?.[qIndex];
-        if (!currentQ) return;
-
-        const playersObj = g.players || {};
+        const q = (g.questions || [])[qIndex];
+        if (!q) return;
+        const playerObj = g.players || {};
         const updates = {};
-        Object.entries(playersObj).forEach(([pid, p]) => {
+        Object.entries(playerObj).forEach(([pid,p]) => {
           const ans = p.currentAnswer;
-          const correct = typeof ans === 'number' && ans === currentQ.correct;
+          const correct = typeof ans === 'number' && ans === q.correct;
           const newScore = (p.score || 0) + (correct ? 100 : 0);
           updates[`games/${gameId}/players/${pid}/score`] = newScore;
         });
-        // set phase to results
         await db.ref().update(updates);
         await db.ref(`games/${gameId}/meta`).update({ phase: 'results' });
       } catch (err) { console.error(err); }
     };
 
-    // Next: increment questionIndex (or handle round end)
+    // Next Question or RoundSummary
     const nextQuestion = async () => {
-      try {
-        const snap = await db.ref(`games/${gameId}/meta`).get();
-        const meta = snap.val();
-        const qIndex = meta.questionIndex;
-        const nextIndex = qIndex + 1;
-        const round = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
+      const snap = await db.ref(`games/${gameId}/meta`).get();
+      const metaVal = snap.val();
+      const cur = metaVal?.questionIndex || 0;
+      const next = cur + 1;
+      const isGameEnd = next >= TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
+      const isEndOfRound = (cur + 1) % QUESTIONS_PER_ROUND === 0;
 
-        const isEndOfRound = (qIndex + 1) % QUESTIONS_PER_ROUND === 0;
-        const isGameEnd = nextIndex >= TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
-
-        if (isGameEnd) {
-          // finished
-          await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
-        } else if (isEndOfRound) {
-          // show round summary
-          await db.ref(`games/${gameId}/meta`).update({
-            phase: 'roundSummary',
-            questionIndex: nextIndex,
-            round: round
-          });
-        } else {
-          // normal next question -> set start time
-          await db.ref(`games/${gameId}/meta`).update({
-            phase: 'question',
-            questionIndex: nextIndex,
-            questionStartTime: Date.now(),
-            round: round
-          });
-          // reset players' currentAnswer to null
-          const pSnap = await db.ref(`games/${gameId}/players`).get();
-          const pObj = pSnap.val() || {};
-          const updates = {};
-          Object.keys(pObj).forEach(pid => updates[`games/${gameId}/players/${pid}/currentAnswer`] = null);
-          await db.ref().update(updates);
-        }
-      } catch (err) { console.error(err); }
-    };
-
-    // Continue after round summary -> move to next question (same as nextQuestion)
-    const continueAfterRound = async () => {
-      // set next question with questionStartTime
-      try {
-        const snap = await db.ref(`games/${gameId}/meta`).get();
-        const meta = snap.val();
-        const qIndex = meta.questionIndex;
-        // if current phase is roundSummary, we actually should start the question at qIndex (which was set earlier)
-        await db.ref(`games/${gameId}/meta`).update({
-          phase: 'question',
-          questionStartTime: Date.now()
-        });
-        // reset answers
+      if (isGameEnd) {
+        // game finished
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+      } else if (isEndOfRound) {
+        // show round summary: set nextQuestionIndex for later and go to roundSummary
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', nextQuestionIndex: next });
+      } else {
+        // continue with next question
+        // reset players currentAnswer to null
         const pSnap = await db.ref(`games/${gameId}/players`).get();
         const pObj = pSnap.val() || {};
         const updates = {};
         Object.keys(pObj).forEach(pid => updates[`games/${gameId}/players/${pid}/currentAnswer`] = null);
         await db.ref().update(updates);
-      } catch (err) { console.error(err); }
+        await db.ref(`games/${gameId}/meta`).update({
+          questionIndex: next,
+          phase: 'question',
+          questionStartTime: Date.now(),
+          round: Math.floor(next / QUESTIONS_PER_ROUND) + 1
+        });
+      }
     };
 
-    // Auto-timer: calculates timeLeft locally for Host display
+    // Start the next round after roundSummary
+    const startNextRound = async () => {
+      const snap = await db.ref(`games/${gameId}/meta`).get();
+      const metaVal = snap.val();
+      const nextIndex = metaVal?.nextQuestionIndex ?? (metaVal?.questionIndex ?? 0);
+      const round = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
+      // reset answers
+      const pSnap = await db.ref(`games/${gameId}/players`).get();
+      const pObj = pSnap.val() || {};
+      const updates = {};
+      Object.keys(pObj).forEach(pid => updates[`games/${gameId}/players/${pid}/currentAnswer`] = null);
+      await db.ref().update(updates);
+      await db.ref(`games/${gameId}/meta`).update({
+        questionIndex: nextIndex,
+        phase: 'question',
+        questionStartTime: Date.now(),
+        round: round,
+        nextQuestionIndex: null
+      });
+    };
+
+    if (!meta) {
+      return <div className="text-center p-3">Warten auf Spielmeta...</div>;
+    }
+
+    const isLobby = meta.phase === 'lobby' || !meta.phase;
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-sm">Phase: <strong>{meta.phase}</strong></div>
+            <div className="text-sm">Runde: <strong>{meta.round || 1}/{TOTAL_ROUNDS}</strong></div>
+            <div className="text-sm">Frage: <strong>{(meta.questionIndex || 0) + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</strong></div>
+          </div>
+          <div className="text-right">
+            <div className="text-xs text-white/80">Spieler: {Object.keys(players).length}</div>
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          { (meta.phase === 'lobby' || !meta.phase) && <button className="bg-green-500 px-4 py-2 rounded" onClick={startGame}>Spiel starten</button> }
+          { meta.phase === 'question' && <button className="bg-yellow-500 px-4 py-2 rounded" onClick={showResultsNow}>Ergebnisse anzeigen</button> }
+          { meta.phase === 'results' && <button className="bg-blue-600 px-4 py-2 rounded" onClick={nextQuestion}>Nächste Frage</button> }
+          { meta.phase === 'roundSummary' && <button className="bg-blue-600 px-4 py-2 rounded" onClick={startNextRound}>Nächste Runde starten</button> }
+          { meta.phase === 'finished' && <div className="text-green-300 font-bold px-3 py-2 rounded">Spiel beendet</div> }
+        </div>
+      </div>
+    );
+  }
+
+  // HOST FULLSCREEN VIEW (großes Panel für TV/Beamer)
+  function HostScreen({ gameId, hostName }) {
+    const [game, setGame] = useState(null);
+    const [meta, setMeta] = useState(null);
+    const [timeLeft, setTimeLeft] = useState(0);
+    const timerRef = useRef(null);
+
     useEffect(() => {
-      if (!state) return;
-      if (state.phase !== 'question' || !state.questionStartTime) {
-        setTimeLeft(0);
-        return;
-      }
+      const gRef = db.ref(`games/${gameId}`);
+      gRef.on('value', snap => setGame(snap.val()));
+      const mRef = db.ref(`games/${gameId}/meta`);
+      mRef.on('value', snap => setMeta(snap.val()));
+      return () => { gRef.off(); mRef.off(); clearInterval(timerRef.current); };
+    }, [gameId]);
+
+    useEffect(() => {
+      if (!meta || meta.phase !== 'question' || !meta.questionStartTime) { setTimeLeft(0); return; }
       const tick = () => {
-        const elapsed = Math.floor((Date.now() - state.questionStartTime) / 1000);
-        const remaining = Math.max(0, QUESTION_TIME - elapsed);
-        setTimeLeft(remaining);
-        // when timer hits 0, automatically show results (host)
-        if (remaining <= 0) {
-          // call showResultsNow and stop interval
-          showResultsNow();
-          clearInterval(timerRef.current);
+        const elapsed = Math.floor((Date.now() - meta.questionStartTime) / 1000);
+        const rem = Math.max(0, QUESTION_TIME - elapsed);
+        setTimeLeft(rem);
+        if (rem <= 0) {
+          // nothing here — hostController will call showResultsNow via timer on his side if desired
+          // We do not auto-trigger DB changes here to avoid race conditions; host should press "Ergebnisse anzeigen" or hostController already handles auto in earlier version
         }
       };
       tick();
       clearInterval(timerRef.current);
       timerRef.current = setInterval(tick, 500);
       return () => clearInterval(timerRef.current);
-    }, [state?.phase, state?.questionStartTime]);
+    }, [meta?.phase, meta?.questionStartTime]);
 
-    if (!state) return <div className="text-center py-8">Lade Spielmeta...</div>;
+    if (!meta || !game) return <div className="min-h-screen flex items-center justify-center">Lade Spiel...</div>;
+
+    const qIndex = meta.questionIndex || 0;
+    const question = (game.questions || [])[qIndex];
+
+    const playersArr = Object.entries(game.players || {}).map(([pid,p]) => ({ pid, ...p })).sort((a,b) => (b.score || 0) - (a.score || 0));
 
     return (
-      <div className="bg-white/10 p-4 rounded-xl">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <div className="text-sm">Phase: <strong>{state.phase}</strong></div>
-            <div className="text-sm">Runde: <strong>{state.round || 1}/{TOTAL_ROUNDS}</strong></div>
-            <div className="text-sm">Frage: <strong>{(state.questionIndex || 0) + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</strong></div>
-          </div>
-          <div className="text-right">
-            <div className="text-lg font-bold">{timeLeft}s</div>
-            <div className="text-xs text-white/70">Verbleibend</div>
+      <div className="min-h-screen host-screen">
+        <div className="host-main">
+          <div style={{width:'100%'}}>
+            <div className="text-left mb-4 text-sm text-white/80">Quizmaster: <strong>{hostName}</strong></div>
+            { meta.phase === 'lobby' && (
+              <div>
+                <h2 className="text-5xl font-bold mb-2">Warte auf Spieler</h2>
+                <p className="text-xl">Spielcode: <span className="font-mono bg-white text-black px-3 py-1 rounded">{gameId}</span></p>
+              </div>
+            )}
+
+            { meta.phase === 'question' && question && (
+              <div>
+                <div className="text-6xl font-extrabold mb-6">{question.question}</div>
+                <div className="flex items-center justify-center gap-6">
+                  <div className="text-7xl font-bold">{timeLeft}s</div>
+                </div>
+                <div className="mt-8 grid grid-cols-2 gap-4">
+                  {question.answers.map((a,i) => <div key={i} className="bg-white/6 p-4 rounded text-xl font-semibold">{String.fromCharCode(65+i)}. {a}</div>)}
+                </div>
+              </div>
+            )}
+
+            { meta.phase === 'results' && question && (
+              <div>
+                <div className="text-5xl font-bold mb-4">Ergebnisse</div>
+                <div className="text-3xl mb-6">Richtige Antwort: <strong>{question.answers[question.correct]}</strong></div>
+                <div className="grid grid-cols-2 gap-3">
+                  {question.answers.map((a,i) => {
+                    const voters = playersArr.filter(p => p.currentAnswer === i).map(p => p.name).join(', ');
+                    const isCorrect = i === question.correct;
+                    return (
+                      <div key={i} className={`p-4 rounded ${isCorrect ? 'bg-green-600' : 'bg-white/6'}`}>
+                        <div className="text-xl font-bold">{String.fromCharCode(65+i)}. {a}</div>
+                        <div className="mt-2 text-sm">Antworten: {voters || 'Niemand'}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            { meta.phase === 'roundSummary' && (
+              <div>
+                <h2 className="text-5xl font-bold mb-4">Zwischenstand - Runde {meta.round}</h2>
+                <div className="max-h-96 overflow-auto">
+                  {playersArr.map((p,i) => (
+                    <div key={p.pid} className="flex justify-between items-center bg-white/5 p-3 rounded mb-2">
+                      <div className="text-2xl font-bold">{i+1}. {p.name}</div>
+                      <div className="text-2xl font-extrabold">{p.score || 0} pts</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            { meta.phase === 'finished' && (
+              <div>
+                <h2 className="text-6xl font-bold mb-6">Spiel beendet</h2>
+                <div className="max-h-96 overflow-auto">
+                  {playersArr.map((p,i) => (
+                    <div key={p.pid} className="flex justify-between items-center bg-white/5 p-3 rounded mb-2">
+                      <div className="text-2xl font-bold">{i+1}. {p.name}</div>
+                      <div className="text-2xl font-extrabold">{p.score || 0} pts</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="flex gap-2">
-          {state.phase === 'lobby' && (
-            <button className="bg-green-500 px-4 py-2 rounded font-bold" onClick={startGame}>Spiel starten</button>
-          )}
-          {state.phase === 'question' && (
-            <button className="bg-yellow-500 px-4 py-2 rounded font-bold" onClick={showResultsNow}>Ergebnisse anzeigen (jetzt)</button>
-          )}
-          {state.phase === 'results' && (
-            <button className="bg-blue-600 px-4 py-2 rounded font-bold" onClick={nextQuestion}>Nächste Frage</button>
-          )}
-          {state.phase === 'roundSummary' && (
-            <button className="bg-blue-600 px-4 py-2 rounded font-bold" onClick={continueAfterRound}>Nächste Runde starten</button>
-          )}
-          {state.phase === 'finished' && (
-            <div className="text-green-200 font-bold">Spiel beendet</div>
-          )}
+        <div className="host-side">
+          <div className="mb-4">
+            <HostController gameId={gameId} />
+          </div>
+
+          <div className="mb-4">
+            <h3 className="text-xl font-bold mb-2">Spieler & Punkte</h3>
+            <div className="space-y-2 max-h-72 overflow-auto">
+              {playersArr.map(p => (
+                <div key={p.pid} className="flex justify-between items-center bg-white/5 p-2 rounded">
+                  <div>{p.name}</div>
+                  <div className="text-sm">{p.score || 0} pts</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <h3 className="text-lg font-bold mb-2">Spiel Info</h3>
+            <div className="text-sm">Code: <span className="font-mono bg-white text-black px-2 py-1 rounded">{gameId}</span></div>
+            <div className="text-xs mt-2">QR-Code zum Scannen:</div>
+            <img src={qrUrlForGame(gameId)} alt="QR Code" className="mt-2 rounded" />
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold mb-2">Kurz-Anleitung</h3>
+            <ol className="text-sm list-decimal list-inside space-y-1">
+              <li>Spieler scannen QR oder geben Code ein.</li>
+              <li>Wenn Frage startet: 40s Zeit zum Antworten.</li>
+              <li>Host zeigt Ergebnisse, dann "Nächste Frage".</li>
+              <li>Am Ende jeder Runde: Host zeigt Zwischenstand.</li>
+            </ol>
+          </div>
         </div>
       </div>
     );
   }
 
-  // Player View: shows questions, timer (computed from questionStartTime), allow answer once
+  // PLAYER VIEW (Smartphone)
   function PlayerView({ gameId, playerId }) {
-    const [meta, setMeta] = useState(null);
     const [game, setGame] = useState(null);
+    const [meta, setMeta] = useState(null);
     const [player, setPlayer] = useState(null);
     const [timeLeft, setTimeLeft] = useState(0);
 
@@ -429,34 +523,31 @@
       return () => { gRef.off(); mRef.off(); pRef.off(); };
     }, [gameId, playerId]);
 
-    // Time calculation for client: based on meta.questionStartTime
     useEffect(() => {
-      if (!meta || meta.phase !== 'question' || !meta.questionStartTime) {
-        setTimeLeft(0);
-        return;
-      }
+      if (!meta || meta.phase !== 'question' || !meta.questionStartTime) { setTimeLeft(0); return; }
       const tick = () => {
         const elapsed = Math.floor((Date.now() - meta.questionStartTime) / 1000);
-        const rem = Math.max(0, QUESTION_TIME - elapsed);
-        setTimeLeft(rem);
+        setTimeLeft(Math.max(0, QUESTION_TIME - elapsed));
       };
       tick();
       const t = setInterval(tick, 500);
       return () => clearInterval(t);
     }, [meta?.questionStartTime, meta?.phase]);
 
-    if (!game || !meta || !player) return <div className="text-center py-8">Warte auf Spiel-Daten...</div>;
+    if (!game || !meta || !player) return <div className="min-h-screen flex items-center justify-center">Warte auf Spiel...</div>;
 
     const qIndex = meta.questionIndex || 0;
     const question = (game.questions || [])[qIndex];
 
     if (meta.phase === 'lobby') {
       return (
-        <div className="bg-white/10 p-6 rounded-xl text-center">
-          <h2 className="text-2xl font-bold mb-2">Warten auf Start</h2>
-          <p className="mb-2">Spielcode: <span className="font-mono bg-white text-black px-2 py-1 rounded">{gameId}</span></p>
-          <p className="mb-4">Spieler: {Object.keys(game.players || {}).length}</p>
-          <p className="text-sm">{player.name}, du bist bereit.</p>
+        <div className="min-h-screen flex items-center justify-center p-6">
+          <div className="bg-white/5 p-6 rounded w-full max-w-md text-center">
+            <h2 className="text-2xl font-bold mb-2">Warte auf Start</h2>
+            <p className="mb-2">Spielcode: <span className="font-mono bg-white text-black px-2 py-1 rounded">{gameId}</span></p>
+            <p className="text-sm">Bitte warte, bis der Host das Spiel startet.</p>
+            <p className="text-sm mt-3">Dein Name: <strong>{player.name}</strong></p>
+          </div>
         </div>
       );
     }
@@ -464,76 +555,79 @@
     if (meta.phase === 'question' && question) {
       const hasAnswered = player.currentAnswer !== null && player.currentAnswer !== undefined;
       return (
-        <div className="bg-white/10 p-6 rounded-xl">
-          <div className="flex justify-between items-center mb-4">
-            <div>Runde {meta.round || 1}/{TOTAL_ROUNDS}</div>
-            <div className="text-lg font-bold">{timeLeft}s</div>
-          </div>
-          <h3 className="text-xl font-bold mb-4">{question.question}</h3>
-          <div className="grid gap-3">
-            {question.answers.map((ans, i) => {
-              const disabled = hasAnswered || timeLeft <= 0;
-              const isSelected = player.currentAnswer === i;
-              return (
-                <button
-                  key={i}
-                  disabled={disabled}
-                  onClick={() => {
-                    // set currentAnswer in DB (only once)
-                    db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i);
-                  }}
-                  className={`p-3 rounded font-bold text-left ${disabled ? (isSelected ? 'bg-green-500 text-white' : 'bg-white/30 text-white/80') : 'bg-blue-500 hover:bg-blue-600 text-white'}`}
-                >
-                  {ans}
-                </button>
-              );
-            })}
-          </div>
-          <div className="mt-4 text-sm">
-            {player.currentAnswer === null ? "Noch nicht geantwortet" : `Du hast Antwort ${player.currentAnswer + 1} gewählt`}
+        <div className="min-h-screen flex items-center justify-center p-6">
+          <div className="bg-white/5 p-6 rounded w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <div>Runde {meta.round}/{TOTAL_ROUNDS}</div>
+              <div className="text-lg font-bold">{timeLeft}s</div>
+            </div>
+            <h3 className="text-xl font-bold mb-4">{question.question}</h3>
+
+            <div className="grid gap-3">
+              {question.answers.map((ans,i) => {
+                const disabled = hasAnswered || timeLeft <= 0;
+                const isSelected = player.currentAnswer === i;
+                return (
+                  <button
+                    key={i}
+                    disabled={disabled}
+                    onClick={() => db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i)}
+                    className={`p-3 rounded font-bold text-left ${disabled ? (isSelected ? 'bg-green-500 text-white' : 'bg-white/10 text-white/80') : 'bg-blue-500 hover:bg-blue-600 text-white'}`}
+                  >
+                    {String.fromCharCode(65+i)}. {ans}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-4 text-sm">
+              {player.currentAnswer === null ? "Noch nicht geantwortet" : `Du hast Antwort ${player.currentAnswer + 1} gewählt`}
+            </div>
+            <div className="mt-4 text-sm">Punkte: <strong>{player.score || 0}</strong></div>
           </div>
         </div>
       );
     }
 
-    if (meta.phase === 'results') {
-      const q = question;
-      // show correct answer and whether the player was right
-      const wasCorrect = player.currentAnswer === q.correct;
+    if (meta.phase === 'results' && question) {
+      const wasCorrect = player.currentAnswer === question.correct;
       return (
-        <div className="bg-white/10 p-6 rounded-xl text-center">
-          <h3 className="text-2xl font-bold mb-2">{wasCorrect ? 'Richtig! 🎉' : 'Falsch 😕'}</h3>
-          <p className="mb-3">Richtige Antwort: <strong>{q.answers[q.correct]}</strong></p>
-          <p className="mb-2">Dein Punktestand: <strong>{player.score || 0}</strong></p>
-          <p className="text-sm">Warte auf Host für nächste Frage.</p>
+        <div className="min-h-screen flex items-center justify-center p-6">
+          <div className="bg-white/5 p-6 rounded w-full max-w-md text-center">
+            <h3 className="text-3xl font-bold mb-3">{wasCorrect ? 'Richtig! 🎉' : 'Falsch 😕'}</h3>
+            <p className="mb-2">Richtige Antwort: <strong>{question.answers[question.correct]}</strong></p>
+            <p className="mb-2">Dein Punktestand: <strong>{player.score || 0}</strong></p>
+            <p className="text-sm">Warte auf den Host für die nächste Frage.</p>
+          </div>
         </div>
       );
     }
 
     if (meta.phase === 'roundSummary') {
-      const playersArr = Object.values(game.players || {});
-      // sort by score
-      const sorted = Object.entries(game.players || {}).sort((a,b) => (b[1].score||0) - (a[1].score||0));
+      const playersSorted = Object.values(game.players || {}).sort((a,b) => (b.score||0)-(a.score||0));
       return (
-        <div className="bg-white/10 p-6 rounded-xl">
-          <h3 className="text-2xl font-bold mb-3">Zwischenstand Runde {meta.round || 1}</h3>
-          <div className="bg-white/20 p-3 rounded mb-3">
-            {sorted.map(([pid, p], i) => <div key={pid} className="flex justify-between py-1">{i+1}. {p.name} <span>{p.score||0} pts</span></div>)}
+        <div className="min-h-screen flex items-center justify-center p-6">
+          <div className="bg-white/5 p-6 rounded w-full max-w-md">
+            <h3 className="text-2xl font-bold mb-3">Zwischenstand Runde {meta.round}</h3>
+            <div className="bg-white/10 p-3 rounded mb-3">
+              {playersSorted.map((p,i) => <div key={i} className="flex justify-between py-1">{i+1}. {p.name} <span>{p.score||0} pts</span></div>)}
+            </div>
+            <p className="text-sm">Host startet die nächste Runde, sobald er bereit ist.</p>
           </div>
-          <p className="text-sm">Host startet die nächste Runde, sobald er bereit ist.</p>
         </div>
       );
     }
 
     if (meta.phase === 'finished') {
-      const sorted = Object.entries(game.players || {}).sort((a,b) => (b[1].score||0) - (a[1].score||0));
+      const playersSorted = Object.values(game.players || {}).sort((a,b) => (b.score||0)-(a.score||0));
       return (
-        <div className="bg-white/10 p-6 rounded-xl">
-          <h3 className="text-2xl font-bold mb-3">Spiel beendet</h3>
-          <div className="bg-white/20 p-3 rounded mb-3">
-            {sorted.map(([pid, p], i) => <div key={pid} className="flex justify-between py-1">{i+1}. {p.name} <span>{p.score||0} pts</span></div>)}
+        <div className="min-h-screen flex items-center justify-center p-6">
+          <div className="bg-white/5 p-6 rounded w-full max-w-md">
+            <h3 className="text-3xl font-bold mb-3">Spiel beendet</h3>
+            <div className="bg-white/10 p-3 rounded mb-3">
+              {playersSorted.map((p,i) => <div key={i} className="flex justify-between py-1">{i+1}. {p.name} <span>{p.score||0} pts</span></div>)}
+            </div>
           </div>
-          <p className="text-sm">Danke fürs Spielen!</p>
         </div>
       );
     }
@@ -541,39 +635,47 @@
     return <div>Warte...</div>;
   }
 
-  // Round Summary View for Host
-  function RoundSummary({ gameId }) {
-    const [game, setGame] = useState(null);
-    useEffect(() => {
-      const ref = db.ref(`games/${gameId}`);
-      ref.on('value', snap => setGame(snap.val()));
-      return () => ref.off();
-    }, [gameId]);
+  // Player Join Screen when opening with ?join=CODE
+  function PlayerJoin({ joinGameId, onJoined }) {
+    const [name, setName] = useState('');
+    const [error, setError] = useState('');
 
-    if (!game) return <div>Lade...</div>;
-    const players = Object.entries(game.players || {}).sort((a,b) => (b[1].score||0)-(a[1].score||0));
+    const handleJoin = async () => {
+      setError('');
+      try {
+        const snap = await db.ref(`games/${joinGameId}`).get();
+        if (!snap.exists()) { setError('Spiel nicht gefunden'); return; }
+        const pid = makePlayerId();
+        const playerObj = { name, score: 0, currentAnswer: null, joinedAt: Date.now() };
+        await db.ref(`games/${joinGameId}/players/${pid}`).set(playerObj);
+        localStorage.setItem(`quiz_player_${joinGameId}`, pid);
+        localStorage.setItem(`quiz_name_${joinGameId}`, name);
+        onJoined(joinGameId, pid, name);
+      } catch (err) { console.error(err); setError('Fehler beim Beitreten'); }
+    };
+
     return (
-      <div className="bg-white/10 p-4 rounded-xl">
-        <h3 className="text-xl font-bold mb-2">Zwischenstand</h3>
-        <div className="bg-white/20 p-3 rounded mb-3">
-          {players.map(([pid,p],i) => <div key={pid} className="flex justify-between py-1">{i+1}. {p.name} <span>{p.score||0} pts</span></div>)}
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="bg-white/5 p-6 rounded w-full max-w-md">
+          <h2 className="text-2xl font-bold mb-3">Spiel beitreten: {joinGameId}</h2>
+          <input className="w-full p-3 rounded mb-3 text-black" placeholder="Dein Name" value={name} onChange={e => setName(e.target.value)} />
+          <button className="bg-blue-500 px-4 py-3 rounded w-full font-bold" onClick={handleJoin} disabled={!name}>Beitreten</button>
+          {error && <div className="text-red-300 mt-3">{error}</div>}
         </div>
       </div>
     );
   }
 
-  /*****************
-   *  APP
-   *****************/
+  /************ App (Single File) ************/
   function App() {
-    const [mode, setMode] = useState('start'); // start | host-lobby | player-join | playing
+    const [mode, setMode] = useState('start'); // start | host-lobby | host-screen | player-join | player-play
     const [gameId, setGameId] = useState('');
     const [playerId, setPlayerId] = useState('');
     const [playerName, setPlayerName] = useState('');
+    const [hostName, setHostName] = useState('');
     const [isHost, setIsHost] = useState(false);
-    const [gameDataLoaded, setGameDataLoaded] = useState(false);
 
-    // When the page opens with ?join=GAMEID, automatically go to join screen
+    // on load: if ?join=code present -> go to player join
     useEffect(() => {
       const params = new URLSearchParams(window.location.search);
       const join = params.get('join');
@@ -583,155 +685,102 @@
       }
     }, []);
 
-    // Create new game (host)
-    const createGame = async (hostName) => {
+    // Create Game (host) — host is NOT added as player
+    const createGame = async (host) => {
       const id = randomGameID();
       const questions = generateQuestions();
       const meta = {
         phase: 'lobby',
         questionIndex: 0,
         round: 1,
-        questionStartTime: null
+        questionStartTime: null,
+        nextQuestionIndex: null
       };
-      // create game object
-      const gameObj = {
-        host: hostName,
-        meta,
-        questions,
-        players: {},
-      };
+      const gameObj = { host, questions, meta, players: {} };
       await db.ref(`games/${id}`).set(gameObj);
       setGameId(id);
-      setPlayerName(hostName);
+      setHostName(host);
       setIsHost(true);
-      // create a host-player entry (optional)
-      const hostPid = makePlayerId();
-      localStorage.setItem(`quiz_player_${id}`, hostPid);
-      localStorage.setItem(`quiz_name_${id}`, hostName);
-      await db.ref(`games/${id}/players/${hostPid}`).set({ name: hostName, score: 0, currentAnswer: null, joinedAt: Date.now() });
-      setPlayerId(hostPid);
       setMode('host-lobby');
     };
 
-    // Join existing game (player)
-    const joinGame = async (name, id) => {
+    // Join as player by code from start-screen
+    const joinGameFromStart = async (name, id) => {
       const snap = await db.ref(`games/${id}`).get();
-      if (!snap.exists()) {
-        alert('Spiel nicht gefunden.');
-        return;
-      }
+      if (!snap.exists()) { alert('Spiel nicht gefunden'); return; }
       const pid = makePlayerId();
+      await db.ref(`games/${id}/players/${pid}`).set({ name, score: 0, currentAnswer: null, joinedAt: Date.now() });
       localStorage.setItem(`quiz_player_${id}`, pid);
       localStorage.setItem(`quiz_name_${id}`, name);
-      await db.ref(`games/${id}/players/${pid}`).set({ name, score: 0, currentAnswer: null, joinedAt: Date.now() });
       setGameId(id);
       setPlayerId(pid);
       setPlayerName(name);
       setIsHost(false);
-      setMode('playing');
+      setMode('player-play');
     };
 
-    // If user opened page with ?join=ID and localStorage has playerId -> skip join screen
+    // After join via ?join=ID screen
+    const onJoined = (id, pid, name) => {
+      setGameId(id);
+      setPlayerId(pid);
+      setPlayerName(name);
+      setIsHost(false);
+      setMode('player-play');
+    };
+
+    // If user returns with localStorage for a given gameId from join link, auto-enter.
     useEffect(() => {
       if (mode !== 'player-join') return;
+      if (!gameId) return;
       const storedPid = localStorage.getItem(`quiz_player_${gameId}`);
       const storedName = localStorage.getItem(`quiz_name_${gameId}`);
       if (storedPid && storedName) {
-        // ensure player record exists on server
+        // ensure player exists on server
         db.ref(`games/${gameId}/players/${storedPid}`).get().then(snap => {
           if (!snap.exists()) {
             db.ref(`games/${gameId}/players/${storedPid}`).set({ name: storedName, score: 0, currentAnswer: null, joinedAt: Date.now() });
           }
           setPlayerId(storedPid);
           setPlayerName(storedName);
-          setIsHost(false);
-          setMode('playing');
-        }).catch(err => {
-          console.error(err);
-        });
+          setMode('player-play');
+        }).catch(err => console.error(err));
       }
     }, [mode, gameId]);
 
-    // If host-lobby is shown, listen for meta changes to move to question phase automatically
+    // If host goes from lobby to playing, open host screen
     useEffect(() => {
-      if (!isHost || !gameId) return;
+      if (mode !== 'host-lobby') return;
+      // watch meta phase to auto-show host-screen when meta.phase !== 'lobby'
       const ref = db.ref(`games/${gameId}/meta`);
       const handler = (snap) => {
-        const meta = snap.val();
-        if (!meta) return;
-        if (meta.phase === 'question') {
-          // host triggers hosting UI; ensure we transition to playing view for host
-          setMode('playing');
+        const val = snap.val();
+        if (!val) return;
+        if (val.phase && val.phase !== 'lobby') {
+          setMode('host-screen');
         }
       };
       ref.on('value', handler);
       return () => ref.off('value', handler);
-    }, [isHost, gameId]);
+    }, [mode, gameId]);
 
-    // When playing, show different view for host vs players
     if (mode === 'start') {
-      return <StartScreen onCreate={createGame} onJoin={joinGame} />;
+      return <StartScreen onCreate={(host) => createGame(host)} onJoin={(name, code) => joinGameFromStart(name, code)} />;
     }
 
     if (mode === 'host-lobby') {
-      return (
-        <div className="space-y-4">
-          <HostLobby gameId={gameId} hostName={playerName} />
-          <div className="max-w-3xl mx-auto mt-4">
-            <HostController gameId={gameId} />
-          </div>
-        </div>
-      );
+      return <HostLobby gameId={gameId} hostName={hostName} />;
+    }
+
+    if (mode === 'host-screen') {
+      return <HostScreen gameId={gameId} hostName={hostName} />;
     }
 
     if (mode === 'player-join') {
-      return <PlayerJoin joinGameId={gameId} onJoined={(id,pid,name) => { setGameId(id); setPlayerId(pid); setPlayerName(name); setMode('playing'); }} />;
+      return <PlayerJoin joinGameId={gameId} onJoined={onJoined} />;
     }
 
-    if (mode === 'playing') {
-      // host & player share same gameId
-      return (
-        <div className="max-w-4xl mx-auto grid gap-6 md:grid-cols-2">
-          <div>
-            {isHost ? (
-              <>
-                <div className="mb-4">
-                  <h2 className="text-2xl font-bold mb-2">Host Steuerung</h2>
-                  <HostController gameId={gameId} />
-                </div>
-                <div className="mt-4">
-                  <RoundSummary gameId={gameId} />
-                </div>
-              </>
-            ) : (
-              <div className="mb-4">
-                <h2 className="text-2xl font-bold mb-2">Spiel</h2>
-                <PlayerView gameId={gameId} playerId={playerId} />
-              </div>
-            )}
-          </div>
-
-          <div>
-            <div className="bg-white/10 p-4 rounded-xl mb-4">
-              <h3 className="font-bold">Spiel Info</h3>
-              <p className="text-sm">Code: <span className="font-mono bg-white text-black px-2 py-1 rounded">{gameId}</span></p>
-              <p className="text-sm">Name: {playerName}</p>
-              <p className="text-xs mt-2 text-white/70">QR zum Scannen:</p>
-              <img className="mt-2" src={qrUrlForGame(gameId)} alt="QR Code zum Joinen" />
-            </div>
-
-            <div className="bg-white/10 p-4 rounded-xl">
-              <h3 className="font-bold">Anleitung</h3>
-              <ol className="list-decimal list-inside text-sm mt-2 space-y-1">
-                <li>Host erstellt Spiel und teilt Code/QR.</li>
-                <li>Spieler scannen QR / geben Code ein und geben Namen an.</li>
-                <li>Host startet das Spiel; jede Frage hat 40s.</li>
-                <li>Nach jeder Runde (10 Fragen) wird ein Zwischenstand angezeigt.</li>
-              </ol>
-            </div>
-          </div>
-        </div>
-      );
+    if (mode === 'player-play') {
+      return <PlayerView gameId={gameId} playerId={playerId} />;
     }
 
     return <div>...</div>;
@@ -741,3 +790,5 @@
   </script>
 </body>
 </html>
+
+
