@@ -226,7 +226,7 @@
       const p = db.ref(`games/${gameId}/players`);
       p.on('value', snap => setPlayers(snap.val() || {}));
       return () => { ref.off(); p.off(); };
-    }, [gameId]);
+    }, [gameId]);}
 
     function HostLobby({ gameId, hostName }) {
   const [players, setPlayers] = useState({});
@@ -798,6 +798,7 @@ const startGame = async () => {
   </script>
 </body>
 </html>
+
 
 
 
