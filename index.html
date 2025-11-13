@@ -239,38 +239,37 @@
   );
 }
 
-  // HOST CONTROLLER (kleine Steuerleiste; in HostScreen auch groß sichtbar)
-  function HostController({ gameId, hostName }) {
-  const [players, setPlayers] = useState({});
-  useEffect(() => {
-    const ref = db.ref(`games/${gameId}/players`);
-    ref.on('value', snap => setPlayers(snap.val() || {}));
-    return () => ref.off();
-  }, [gameId]);
+  // HOST CONTROLLER (kleine Steuerleiste)
+  function HostController({ gameId, meta, startNextRound }) {
+    const [players, setPlayers] = useState({});
+    
+    useEffect(() => {
+      const ref = db.ref(`games/${gameId}/players`);
+      ref.on('value', snap => setPlayers(snap.val() || {}));
+      return () => ref.off();
+    }, [gameId]);
 
     // start game: write questions + meta
-// --- alte Funktion startGame ersetzt durch diese ---
-const startGame = async () => {
-  const questions = generateQuestions();
-  const metaObj = {
-    phase: 'question',
-    questionIndex: 0,
-    round: 1,
-    questionStartTime: Date.now(),
-    nextQuestionIndex: null
-  };
-  await db.ref(`games/${gameId}/questions`).set(questions);
-  // Spieler ggf. resetten (auch wenn es keine gibt)
-  const pSnap = await db.ref(`games/${gameId}/players`).get();
-  const pObj = pSnap.val() || {};
-  const updates = {};
-  Object.keys(pObj).forEach(pid => {
-    updates[`games/${gameId}/players/${pid}/score`] = 0;
-    updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-  });
-  await db.ref().update(updates);
-  await db.ref(`games/${gameId}/meta`).set(metaObj);
-};
+    const startGame = async () => {
+      const questions = generateQuestions();
+      const metaObj = {
+        phase: 'question',
+        questionIndex: 0,
+        round: 1,
+        questionStartTime: Date.now(),
+        nextQuestionIndex: null
+      };
+      await db.ref(`games/${gameId}/questions`).set(questions);
+      const pSnap = await db.ref(`games/${gameId}/players`).get();
+      const pObj = pSnap.val() || {};
+      const updates = {};
+      Object.keys(pObj).forEach(pid => {
+        updates[`games/${gameId}/players/${pid}/score`] = 0;
+        updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
+      });
+      await db.ref().update(updates);
+      await db.ref(`games/${gameId}/meta`).set(metaObj);
+    };
 
     // compute results (host triggers) -> update scores and set phase results
     const showResultsNow = async () => {
@@ -304,14 +303,10 @@ const startGame = async () => {
       const isEndOfRound = (cur + 1) % QUESTIONS_PER_ROUND === 0;
 
       if (isGameEnd) {
-        // game finished
         await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
       } else if (isEndOfRound) {
-        // show round summary: set nextQuestionIndex for later and go to roundSummary
         await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', nextQuestionIndex: next });
       } else {
-        // continue with next question
-        // reset players currentAnswer to null
         const pSnap = await db.ref(`games/${gameId}/players`).get();
         const pObj = pSnap.val() || {};
         const updates = {};
@@ -326,32 +321,10 @@ const startGame = async () => {
       }
     };
 
-    // Start the next round after roundSummary
-    const startNextRound = async () => {
-      const snap = await db.ref(`games/${gameId}/meta`).get();
-      const metaVal = snap.val();
-      const nextIndex = metaVal?.nextQuestionIndex ?? (metaVal?.questionIndex ?? 0);
-      const round = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
-      // reset answers
-      const pSnap = await db.ref(`games/${gameId}/players`).get();
-      const pObj = pSnap.val() || {};
-      const updates = {};
-      Object.keys(pObj).forEach(pid => updates[`games/${gameId}/players/${pid}/currentAnswer`] = null);
-      await db.ref().update(updates);
-      await db.ref(`games/${gameId}/meta`).update({
-        questionIndex: nextIndex,
-        phase: 'question',
-        questionStartTime: Date.now(),
-        round: round,
-        nextQuestionIndex: null
-      });
-    };
-
     if (!meta) {
       return <div className="text-center p-3">Warten auf Spielmeta...</div>;
     }
 
-    const isLobby = meta.phase === 'lobby' || !meta.phase;
     return (
       <div className="space-y-3">
         <div className="flex items-center justify-between">
@@ -365,11 +338,11 @@ const startGame = async () => {
           </div>
         </div>
 
-        <div className="flex gap-2">
-          { (meta.phase === 'lobby' || !meta.phase) && <button className="bg-green-500 px-4 py-2 rounded" onClick={startGame}>Spiel starten</button> }
-          { meta.phase === 'question' && <button className="bg-yellow-500 px-4 py-2 rounded" onClick={showResultsNow}>Ergebnisse anzeigen</button> }
-          { meta.phase === 'results' && <button className="bg-blue-600 px-4 py-2 rounded" onClick={nextQuestion}>Nächste Frage</button> }
-          { meta.phase === 'roundSummary' && <button className="bg-blue-600 px-4 py-2 rounded" onClick={startNextRound}>Nächste Runde starten</button> }
+        <div className="flex gap-2 flex-wrap">
+          { (meta.phase === 'lobby' || !meta.phase) && <button className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded" onClick={startGame}>Spiel starten</button> }
+          { meta.phase === 'question' && <button className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded" onClick={showResultsNow}>Ergebnisse anzeigen</button> }
+          { meta.phase === 'results' && <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded" onClick={nextQuestion}>Nächste Frage</button> }
+          { meta.phase === 'roundSummary' && <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded" onClick={startNextRound}>Nächste Runde starten</button> }
           { meta.phase === 'finished' && <div className="text-green-300 font-bold px-3 py-2 rounded">Spiel beendet</div> }
         </div>
       </div>
@@ -397,10 +370,6 @@ const startGame = async () => {
         const elapsed = Math.floor((Date.now() - meta.questionStartTime) / 1000);
         const rem = Math.max(0, QUESTION_TIME - elapsed);
         setTimeLeft(rem);
-        if (rem <= 0) {
-          // nothing here — hostController will call showResultsNow via timer on his side if desired
-          // We do not auto-trigger DB changes here to avoid race conditions; host should press "Ergebnisse anzeigen" or hostController already handles auto in earlier version
-        }
       };
       tick();
       clearInterval(timerRef.current);
@@ -408,11 +377,29 @@ const startGame = async () => {
       return () => clearInterval(timerRef.current);
     }, [meta?.phase, meta?.questionStartTime]);
 
+    // startNextRound für HostController
+    const startNextRound = async () => {
+      if (!meta) return;
+      const nextIndex = meta.nextQuestionIndex ?? (meta.questionIndex ?? 0);
+      const round = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
+      const pSnap = await db.ref(`games/${gameId}/players`).get();
+      const pObj = pSnap.val() || {};
+      const updates = {};
+      Object.keys(pObj).forEach(pid => updates[`games/${gameId}/players/${pid}/currentAnswer`] = null);
+      await db.ref().update(updates);
+      await db.ref(`games/${gameId}/meta`).update({
+        questionIndex: nextIndex,
+        phase: 'question',
+        questionStartTime: Date.now(),
+        round: round,
+        nextQuestionIndex: null
+      });
+    };
+
     if (!meta || !game) return <div className="min-h-screen flex items-center justify-center">Lade Spiel...</div>;
 
     const qIndex = meta.questionIndex || 0;
     const question = (game.questions || [])[qIndex];
-
     const playersArr = Object.entries(game.players || {}).map(([pid,p]) => ({ pid, ...p })).sort((a,b) => (b.score || 0) - (a.score || 0));
 
     return (
@@ -490,7 +477,7 @@ const startGame = async () => {
 
         <div className="host-side">
           <div className="mb-4">
-            <HostController gameId={gameId} />
+            <HostController gameId={gameId} meta={meta} startNextRound={startNextRound} />
           </div>
 
           <div className="mb-4">
@@ -810,8 +797,3 @@ const startGame = async () => {
   </script>
 </body>
 </html>
-
-
-
-
-
