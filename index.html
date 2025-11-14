@@ -79,7 +79,7 @@
   const { useState, useEffect, useRef } = React;
 
   /************ CONFIG ************/
-  const TOTAL_ROUNDS = 3;
+  const TOTAL_ROUNDS = 4;
   const QUESTIONS_PER_ROUND = 1;
   const QUESTION_TIME = 40;
   const BASE_POINTS = 100;
@@ -979,7 +979,7 @@
                 <div style={{fontWeight:900, fontSize:18, marginBottom:12, textAlign:'center'}}>🏷️ Wähle eine Kategorie für die nächste Runde</div>
                 <div style={{display:'flex', flexDirection:'column', gap:10}}>
                   {(candidateCategories.length === 0 ? CATEGORY_LIST.slice(0,2) : candidateCategories).map(c => (
-                    <button key={c} className="btn btn-join" onClick={()=>pickBonusCategory(c)} style={{width:'100%', padding:'12px 14px', fontSize:16}}>{c}</button>
+                    <button key={c} className="btn btn-host" onClick={()=>pickBonusCategory(c)} style={{width:'100%', padding:'12px 14px', fontSize:16}}>{c}</button>
                   ))}
                 </div>
                 <div style={{marginTop:12, textAlign:'center'}}>
@@ -1107,6 +1107,7 @@
   </script>
 </body>
 </html>
+
 
 
 
