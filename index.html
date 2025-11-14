@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Multiplayer (Items + Bonus + Kategorien)</title>
+  <title>RTL AdAlliance Quiz - Multiplayer (Items + Bonus + Kategorien) - PATCHED</title>
 
   <!-- React + Babel -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -126,7 +126,7 @@
 
   /************ CONFIG ************/
   const TOTAL_ROUNDS = 4;
-  const QUESTIONS_PER_ROUND = 10; // wie gewünscht: aktuell nur 1 Frage pro Runde / Kategorie
+  const QUESTIONS_PER_ROUND = 1; // wie gewünscht: aktuell nur 1 Frage pro Runde / Kategorie
   const QUESTION_TIME = 40;
   const BASE_POINTS = 100;
 
@@ -163,9 +163,6 @@
     { question: "Welcher Sänger war jahrelang erfolgreich?", answers:["Sänger A","Sänger B","Sänger C","Sänger D"], correct:1, category:"Musik" },
     { question: "Welche Sportart wird mit einem Ball gespielt?", answers:["Tennis","Basketball","Fußball","Golf"], correct:2, category:"Sport" },
     { question: "Welches Spiel ist ein Jump'n'Run?", answers:["Shooter","RPG","Jump'n'Run","Strategy"], correct:2, category:"Games" },
-    { question: "Game1?", answers:["Game1","RPG","Jump'n'Run","Strategy"], correct:1, category:"Games" },
-    { question: "Game2?", answers:["Game1","Game2","Jump'n'Run","Strategy"], correct:2, category:"Games" },
-    { question: "Game3?", answers:["Game1","Game2","Game3","Strategy"], correct:3, category:"Games" },
   ];
 
   /************ Helpers ************/
@@ -173,26 +170,31 @@
   function randomGameID(){ return Math.random().toString(36).substr(2,6).toUpperCase(); }
   function makePlayerId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2,4); }
 
-  // build N questions for a category (fallback to pool)
-unction getQuestionsForCategory(category, count, usedQuestions = []) {
-  // Filter NUR Fragen aus dieser Kategorie
-  let pool = QUESTION_POOL.filter(q => q.category === category);
+  // build N questions for a category (strict: never fallback to other categories)
+  function getQuestionsForCategory(category, count, usedQuestions = []) {
+    // Filter only questions from this category
+    let pool = QUESTION_POOL.filter(q => q.category === category);
 
-  // Prevent fallback from pulling wrong-category questions
-  if (pool.length < count) {
-    // Duplicate questions from this category only
-    while (pool.length < count) {
-      pool = pool.concat(pool);
+    // If not enough questions in that category, duplicate from same category only
+    if (pool.length < count) {
+      if (pool.length === 0) {
+        // If no questions for this category exist at all, fallback to any questions but mark category mismatch
+        // (This is a last-resort fallback — ideally you should supply enough questions per category)
+        pool = QUESTION_POOL.filter(q => true);
+      } else {
+        while (pool.length < count) {
+          pool = pool.concat(pool);
+        }
+      }
     }
+
+    pool = shuffle(pool).slice(0, count);
+
+    return pool.map((q, idx) => ({
+      id: `${category}-${Date.now()}-${Math.random().toString(36).substr(2,5)}-${idx}`,
+      ...q
+    }));
   }
-
-  pool = shuffle(pool).slice(0, count);
-
-  return pool.map((q, idx) => ({
-    id: `${category}-${Date.now()}-${Math.random().toString(36).substr(2,5)}-${idx}`,
-    ...q
-  }));
-}
 
   /************ Default Items ************/
   const DEFAULT_ITEMS = { boost: 5, poison: 5, shield: 3 };
@@ -382,40 +384,27 @@ unction getQuestionsForCategory(category, count, usedQuestions = []) {
       if(!meta) return;
 
       // If we're on roundSummary -> host confirmed: start next round using chosen category (if any)
-      if(meta.phase === 'roundSummary' && (meta.round - 1) >= 2){
+      if(meta.phase === 'roundSummary'){
         const currentIndex = meta.questionIndex ?? 0;
         const nextIndex = currentIndex + 1;
         const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
         if(nextIndex >= totalQuestions){
           await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
           return;
-
-        // Nach Runde 4 kein Bonus mehr
-if ((meta.round - 1) >= TOTAL_ROUNDS) {
-  setBonusItemModalOpen(false);
-  setBonusCategoryModalOpen(false);
-  return;
-if(!meta.nextCategory){
-  alert("Spieler muss zuerst Kategorie wählen!");
-  return;
-}
-  
-}
         }
-
-        // determine next round number
-        const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
 
         // read meta category state and nextCategory
         const metaSnap = await db.ref(`games/${gameId}/meta`).get();
         const metaVal = metaSnap.exists() ? metaSnap.val() : {};
         const catState = metaVal.categoryState || { used: [], remaining: [] };
-        let chosenCategory = metaVal.nextCategory || null;
 
-        // if no chosenCategory, pick first remaining (fallback)
-        if(!chosenCategory){
-          chosenCategory = (catState.remaining || [])[0] || CATEGORY_LIST.find(c => !(catState.used||[]).includes(c)) || CATEGORY_LIST[0];
+        // HOST GUARD: require that a player has chosen the nextCategory before proceeding
+        if(!metaVal.nextCategory){
+          alert("Spieler muss zuerst Kategorie wählen!");
+          return;
         }
+
+        let chosenCategory = metaVal.nextCategory || null;
 
         // update used/remaining
         const remaining = (catState.remaining || []).filter(c => c !== chosenCategory);
@@ -423,6 +412,7 @@ if(!meta.nextCategory){
         await db.ref(`games/${gameId}/meta/categoryState`).set({ used, remaining });
 
         // Replace questions for that next block (since QUESTIONS_PER_ROUND may be 1)
+        const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
         const start = (nextRound - 1) * QUESTIONS_PER_ROUND;
         const qSnap = await db.ref(`games/${gameId}/questions`).get();
         const qArr = qSnap.exists() ? (qSnap.val() || []) : [];
@@ -505,6 +495,7 @@ if(!meta.nextCategory){
 
       // store questions and categoryState in DB
       await db.ref(`games/${gameId}/questions`).set(allQuestions);
+      // remaining initially are the picked categories; used empty
       await db.ref(`games/${gameId}/meta/categoryState`).set({ used: [], remaining: categoriesForGame });
 
       const metaObj = { phase: 'question', questionIndex: 0, round: 1, questionStartTime: Date.now(), currentCategory: categoriesForGame[0] };
@@ -718,16 +709,7 @@ if(!meta.nextCategory){
                       <div style={{fontSize:48, marginBottom:8}}>{medals[i]}</div>
                       <div style={{fontWeight:900, fontSize:20, marginBottom:8}}>{p.name}</div>
                       <div style={{fontSize:28, fontWeight:900, color:colors[i], marginBottom:12}}>{p.score || 0} pts</div>
-                      <div style={{
-                        height:heights[i],
-                        background:`linear-gradient(180deg, ${colors[i]}, ${colors[i]}CC)`,
-                        display:'flex',
-                        alignItems:'center',
-                        justifyContent:'center',
-                        fontSize:32,
-                        fontWeight:900,
-                        color:'#0b0b0b'
-                      }}>
+                      <div style={{height:heights[i], background:`linear-gradient(180deg, ${colors[i]}, ${colors[i]}CC)`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:32, fontWeight:900, color:'#0b0b0b'}}>
                         #{i+1}
                       </div>
                     </div>
@@ -844,6 +826,14 @@ if(!meta.nextCategory){
       const lastPlayers = playersArr.filter(p => (p.score || 0) === minScore).map(p => p.pid);
 
       const finishedRoundNumber = (meta.round || 1) - 1;
+
+      // BLOCK: no bonus in first finished round (finishedRoundNumber < 2) and none after final round
+      if (finishedRoundNumber < 2 || finishedRoundNumber >= TOTAL_ROUNDS) {
+        setBonusItemModalOpen(false);
+        setBonusCategoryModalOpen(false);
+        return;
+      }
+
       if(lastPlayers.includes(playerId) && (player.lastRoundBonus !== finishedRoundNumber)){
         // open item modal (step 1)
         setBonusItemModalOpen(true);
@@ -941,7 +931,7 @@ if(!meta.nextCategory){
                     <span style={{fontSize:18}}>☠️</span><span className="item-label">{player.items && player.items.poison ? player.items.poison : 0}</span>
                   </button>
 
-                  <button className={shieldBtnClass} disabled={!shieldAvailable} onClick={activateShield} title={'Schild: wird sofort verbraucht, schützt diese Frage (3× pro Spiel). Risiko: verschwindet auch wenn nicht angegriffen.'}>
+                  <button className={shieldBtnClass} disabled={!shieldAvailable} onClick={activateShield} title={'Schild: wird sofort verbraucht, schützt diese Frage (3× pro Spiel). Risiko: verschwindet auch wenn nicht angreift.'}>
                     <span style={{fontSize:18}}>🛡</span><span className="item-label">{player.items && player.items.shield ? player.items.shield : 0}</span>
                   </button>
                 </div>
@@ -1242,6 +1232,7 @@ if(!meta.nextCategory){
   </script>
 </body>
 </html>
+
 
 
 
