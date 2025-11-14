@@ -374,11 +374,12 @@
 
         // If this was the last question of a round -> go to roundSummary (players then get bonus)
         const questionInRound = (qIndex + 1) % QUESTIONS_PER_ROUND;
-       if (questionInRound === 0) {
+if (questionInRound === 0) {
   const finishedRound = Math.floor((qIndex + 1) / QUESTIONS_PER_ROUND);
+
   await db.ref(`games/${gameId}/meta`).update({
     phase: 'roundSummary',
-    round: finishedRound + 1   // <- WICHTIG!
+    round: finishedRound + 1     // nächste Runde korrekt vorbereiten
   });
 }
       }catch(e){ console.error(e); }
@@ -439,6 +440,14 @@
         });
         await db.ref().update(updates);
 
+// Falls ein Spieler die Kategorie nicht gewählt hat
+if(!chosenCategory){
+  // fallback: zufällige Kategorie aus remaining
+  const fallbackCat = remaining.length > 0 ? remaining[0] : catState.used[0];
+  chosenCategory = fallbackCat;
+}
+
+        
         // set meta to next question
         await db.ref(`games/${gameId}/meta`).update({
           questionIndex: nextIndex,
@@ -461,11 +470,14 @@
       }
       const currentRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
       const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
-      if(nextRound > currentRound){
-        // if crossing into next round without roundSummary -> ensure roundSummary appears
-        await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', round: nextRound });
-        return;
-      }
+     if(nextRound > currentRound){
+  // automatische Round-Summary bei Rundensprung
+  await db.ref(`games/${gameId}/meta`).update({
+    phase: 'roundSummary',
+    round: nextRound
+  });
+  return;
+}
 
       // continue to next question in same round
       const pSnap = await db.ref(`games/${gameId}/players`).get();
@@ -831,12 +843,15 @@
 
       const finishedRoundNumber = (meta.round || 1) - 1;
 
-      // BLOCK: no bonus in first finished round (finishedRoundNumber < 2) and none after final round
-      if (finishedRoundNumber < 2 || finishedRoundNumber >= TOTAL_ROUNDS) {
-        setBonusItemModalOpen(false);
-        setBonusCategoryModalOpen(false);
-        return;
-      }
+    // Runde, die gerade abgeschlossen wurde
+const finishedRoundNumber = (meta.round || 1) - 1;
+
+// Bonus gibt es ab Runde 2 bis vor der letzten Runde
+if (finishedRoundNumber < 1 || finishedRoundNumber >= TOTAL_ROUNDS) {
+  setBonusItemModalOpen(false);
+  setBonusCategoryModalOpen(false);
+  return;
+}
 
       if(lastPlayers.includes(playerId) && (player.lastRoundBonus !== finishedRoundNumber)){
         // open item modal (step 1)
@@ -1236,6 +1251,7 @@
   </script>
 </body>
 </html>
+
 
 
 
