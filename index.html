@@ -349,14 +349,14 @@
           <div style={{textAlign:'right', color:'var(--muted)'}}>👥 Spieler: {Object.keys(players).length}</div>
         </div>
 
-                  <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap">
           {(meta.phase === 'lobby' || !meta.phase) && <button className="btn btn-host" onClick={startGame}>Spiel starten</button>}
           {meta.phase === 'question' && <button className="btn btn-show-results" onClick={showResultsNow}>📊 Ergebnisse</button>}
           {meta.phase === 'results' && <button className="btn btn-host" onClick={startNextRound}>Weiter →</button>}
           {meta.phase === 'roundSummary' && <button className="btn btn-host" onClick={startNextRound}>Nächste Runde →</button>}
           {meta.phase === 'finished' && (
             <div style={{display:'flex', gap:8}}>
-              <button className="btn btn-host" onClick={backToLobby}>🔄 Zurück zur Lobby</button>
+              <button className="btn btn-host" onClick={()=>window.location.reload()}>🔄 Zurück zur Lobby</button>
             </div>
           )}
         </div>
@@ -424,6 +424,39 @@
 
     const startNextRound = async ()=>{
       if(!meta) return;
+      
+      // If we're in roundSummary, move to next round's first question
+      if(meta.phase === 'roundSummary'){
+        const currentIndex = meta.questionIndex ?? 0;
+        const nextIndex = currentIndex + 1;
+        const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
+        
+        // Check if we've completed all questions
+        if(nextIndex >= totalQuestions){
+          await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+          return;
+        }
+        
+        // Reset player answers and start next question
+        const pSnap = await db.ref(`games/${gameId}/players`).get();
+        const pObj = pSnap.val() || {};
+        const updates = {};
+        Object.keys(pObj).forEach(pid => {
+          updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
+        });
+        await db.ref().update(updates);
+        
+        const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
+        await db.ref(`games/${gameId}/meta`).update({
+          questionIndex: nextIndex,
+          phase: 'question',
+          questionStartTime: Date.now(),
+          round: nextRound
+        });
+        return;
+      }
+      
+      // Normal flow from results to next question
       const currentIndex = meta.questionIndex ?? 0;
       const nextIndex = currentIndex + 1;
       const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
@@ -439,7 +472,7 @@
       
       // Check if we're moving to a new round
       if(nextRound > currentRound){
-        await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary' });
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', round: nextRound });
         return;
       }
       
@@ -601,7 +634,7 @@
           {/* Round summary */}
           {meta.phase === 'roundSummary' && (
             <div className="round-summary">
-              <h2 className="result-title">🏆 Zwischenstand nach Runde {meta.round}</h2>
+              <h2 className="result-title">🏆 Zwischenstand nach Runde {meta.round - 1}</h2>
               <p style={{color:'var(--muted)', marginBottom:20}}>Hier ist der aktuelle Stand aller Spieler</p>
               
               <div style={{display:'grid', gap:12, maxWidth:800, margin:'0 auto'}}>
@@ -863,7 +896,7 @@
     // round summary / finished
     if(meta.phase === 'roundSummary' || meta.phase === 'finished'){
       const playersSorted = Object.values(game.players || {}).sort((a,b)=>(b.score||0)-(a.score||0));
-      const title = meta.phase === 'finished' ? '🎉 Spiel beendet!' : `🏆 Zwischenstand nach Runde ${meta.round}`;
+      const title = meta.phase === 'finished' ? '🎉 Spiel beendet!' : `🏆 Zwischenstand nach Runde ${meta.round - 1}`;
       const subtitle = meta.phase === 'finished' ? 'Das Quiz ist vorbei - hier sind die finalen Ergebnisse' : 'Hier ist der aktuelle Stand';
       
       return (
@@ -994,7 +1027,4 @@
   </script>
 </body>
 </html>
-
-
-
 
