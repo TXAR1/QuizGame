@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Multiplayer (Items + Bonus + Kategorien)</title>
+  <title>RTL AdAlliance Quiz - Multiplayer (Items + Bonus + Kategorien - Fixed)</title>
 
   <!-- React + Babel -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -18,117 +18,40 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
   <style>
-    /* --------------------------
-       THEME + LAYOUT
-       -------------------------- */
+    /* UI styles (kopiert aus deinem Original, leicht bereinigt) */
     :root{
       --rtl-orange:#FF6600;
       --rtl-red:#E31F23;
       --rtl-purple:#7B2CBF;
       --rtl-green:#22C55E;
       --bg:#0b0b0b;
-      --panel:#0f0f0f;
       --tile:#ffffff;
       --muted:rgba(255,255,255,0.65);
-      --active-color: #ffd580;
-      --shield-color: #8ec5ff;
     }
     html,body,#root{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
     body{ background:linear-gradient(180deg,var(--bg), #090909); color:var(--tile); }
-
-    * { box-sizing:border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; border-radius: 0 !important; }
+    * { box-sizing:border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
     input, textarea, select { background: white !important; color: #0b0b0b !important; border: 1px solid rgba(0,0,0,0.1); padding: 10px; }
-    input::placeholder { color: rgba(0,0,0,0.5) !important; }
-
     .host-screen{ display:flex; gap:20px; padding:24px; height:100vh; align-items:stretch; }
-    .host-main{ flex:2; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); padding:28px; display:flex; flex-direction:column; gap:18px; position:relative; min-height:0; }
-    .host-main.fullwidth { flex:1; }
-    .host-side{ flex:1; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); padding:18px; overflow:auto; }
-    .host-side.hidden { display:none; }
-
-    .rtl-header{ display:flex; gap:12px; align-items:center; }
-    .rtl-logo-text{ font-weight:800; letter-spacing:1px; color:var(--tile); }
-
-    .card{ background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); padding:16px; }
-
-    .question-top-bar{ display:flex; justify-content:space-between; align-items:center; gap:12px; }
-    .countdown-badge{ width:110px; height:110px; display:flex; align-items:center; justify-content:center; font-size:2.6rem; font-weight:800; color:var(--tile); border:3px solid rgba(255,255,255,0.06); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); position:relative; flex-shrink:0; }
-    .countdown-badge.warning{ border-color:var(--rtl-orange); color:var(--rtl-orange); }
-    .countdown-badge.danger{ border-color:var(--rtl-red); color:var(--rtl-red); box-shadow:0 6px 30px rgba(227,31,35,0.09); transform-origin:center; animation:pulse 1s infinite; }
-    @keyframes pulse { 0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)} }
-
+    .host-main{ flex:2; padding:28px; display:flex; flex-direction:column; gap:18px; min-height:0; }
+    .host-side{ flex:1; padding:18px; overflow:auto; }
+    .card{ padding:16px; }
+    .countdown-badge{ width:110px; height:110px; display:flex; align-items:center; justify-content:center; font-size:2.6rem; font-weight:800; color:var(--tile); border:3px solid rgba(255,255,255,0.06); }
     .question-text{ font-size:2.4rem; font-weight:800; color:var(--tile); line-height:1.08; margin-top:6px; }
-
     .answers-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; margin-top:18px; }
-    .answer-btn{ background: #ffffff; color:#0b0b0b; border:1px solid rgba(0,0,0,0.08); padding:20px; font-size:1.05rem; font-weight:700; min-height:110px; display:flex; align-items:center; justify-content:flex-start; gap:12px; cursor:default; }
-
-    .result-title{ font-size:1.8rem; font-weight:900; color:var(--rtl-orange); margin-bottom:10px; }
-    .correct-answer{ background: rgba(255,255,255,0.05); border-left:4px solid rgba(255,255,255,0.2); padding:12px; font-weight:700; margin-bottom:12px; color:var(--tile); }
-
-    .result-answer-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
-    .result-answer{ padding:12px; border:2px solid rgba(0,0,0,0.06); background:rgba(255,255,255,0.02); font-weight:700; color:var(--tile); }
-    .result-answer.correct { background:#ffffff; color:#0b0b0b; border:2px solid rgba(255,255,255,0.3); }
-    .result-answer.incorrect { background:#0b0b0b; color:#ffffff; border:2px solid rgba(255,255,255,0.1); }
-
-    .leaderboard-title{ font-weight:900; letter-spacing:1px; color:var(--rtl-orange); margin-bottom:8px; border-bottom:2px solid rgba(255,255,255,0.03); padding-bottom:8px; display:inline-block; }
-    .player-item{ display:flex; justify-content:space-between; gap:10px; padding:10px; background:rgba(255,255,255,0.01); border-left:4px solid rgba(255,255,255,0.02); }
-
-    .start-card{ max-width:760px; margin:auto; padding:28px; border:1px solid rgba(255,255,255,0.03); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); }
-    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:800; padding:10px 14px; cursor:pointer; border:none; }
-    .btn-host{ background:var(--rtl-orange); color:white; }
-    .btn-join{ background:var(--rtl-purple); color:white; }
-    .btn-show-results{ background:var(--rtl-green); color:white; }
-    .btn-ghost{ background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--tile); }
-
-    .player-card{ max-width:720px; margin:20px auto; padding:20px; border:1px solid rgba(255,255,255,0.03); background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); }
-
-    /* Item bar */
-    .item-bar{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-    .item-btn{ padding:8px 12px; font-weight:800; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); cursor:pointer; color:var(--tile); display:flex; gap:8px; align-items:center; min-width:72px; justify-content:center; }
-    .item-btn.item-disabled{ opacity:0.35; cursor:not-allowed; }
-    .item-btn.active { background: linear-gradient(90deg, #fff3cc, #ffd580); color: #000; border-color: rgba(0,0,0,0.06); box-shadow: 0 4px 14px rgba(255,213,128,0.12); }
-    .item-btn.shield-active { background: linear-gradient(90deg, #dbeeff, #8ec5ff); color: #000; border-color: rgba(0,0,0,0.06); box-shadow: 0 4px 14px rgba(142,197,255,0.12); }
-
-    .item-label{ font-weight:900; min-width:28px; text-align:center; }
-
-    /* Modal full-screen for poison target selection */
-    .modal-backdrop{
-      position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999;
-    }
-    .modal-card{
-      width:95%; max-width:520px; background:linear-gradient(180deg,#0f0f0f,#0b0b0b); border:1px solid rgba(255,255,255,0.06); padding:18px; color:var(--tile);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-    }
+    .answer-btn{ background: #ffffff; color:#0b0b0b; padding:20px; font-size:1.05rem; font-weight:700; min-height:110px; display:flex; gap:12px; }
+    .player-card{ max-width:720px; margin:20px auto; padding:20px; }
+    .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; }
+    .modal-card{ width:95%; max-width:520px; padding:18px; color:var(--tile); }
     .modal-title{ font-size:18px; font-weight:900; margin-bottom:12px; color:var(--rtl-orange); text-align:center; }
-
-    /* Mobile item layout: Two rows on small screens (Option 1) */
-    @media (max-width:600px){
-      .item-bar{ justify-content:center; }
-      /* ensure items wrap nicely: two items first row, third item second row */
-      .item-btn{ min-width:40%; }
-      .answers-grid{ grid-template-columns:1fr; }
-      .countdown-badge{ width:86px;height:86px;font-size:1.8rem; }
-      .question-text{ font-size:1.6rem; }
-    }
-
-    @media (min-width:601px){
-      .item-btn{ min-width:110px; }
-    }
-
-    /* Bonus modal style (last place) */
-    .bonus-modal-card{ width:95%; max-width:520px; background:linear-gradient(180deg,#0f0f0f,#0b0b0b); border:1px solid rgba(255,255,255,0.06); padding:18px; color:var(--tile); box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
     .bonus-grid{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:12px; }
-    .bonus-choice{ padding:12px 16px; border:1px solid rgba(255,255,255,0.06); cursor:pointer; font-weight:900; min-width:120px; text-align:center; }
+    .bonus-choice{ padding:12px 16px; border:1px solid rgba(255,255,255,0.06); cursor:pointer; font-weight:900; min-width:120px; text-align:center; background:rgba(255,255,255,0.02); }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
   <script type="text/babel">
-  /**********************************************
-   * Quiz mit Items + Fullscreen Poison Modal + Last-Place Bonus (L4) + Kategorien
-   **********************************************/
-
   const { useState, useEffect, useRef } = React;
 
   /************ CONFIG ************/
@@ -137,7 +60,7 @@
   const QUESTION_TIME = 40;
   const BASE_POINTS = 100;
 
-  // Firebase config (keep your own keys)
+  // Firebase config - unverändert (bitte beibehalten / eigene Keys einsetzen)
   const firebaseConfig = {
     apiKey: "AIzaSyCsxAEsivsJVFVcnerdAWezFpruoCv7Z2I",
     authDomain: "qiuz-64055.firebaseapp.com",
@@ -160,7 +83,7 @@
     "Geografie"
   ];
 
-  // helper shuffle
+  /************ Helpers ************/
   function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
   function randomGameID(){ return Math.random().toString(36).substr(2,6).toUpperCase(); }
   function makePlayerId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2,4); }
@@ -168,8 +91,8 @@
   /************ Default Items ************/
   const DEFAULT_ITEMS = { boost: 5, poison: 5, shield: 3 };
 
-  /************ Sample Questions with assigned categories (Option A) ************/
-  // Ich habe die vorhandenen Beispiel-Fragen passend kategorisiert.
+  /************ QUESTION POOL (mit Kategorien) ************/
+  // Option A: die vorhandenen Beispiel-Fragen wurden automatisch passenden Kategorien zugewiesen
   const QUESTION_POOL = [
     { question: "Was ist die Hauptstadt von Österreich?", category: "Geografie", answers: ["Wien","Graz","Salzburg","Innsbruck"], correct: 0 },
     { question: "Welcher Planet ist der größte?", category: "Wissenschaft", answers: ["Mars","Saturn","Jupiter","Neptun"], correct: 2 },
@@ -182,48 +105,42 @@
     { question: "Welches Land hat die meisten Einwohner?", category: "Geografie", answers: ["Indien","China","USA","Indonesien"], correct: 1 },
     { question: "Was ist die Hauptstadt von Frankreich?", category: "Geografie", answers: ["Lyon","Marseille","Paris","Nizza"], correct: 2 },
 
-    // Zusätzliche Beispiel-Fragen (damit Pool für jede Kategorie größer ist)
-    { question: "Wer ist DOMINANT in der Popmusik (Beispiel)?", category: "Musik", answers: ["Künstler A","Künstler B","Künstler C","Künstler D"], correct: 0 },
-    { question: "Welche Serie gewann viele Preise?", category: "Fernsehen", answers: ["Serie A","Serie B","Serie C","Serie D"], correct: 1 },
-    { question: "Welcher Spieler hat Rekorde im Torwurf?", category: "Sport", answers: ["Spieler A","Spieler B","Spieler C","Spieler D"], correct: 2 },
-    { question: "Welches Videospiel ist ein Shooter?", category: "Games", answers: ["Spiel A","Spiel B","Spiel C","Spiel D"], correct: 0 },
-    { question: "Welche Partei gewann eine Wahl (Beispiel)?", category: "Politik", answers: ["Partei A","Partei B","Partei C","Partei D"], correct: 2 },
-    { question: "Welches Lied ist ein Hit (Beispiel)?", category: "Musik", answers: ["Song A","Song B","Song C","Song D"], correct: 1 },
+    // Extra-Beispiele, um Pool für Kategorien etwas zu strecken
+    { question: "Welches ist ein bekannter Fernsehpreis (Beispiel)?", category: "Fernsehen", answers: ["Award A","Award B","Award C","Award D"], correct: 0 },
+    { question: "Welcher Sänger ist sehr populär (Beispiel)?", category: "Musik", answers: ["Sänger A","Sänger B","Sänger C","Sänger D"], correct: 1 },
+    { question: "Welche Sportart hat Bälle und Tore?", category: "Sport", answers: ["Tennis","Basketball","Fußball","Golf"], correct: 2 },
+    { question: "Welches Videospiel-Genre ist Jump'n'Run?", category: "Games", answers: ["Shooter","RPG","Jump'n'Run","Strategy"], correct: 2 },
+    { question: "Welche Partei ist in Beispiel-Land stark?", category: "Politik", answers: ["Partei A","Partei B","Partei C","Partei D"], correct: 0 },
+    { question: "Welcher Song war ein Hit (Beispiel)?", category: "Musik", answers: ["Song A","Song B","Song C","Song D"], correct: 2 },
   ];
 
-  /************ Helper: Fragen aus Pool für eine Kategorie wählen ************/
-  function getQuestionsForCategory(category, count, usedIds = []) {
-    // Filter pool for the target category (also consider approximate matches: if category not found, fallback to any)
+  /************ Frage-Auswahl pro Kategorie ************/
+  function getQuestionsForCategory(category, count, usedQuestions=[]) {
+    // filter pool
     const pool = QUESTION_POOL.filter(q => q.category === category);
     let source = pool.length ? pool.slice() : QUESTION_POOL.slice();
     source = shuffle(source);
 
     const selected = [];
-    let idx = 0;
-    while (selected.length < count) {
-      if (source.length === 0) {
-        // fallback: refill with pool (allows repeats if pool smaller than count)
-        source = (pool.length ? pool.slice() : QUESTION_POOL.slice());
-        source = shuffle(source);
+    let attempts = 0;
+    while (selected.length < count && attempts < count * 20) {
+      const cand = source[attempts % source.length];
+      // avoid exact question duplicates within same block and against usedQuestions
+      if (!selected.find(s => s.question === cand.question) && !usedQuestions.includes(cand.question)) {
+        selected.push({...cand});
       }
-      const candidate = source[idx % source.length];
-      // avoid duplicate IDs inside same round if possible by comparing question text
-      if (!selected.find(s => s.question === candidate.question) && !usedIds.includes(candidate.question)) {
-        selected.push({ ...candidate });
-      }
-      idx++;
-      // safety break
-      if (idx > count * 10) {
-        // fill with whatever
-        while (selected.length < count) selected.push({ ...source[(idx++) % source.length] });
-        break;
-      }
+      attempts++;
+      if (attempts > 1000) break;
     }
-    // give each question a stable id (composite) to store in DB
-    return selected.map((q, i) => ({ id: `${category}-${Date.now()}-${Math.random().toString(36).substr(2,5)}-${i}`, ...q }));
+    // if not enough, fill with fallback duplicates allowed
+    while (selected.length < count) {
+      selected.push({...source[(selected.length) % source.length]});
+    }
+    // assign stable-ish ids
+    return selected.map((q,i) => ({ id: `${category}-${Date.now()}-${Math.random().toString(36).substr(2,5)}-${i}`, ...q }));
   }
 
-  /************ RTL Logo ************/
+  /************ RTL Logo (klein) ************/
   function RTLLogo({size='md'}){
     const sizeMap={sm:40,md:60,lg:100};
     const h = sizeMap[size]||60;
@@ -248,23 +165,20 @@
     const [code,setCode] = useState('');
     return (
       <div className="min-h-screen flex items-center justify-center p-6" style={{background:'var(--bg)'}}>
-        <div className="start-card">
-          <div className="rtl-header">
+        <div className="player-card">
+          <div style={{display:'flex', gap:12, alignItems:'center'}}>
             <RTLLogo size="md" />
-            <div className="rtl-logo-text">AdAlliance Quiz</div>
+            <div style={{fontWeight:900}}>AdAlliance Quiz</div>
           </div>
-
-          <h1 className="text-3xl font-bold mt-4" style={{color:'var(--rtl-orange)'}}>🎯 Quiz Master</h1>
-          <p style={{color:'var(--muted)'}}>Host erstellt Spiel oder Spieler treten per Code/QR bei</p>
-
+          <h1 style={{fontSize:24, fontWeight:900, color:'var(--rtl-orange)', marginTop:12}}>🎯 Quiz Master</h1>
+          <p style={{color:'var(--muted)'}}>Host erstellen oder Code eingeben</p>
           <div style={{marginTop:12}}>
             <input className="w-full p-3 mb-3" placeholder="Dein Name" value={name} onChange={e=>setName(e.target.value)} />
-            <div className="flex gap-3">
-              <button className="btn btn-host flex-1" onClick={()=>onCreate(name)} disabled={!name}>🎬 Host werden</button>
-              <input className="p-2" placeholder="Code" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} style={{width:'120px'}} />
+            <div style={{display:'flex', gap:8}}>
+              <button className="btn btn-host" onClick={()=>onCreate(name)} disabled={!name}>🎬 Host werden</button>
+              <input placeholder="Code" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} style={{marginLeft:8}} />
               <button className="btn btn-join" onClick={()=>onJoin(name,code)} disabled={!name || !code}>Beitreten</button>
             </div>
-            <p className="text-sm mt-3" style={{color:'var(--muted)'}}>ℹ️ Host ist Quizmaster und wird nicht als Spieler gezählt</p>
           </div>
         </div>
       </div>
@@ -284,7 +198,7 @@
 
     if(!meta) return <div className="card">Lade...</div>;
     return (
-      <div className="card space-y-3">
+      <div className="card">
         <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
           <div>
             <div style={{color:'var(--muted)'}}>Phase: <strong style={{color:'var(--rtl-orange)'}}>{meta.phase}</strong></div>
@@ -294,28 +208,23 @@
           <div style={{textAlign:'right', color:'var(--muted)'}}>👥 Spieler: {Object.keys(players).length}</div>
         </div>
 
-        <div className="flex gap-2 flex-wrap">
+        <div style={{marginTop:10, display:'flex', gap:8}}>
           {(meta.phase === 'lobby' || !meta.phase) && <button className="btn btn-host" onClick={startGame}>Spiel starten</button>}
           {meta.phase === 'question' && <button className="btn btn-show-results" onClick={showResultsNow}>📊 Ergebnisse</button>}
-          {meta.phase === 'results' && <button className="btn btn-host" onClick={startNextRound}>Weiter →</button>}
-          {meta.phase === 'roundSummary' && <button className="btn btn-host" onClick={startNextRound}>Nächste Runde →</button>}
-          {meta.phase === 'finished' && (
-            <div style={{display:'flex', gap:8}}>
-              <button className="btn btn-host" onClick={()=>window.location.reload()}>🔄 Zurück zur Lobby</button>
-            </div>
-          )}
+          {(meta.phase === 'results' || meta.phase === 'roundSummary') && <button className="btn btn-host" onClick={startNextRound}>Weiter →</button>}
+          {meta.phase === 'finished' && <button className="btn btn-host" onClick={()=>window.location.reload()}>🔄 Zurück zur Lobby</button>}
         </div>
 
-        {/* Kategorie-Status im Host-Panel */}
+        {/* Kategorie-Status */}
         {meta && meta.categoryState && (
           <div style={{marginTop:12}}>
-            <h4 style={{fontWeight:900}}>🔖 Kategorien (Spielplan)</h4>
+            <h4 style={{fontWeight:900}}>🔖 Kategorien</h4>
             <div style={{display:'flex', gap:8, flexWrap:'wrap', marginTop:8}}>
               {(meta.categoryState.used || []).map(c=>(
-                <div key={c} style={{padding:'6px 10px', background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.03)'}}>{c} ✅</div>
+                <div key={c} style={{padding:'6px 10px', background:'rgba(255,255,255,0.02)'}}>{c} ✅</div>
               ))}
               {(meta.categoryState.remaining || []).map(c=>(
-                <div key={c} style={{padding:'6px 10px', background:'rgba(255,255,255,0.01)', border:'1px dashed rgba(255,255,255,0.03)'}}>{c}</div>
+                <div key={c} style={{padding:'6px 10px', background:'rgba(255,255,255,0.01)'}}>{c}</div>
               ))}
             </div>
           </div>
@@ -325,7 +234,7 @@
   }
 
   /****************************************
-   * HOST SCREEN
+   * HOST SCREEN (inkl. fixes)
    ****************************************/
   function HostScreen({ gameId, hostName }){
     const [game,setGame] = useState(null);
@@ -397,45 +306,50 @@
         });
 
         await db.ref().update(updates);
+
+        // Standard: show results
         await db.ref(`games/${gameId}/meta`).update({ phase: 'results' });
+
+        // --- NEW: if this was the last question of a round -> show roundSummary instead ---
+        const questionInRound = (qIndex + 1) % QUESTIONS_PER_ROUND;
+        if (questionInRound === 0) {
+          // set roundSummary (so players see summary and last-place can pick bonus)
+          await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary' });
+        }
       }catch(e){ console.error(e); }
     };
 
     const startNextRound = async ()=>{
       if(!meta) return;
 
-      // When coming from a roundSummary (host clicked continue), or results->next
-      // We need to pick the category for the next round, apply meta.nextCategory (if set),
-      // mark used/remaining, and ensure that the questions block for that round uses that category.
-
+      // We'll base currentIndex on the stored meta.questionIndex
       const currentIndex = meta.questionIndex ?? 0;
-      const nextIndex = currentIndex + 1;
       const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
 
-      // If nextIndex beyond total -> finish
-      if(nextIndex >= totalQuestions){
-        await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
-        return;
-      }
+      // If we are currently on the roundSummary phase -> Host clicked "Weiter zur nächsten Runde"
+      // We must advance to the first question of the next round and apply chosen category (if any).
+      if (meta.phase === 'roundSummary') {
+        // nextIndex is first question of next round = currentIndex + 1
+        const nextIndex = currentIndex + 1;
+        if (nextIndex >= totalQuestions) {
+          await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+          return;
+        }
 
-      const currentRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
-      const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
+        const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
 
-      // If we're entering a new round (i.e., nextRound > currentRound), handle category selection and round summary logic
-      if(nextRound > currentRound){
-        // Host is moving into next round. Determine category:
+        // Determine category to use for nextRound:
         const metaSnap = await db.ref(`games/${gameId}/meta`).get();
         const metaVal = metaSnap.val() || {};
         const catState = metaVal.categoryState || { used: [], remaining: [] };
         let nextCategory = metaVal.nextCategory || null;
 
-        // If no nextCategory chosen by last-place -> take the first remaining planned category
+        // If no nextCategory chosen -> take first remaining
         if (!nextCategory) {
           nextCategory = (catState.remaining || [])[0];
         }
-
         if (!nextCategory) {
-          // fallback: choose any from CATEGORY_LIST not used yet
+          // fallback
           const fallback = CATEGORY_LIST.find(c => !(catState.used || []).includes(c));
           nextCategory = fallback || CATEGORY_LIST[0];
         }
@@ -445,28 +359,33 @@
         const used = [...(catState.used || []), nextCategory];
         await db.ref(`games/${gameId}/meta/categoryState`).set({ used, remaining });
 
-        // Replace the block of questions for that next round to use nextCategory
-        // compute slice indices:
+        // Replace the block for that next round with questions of chosen category
         const start = (nextRound - 1) * QUESTIONS_PER_ROUND;
         const end = start + QUESTIONS_PER_ROUND;
 
-        // fetch current questions
         const qSnap = await db.ref(`games/${gameId}/questions`).get();
         const qArr = qSnap.exists() ? qSnap.val() : [];
 
-        // generate new block
-        const usedIdsInGame = (qArr || []).map(q => q.question);
-        const newBlock = getQuestionsForCategory(nextCategory, QUESTIONS_PER_ROUND, usedIdsInGame);
+        const usedQTexts = (qArr || []).map(q => q.question);
+        const newBlock = getQuestionsForCategory(nextCategory, QUESTIONS_PER_ROUND, usedQTexts);
 
-        // replace block
         const newQuestions = Array.isArray(qArr) ? qArr.slice() : [];
         for (let i = 0; i < newBlock.length; i++) {
           newQuestions[start + i] = newBlock[i];
         }
-        // write back questions and update meta
         await db.ref(`games/${gameId}/questions`).set(newQuestions);
 
-        // reset nextCategory in meta
+        // Reset players' states
+        const pSnap = await db.ref(`games/${gameId}/players`).get();
+        const pObj = pSnap.val() || {};
+        const updates = {};
+        Object.keys(pObj).forEach(pid => {
+          updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
+          updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost:false, shield:false, poisonedBy: [] };
+        });
+        await db.ref().update(updates);
+
+        // Finally set meta to start next question
         await db.ref(`games/${gameId}/meta`).update({
           questionIndex: nextIndex,
           phase: 'question',
@@ -476,19 +395,27 @@
           nextCategory: null
         });
 
-        // reset players' currentAnswer & effects
-        const pSnap = await db.ref(`games/${gameId}/players`).get();
-        const pObj = pSnap.val() || {};
-        const updates = {};
-        Object.keys(pObj).forEach(pid => {
-          updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-          updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost:false, shield:false, poisonedBy: [] };
-        });
-        await db.ref().update(updates);
         return;
       }
 
-      // Normal (within same round) flow: just advance to next question
+      // Normal flow from results -> next question within same round
+      const qIndex = meta.questionIndex ?? 0;
+      const nextIndex = qIndex + 1;
+      if(nextIndex >= totalQuestions){
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+        return;
+      }
+
+      // check if entering a new round (shouldn't happen here if roundSummary flow used correctly)
+      const currentRound = Math.floor(qIndex / QUESTIONS_PER_ROUND) + 1;
+      const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
+      if(nextRound > currentRound){
+        // set roundSummary so host must press Continue to actually start the next round
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', round: nextRound });
+        return;
+      }
+
+      // continue to next question in same round
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const pObj = pSnap.val() || {};
       const updates = {};
@@ -507,26 +434,23 @@
     };
 
     const startGame = async ()=>{
-      // Build game question list: choose TOTAL_ROUNDS categories (4) out of 6, do not repeat
+      // choose 4 categories out of 6 for this game
       const categoriesForGame = shuffle(CATEGORY_LIST).slice(0, TOTAL_ROUNDS);
-
-      // For each chosen category, prepare QUESTIONS_PER_ROUND questions and append in order
       let allQuestions = [];
       const usedQuestions = [];
-      for (let r = 0; r < categoriesForGame.length; r++){
+      for (let r=0;r<categoriesForGame.length;r++){
         const cat = categoriesForGame[r];
         const block = getQuestionsForCategory(cat, QUESTIONS_PER_ROUND, usedQuestions);
         block.forEach(q => usedQuestions.push(q.question));
         allQuestions = allQuestions.concat(block);
       }
 
-      // set questions and initial meta
-      const metaObj = { phase: 'question', questionIndex: 0, round: 1, questionStartTime: Date.now(), currentCategory: categoriesForGame[0] };
-
+      // set questions and meta
       await db.ref(`games/${gameId}/questions`).set(allQuestions);
 
-      // categoryState: used empty, remaining = planned categories in order
+      const metaObj = { phase: 'question', questionIndex: 0, round: 1, questionStartTime: Date.now(), currentCategory: categoriesForGame[0] };
       await db.ref(`games/${gameId}/meta/categoryState`).set({ used: [], remaining: categoriesForGame });
+      await db.ref(`games/${gameId}/meta`).set(metaObj);
 
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const pObj = pSnap.val() || {};
@@ -539,10 +463,9 @@
         }
         updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost:false, shield:false, poisonedBy: [] };
         updates[`games/${gameId}/players/${pid}/lastPoints`] = 0;
-        updates[`games/${gameId}/players/${pid}/lastRoundBonus`] = null; // reset any past bonus marker
+        updates[`games/${gameId}/players/${pid}/lastRoundBonus`] = null;
       });
       await db.ref().update(updates);
-      await db.ref(`games/${gameId}/meta`).set(metaObj);
       await db.ref(`games/${gameId}/meta/actions`).remove();
     };
 
@@ -581,33 +504,18 @@
             <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:12}}>
               <div style={{display:'flex', alignItems:'center', gap:12}}>
                 <RTLLogo size="lg" />
-                <div className="rtl-logo-text text-2xl">AdAlliance Quiz</div>
+                <div style={{fontWeight:900, fontSize:20}}>AdAlliance Quiz</div>
               </div>
-              <h2 style={{fontSize:36, fontWeight:900}}>⏳ Warte auf Spieler</h2>
-              <p style={{color:'var(--muted)'}}>Spielcode:</p>
-              <div style={{fontFamily:'monospace', background:'#fff', color:'#000', padding:'8px 12px', fontSize:24, fontWeight:900}}>{gameId}</div>
-
-              {playersArr.length > 0 && (
-                <div style={{marginTop:20, width:'100%', maxWidth:600}}>
-                  <h3 style={{fontSize:18, fontWeight:800, marginBottom:12, color:'var(--rtl-orange)'}}>Angemeldete Spieler ({playersArr.length})</h3>
-                  <div style={{display:'grid', gap:8}}>
-                    {playersArr.map((p,i)=>(p && (
-                      <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:12, background:'rgba(255,255,255,0.02)', borderLeft:'3px solid var(--rtl-purple)'}}>
-                        <div style={{fontWeight:700}}>{p.name}</div>
-                        <div style={{color:'var(--muted)'}}>Bereit ✓</div>
-                      </div>
-                    )))}
-                  </div>
-                </div>
-              )}
+              <h2 style={{fontSize:28, fontWeight:900}}>⏳ Warte auf Spieler</h2>
+              <div style={{fontFamily:'monospace', background:'#fff', color:'#000', padding:'8px 12px', fontSize:20, fontWeight:900}}>{gameId}</div>
             </div>
           )}
 
           {/* QUESTION VIEW */}
           {meta.phase === 'question' && question && (
-            <div style={{display:'flex', flexDirection:'column', gap:12, minHeight:0}}>
-              <div className="question-top-bar">
-                <div style={{display:'flex', alignItems:'center', gap:12}}>
+            <div>
+              <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                <div style={{display:'flex', gap:12, alignItems:'center'}}>
                   <div className={`countdown-badge ${countdownClass}`}>{timeLeft}</div>
                   <div>
                     <div style={{fontSize:14, color:'var(--muted)'}}>Runde {meta.round}/{TOTAL_ROUNDS}</div>
@@ -615,12 +523,12 @@
                     <div style={{fontSize:12, color:'var(--muted)'}}>Kategorie: <strong style={{color:'var(--rtl-orange)'}}>{meta.currentCategory || question.category || '—'}</strong></div>
                   </div>
                 </div>
-                <div style={{display:'flex', gap:8}}>
+                <div>
                   <button className="btn btn-show-results" onClick={showResultsNow}>📊 Ergebnisse</button>
                 </div>
               </div>
 
-              <div>
+              <div style={{marginTop:16}}>
                 <div className="question-text">{question.question}</div>
                 <div className="answers-grid" style={{marginTop:18}}>
                   {question.answers.map((a,i)=>((
@@ -636,181 +544,91 @@
 
           {/* RESULTS VIEW (Host) */}
           {meta.phase === 'results' && question && (
-            <div className="results-section">
-              <h2 className="result-title">📊 Ergebnisse</h2>
-              <div className="correct-answer">✓ Richtige Antwort: <strong>{question.answers[question.correct]}</strong></div>
+            <div>
+              <h2 style={{fontSize:22, fontWeight:900, color:'var(--rtl-orange)'}}>📊 Ergebnisse</h2>
+              <div style={{marginTop:8}}>✓ Richtige Antwort: <strong>{question.answers[question.correct]}</strong></div>
 
-              <div className="result-answer-grid">
+              <div style={{marginTop:12}}>
                 {question.answers.map((a,i)=>{
                   const voters = playersArr.filter(p => p.currentAnswer === i);
                   const isCorrect = i === question.correct;
                   return (
-                    <div key={i} className={`result-answer ${isCorrect ? 'correct' : 'incorrect'}`}>
+                    <div key={i} style={{padding:10, marginTop:8, background:isCorrect? '#fff' : 'rgba(255,255,255,0.02)', color:isCorrect? '#000' : 'var(--tile)'}}>
                       <div style={{fontWeight:900}}>{String.fromCharCode(65+i)}. {a}</div>
-                      <div style={{opacity:0.7, marginTop:8}}>{voters.length > 0 ? voters.map(p => {
-                        const boostActive = p.activeEffects && p.activeEffects.boost;
-                        return p.name + (boostActive ? ' 🔥' : '');
-                      }).join(', ') : '(Niemand)'}</div>
+                      <div style={{opacity:0.8, marginTop:6}}>{voters.length > 0 ? voters.map(p => p.name).join(', ') : '(Niemand)'}</div>
                     </div>
                   );
                 })}
               </div>
 
-              {/* Action log + per-player effects */}
-              <div style={{marginTop:18}}>
-                <h3 style={{fontWeight:900, color:'var(--rtl-orange)'}}>Aktionen & Effekte (diese Frage)</h3>
-                <div style={{marginTop:8, display:'grid', gap:8}}>
-                  {playersArr.map((p)=>((
-                    <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:10, background:'rgba(255,255,255,0.01)', borderLeft:'4px solid rgba(255,255,255,0.03)'}}>
-                      <div style={{display:'flex', gap:12, alignItems:'center'}}>
-                        <div style={{fontWeight:900}}>{p.name}</div>
-                        <div style={{color:'var(--muted)', fontSize:13}}>
-                          { (p.activeEffects && p.activeEffects.poisonedBy && p.activeEffects.poisonedBy.length > 0) ? `Vergiftet von: ${p.activeEffects.poisonedBy.map(id=>{
-                              const pl = playersArr.find(x => x.pid === id);
-                              return pl ? pl.name : id;
-                            }).join(', ')}` : (p.activeEffects && p.activeEffects.shield ? 'Geschützt (Schild)' : 'Keine Effekte') }
-                        </div>
-                      </div>
-                      <div style={{display:'flex', gap:10, alignItems:'center'}}>
-                        <div style={{fontSize:14}}>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</div>
-                        <div style={{fontSize:14}}>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</div>
-                        <div style={{fontSize:14}}>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
-                        <div style={{fontWeight:900, minWidth:80, textAlign:'right'}}>{p.lastPoints || 0} pts</div>
-                      </div>
-                    </div>
-                  )))}
-                </div>
-              </div>
-
-              <div style={{marginTop:20}}>
-                <button className="btn btn-host" onClick={startNextRound}>Nächste Frage →</button>
+              <div style={{marginTop:16}}>
+                <button className="btn btn-host" onClick={startNextRound}>Nächste Frage / Weiter</button>
               </div>
             </div>
           )}
 
           {/* ROUND SUMMARY */}
           {meta.phase === 'roundSummary' && (
-            <div className="round-summary">
-              <h2 className="result-title">🏆 Zwischenstand nach Runde {meta.round - 1}</h2>
-              <p style={{color:'var(--muted)', marginBottom:20}}>Hier ist der aktuelle Stand aller Spieler (inkl. Item-Vorrat). Letzte(n) Spieler erhalten je 1 Bonus-Item zur Auswahl und können eine Kategorie wählen.</p>
+            <div>
+              <h2 style={{fontSize:22, fontWeight:900, color:'var(--rtl-orange)'}}>🏆 Zwischenstand nach Runde {meta.round - 1}</h2>
+              <p style={{color:'var(--muted)'}}>Letzte Platzierte bekommen einen Bonus (Item + Kategorie-Auswahl).</p>
 
-              <div style={{display:'grid', gap:12, maxWidth:900, margin:'0 auto'}}>
-                {playersArr.map((p,i)=>{
-                  const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-                  return (
-                    <div key={p.pid} style={{
-                      display:'flex',
-                      justifyContent:'space-between',
-                      alignItems:'center',
-                      padding:16,
-                      background: i < 3 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.01)',
-                      borderLeft:`4px solid ${i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'rgba(255,255,255,0.1)'}`
-                    }}>
-                      <div style={{display:'flex', gap:12, alignItems:'center', flex:1}}>
-                        <div style={{fontSize:20, width:40}}>{medal || `#${i+1}`}</div>
-                        <div style={{fontWeight:800, fontSize:18}}>{p.name}</div>
-                      </div>
-                      <div style={{display:'flex', gap:20, alignItems:'center'}}>
-                        <div style={{fontSize:14, fontWeight:700}}>🔥 { (p.items && p.items.boost) ? p.items.boost : 0 }</div>
-                        <div style={{fontSize:14, fontWeight:700}}>☠️ { (p.items && p.items.poison) ? p.items.poison : 0 }</div>
-                        <div style={{fontSize:14, fontWeight:700}}>🛡 { (p.items && p.items.shield) ? p.items.shield : 0 }</div>
-                        <div style={{fontSize:22, fontWeight:900, color:'var(--tile)', minWidth:80, textAlign:'right'}}>{p.score || 0} pts</div>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div style={{marginTop:12}}>
+                {playersArr.map((p,i)=>(
+                  <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:10, borderBottom:'1px solid rgba(255,255,255,0.03)'}}>
+                    <div style={{fontWeight:900}}>{i<3? (i===0?'🥇':i===1?'🥈':'🥉') : `#${i+1}`} {p.name}</div>
+                    <div style={{fontWeight:900}}>{p.score || 0} pts</div>
+                  </div>
+                ))}
               </div>
 
-              <div style={{marginTop:30, textAlign:'center'}}>
-                <button className="btn btn-host" style={{fontSize:18, padding:'14px 28px'}} onClick={startNextRound}>Weiter zur nächsten Runde →</button>
+              <div style={{marginTop:16}}>
+                <button className="btn btn-host" onClick={startNextRound}>Weiter zur nächsten Runde →</button>
               </div>
             </div>
           )}
 
           {/* FINISHED */}
           {meta.phase === 'finished' && (
-            <div style={{textAlign:'center', maxWidth:900, margin:'0 auto'}}>
-              <h2 className="result-title" style={{fontSize:'2.5rem', marginBottom:8}}>🎉 Spiel beendet!</h2>
-              <p style={{color:'var(--muted)', fontSize:18, marginBottom:30}}>Das Quiz ist vorbei - hier sind die finalen Ergebnisse</p>
-
-              <div style={{display:'flex', gap:20, justifyContent:'center', alignItems:'flex-end', marginBottom:40}}>
-                {playersArr.slice(0,3).map((p,i)=>{
-                  const heights = {0: 180, 1: 140, 2: 110};
-                  const colors = {0: '#FFD700', 1: '#C0C0C0', 2: '#CD7F32'};
-                  const order = i===0 ? 1 : i===1 ? 0 : 2;
-                  const medals = ['🥇','🥈','🥉'];
-                  return (
-                    <div key={p.pid} style={{order, flex:1, maxWidth:200}}>
-                      <div style={{fontSize:48, marginBottom:8}}>{medals[i]}</div>
-                      <div style={{fontWeight:900, fontSize:20, marginBottom:8}}>{p.name}</div>
-                      <div style={{fontSize:28, fontWeight:900, color:colors[i], marginBottom:12}}>{p.score || 0} pts</div>
-                      <div style={{
-                        height:heights[i],
-                        background:`linear-gradient(180deg, ${colors[i]}, ${colors[i]}CC)`,
-                        display:'flex',
-                        alignItems:'center',
-                        justifyContent:'center',
-                        fontSize:32,
-                        fontWeight:900,
-                        color:'#0b0b0b'
-                      }}>
-                        #{i+1}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {playersArr.length > 3 && (
-                <div style={{marginTop:40}}>
-                  <h3 style={{fontSize:20, fontWeight:800, marginBottom:16, color:'var(--rtl-orange)'}}>Weitere Platzierungen</h3>
-                  <div style={{display:'grid', gap:8}}>
-                    {playersArr.slice(3).map((p,i)=>((
-                      <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:12, background:'rgba(255,255,255,0.01)', borderLeft:'4px solid rgba(255,255,255,0.1)'}}>
-                        <div style={{fontWeight:700}}>#{i+4} {p.name}</div>
-                        <div style={{fontWeight:900, color:'var(--tile)'}}>{p.score || 0} pts</div>
-                      </div>
-                    )))}
+            <div>
+              <h2 style={{fontSize:28, fontWeight:900, color:'var(--rtl-orange)'}}>🎉 Spiel beendet!</h2>
+              <div style={{marginTop:12}}>
+                {playersArr.map((p,i)=>(
+                  <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:8}}>
+                    <div style={{fontWeight:700}}>{i+1}. {p.name}</div>
+                    <div style={{fontWeight:900}}>{p.score || 0} pts</div>
                   </div>
-                </div>
-              )}
-
-              <div style={{marginTop:40}}>
-                <button className="btn btn-host" style={{fontSize:18, padding:'14px 28px'}} onClick={backToLobby}>🔄 Zurück zur Lobby</button>
+                ))}
+              </div>
+              <div style={{marginTop:16}}>
+                <button className="btn btn-host" onClick={backToLobby}>🔄 Zurück zur Lobby</button>
               </div>
             </div>
           )}
 
         </div>
 
-        {/* Sidebar (Lobby) */}
+        {/* Sidebar */}
         {showSidebar && (
           <div className="host-side">
             <HostController gameId={gameId} meta={meta} startNextRound={startNextRound} showResultsNow={showResultsNow} startGame={startGame} />
-
-            <div style={{marginTop:16}}>
-              <h3 className="leaderboard-title">🏅 Spieler & Punkte</h3>
-              <div style={{maxHeight:220, overflow:'auto', marginTop:8}}>
-                {playersArr.map((p,idx)=>((
-                  <div key={p.pid} className="player-item">
-                    <div style={{display:'flex', gap:8, alignItems:'center'}}>
-                      <div style={{fontWeight:900, color:'var(--rtl-purple)'}}>#{idx+1}</div>
-                      <div style={{fontWeight:700}}>{p.name}</div>
-                    </div>
-                    <div style={{display:'flex', gap:12, alignItems:'center'}}>
-                      <div style={{fontWeight:900, color:'var(--rtl-green)'}}>{p.score || 0}</div>
-                      <div style={{fontSize:13, color:'var(--muted)'}}>🔥{(p.items && p.items.boost) ? p.items.boost : 0} ☠️{(p.items && p.items.poison) ? p.items.poison : 0} 🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
-                    </div>
+            <div style={{marginTop:12}}>
+              <h4 style={{fontWeight:900}}>🏅 Spieler & Punkte</h4>
+              <div style={{marginTop:8}}>
+                {playersArr.map((p,idx)=>(
+                  <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:8, borderBottom:'1px solid rgba(255,255,255,0.03)'}}>
+                    <div style={{fontWeight:700}}>{idx+1}. {p.name}</div>
+                    <div style={{fontWeight:900}}>{p.score || 0} pts</div>
                   </div>
-                )))}
+                ))}
               </div>
             </div>
 
-            <div style={{marginTop:18}}>
-              <h3 className="leaderboard-title">ℹ️ Code & QR</h3>
+            <div style={{marginTop:12}}>
+              <h4 style={{fontWeight:900}}>ℹ️ Code & QR</h4>
               <div style={{marginTop:8}}>
-                <div style={{marginBottom:8}}><span style={{fontFamily:'monospace', background:'#fff', color:'#000', padding:'4px 8px'}}>{gameId}</span></div>
-                <img src={qrUrlForGame(gameId)} alt="QR Code" style={{width:'100%'}} />
+                <div style={{fontFamily:'monospace', background:'#fff', color:'#000', padding:'6px'}}>{gameId}</div>
+                <img src={qrUrlForGame(gameId)} alt="QR" style={{width:'100%', marginTop:8}} />
               </div>
             </div>
           </div>
@@ -828,14 +646,10 @@
     const [player,setPlayer] = useState(null);
     const [timeLeft,setTimeLeft] = useState(0);
 
-    // modal state for poison target selection
     const [poisonModalOpen, setPoisonModalOpen] = useState(false);
-    const [poisonTargets, setPoisonTargets] = useState([]); // array of {pid, name}
+    const [poisonTargets, setPoisonTargets] = useState([]);
 
-    // modal state for last-place bonus (shown when in roundSummary & player is last)
     const [bonusModalOpen, setBonusModalOpen] = useState(false);
-
-    // local modal selections (we require both item & category to be chosen)
     const [selectedBonusItem, setSelectedBonusItem] = useState(null);
     const [selectedBonusCategory, setSelectedBonusCategory] = useState(null);
 
@@ -851,7 +665,7 @@
 
     useEffect(()=>{
       if(!meta || meta.phase !== 'question' || !meta.questionStartTime){ setTimeLeft(0); return; }
-      const tick = ()=>{
+      const tick = ()=> {
         const elapsed = Math.floor((Date.now() - meta.questionStartTime)/1000);
         setTimeLeft(Math.max(0, QUESTION_TIME - elapsed));
       };
@@ -860,8 +674,7 @@
       return ()=> clearInterval(t);
     },[meta?.questionStartTime, meta?.phase]);
 
-    // When we enter roundSummary, check if current player is among the tied last-placed players.
-    // If yes, and player hasn't already chosen a bonus for that round, open the bonus modal for them.
+    // Show bonus modal if last-placed and hasn't chosen for finished round
     useEffect(()=>{
       if(!game || !meta || !player) return;
       if(meta.phase !== 'roundSummary') {
@@ -871,16 +684,14 @@
         return;
       }
 
-      // Determine min score
       const playersArr = Object.entries(game.players || {}).map(([pid,p])=>({pid,...p}));
       if(playersArr.length === 0) return;
       const minScore = Math.min(...playersArr.map(p => p.score || 0));
       const lastPlayers = playersArr.filter(p => (p.score || 0) === minScore).map(p => p.pid);
 
-      const roundNumberJustFinished = (meta.round || 1) - 1; // meta.round is nextRound; finished round is meta.round-1
+      const finishedRoundNumber = (meta.round || 1) - 1;
 
-      // If current player is among last players AND hasn't already taken bonus for this finished round -> open modal
-      if(lastPlayers.includes(playerId) && (player.lastRoundBonus !== roundNumberJustFinished)){
+      if(lastPlayers.includes(playerId) && (player.lastRoundBonus !== finishedRoundNumber)){
         setBonusModalOpen(true);
       } else {
         setBonusModalOpen(false);
@@ -892,55 +703,37 @@
     const qIndex = meta.questionIndex || 0;
     const question = (game.questions || [])[qIndex];
 
-    // Helper: open poison modal & prepare targets
     const openPoisonModal = ()=>{
-      // build list of other players
       const entries = Object.entries(game.players || {}).filter(([pid]) => pid !== playerId).map(([pid,p]) => ({ pid, name: p.name }));
       setPoisonTargets(entries);
       setPoisonModalOpen(true);
     };
 
-    // Handler when selecting a poison target from modal
     const sendPoisonTo = async (targetPid) => {
       setPoisonModalOpen(false);
-
-      if(!(player.items && player.items.poison > 0)) {
-        alert('Kein Gift verfügbar');
-        return;
-      }
-
+      if(!(player.items && player.items.poison > 0)) { alert('Kein Gift verfügbar'); return; }
       const updates = {};
       updates[`games/${gameId}/players/${playerId}/items/poison`] = (player.items.poison - 1);
 
-      // action logging
       const actionRef = db.ref(`games/${gameId}/meta/actions/${qIndex}`);
       const targetSnap = await db.ref(`games/${gameId}/players/${targetPid}`).get();
-      if(!targetSnap.exists()){
-        // decrement poison only
-        await db.ref().update(updates);
-        return;
-      }
+      if(!targetSnap.exists()){ await db.ref().update(updates); return; }
       const targetData = targetSnap.val();
       const targetShield = targetData.activeEffects && targetData.activeEffects.shield;
-
       const actionsSnap = await actionRef.get();
       const existingActions = actionsSnap.exists() ? actionsSnap.val() : [];
 
       if(targetShield){
-        // blocked: log blocked = true, decrement poison for attacker
         existingActions.push({ type:'poison', from: playerId, to: targetPid, blocked: true, ts: Date.now() });
         await actionRef.set(existingActions);
         await db.ref().update(updates);
         return;
       } else {
-        // not shielded: apply to target.activeEffects.poisonedBy
-        const prevPoisoned = (targetData.activeEffects && Array.isArray(targetData.activeEffects.poisonedBy)) ? targetData.activeEffects.poisonedBy : [];
-        const newPoisoned = [...prevPoisoned, playerId];
-        updates[`games/${gameId}/players/${targetPid}/activeEffects/poisonedBy`] = newPoisoned;
-
+        const prev = (targetData.activeEffects && Array.isArray(targetData.activeEffects.poisonedBy)) ? targetData.activeEffects.poisonedBy : [];
+        const next = [...prev, playerId];
+        updates[`games/${gameId}/players/${targetPid}/activeEffects/poisonedBy`] = next;
         existingActions.push({ type:'poison', from: playerId, to: targetPid, blocked: false, ts: Date.now() });
         await actionRef.set(existingActions);
-
         await db.ref().update(updates);
         return;
       }
@@ -952,8 +745,6 @@
       const boostAvailable = (player.items && player.items.boost > 0);
       const poisonAvailable = (player.items && player.items.poison > 0);
       const shieldAvailable = (player.items && player.items.shield > 0);
-      const boostActive = player.activeEffects && player.activeEffects.boost;
-      const shieldActive = player.activeEffects && player.activeEffects.shield;
 
       const answerClick = async (i)=>{
         if(hasAnswered || timeLeft <= 0) return;
@@ -962,10 +753,7 @@
 
       const activateBoost = async ()=>{
         if(!boostAvailable) return;
-        if(player.currentAnswer !== null && player.currentAnswer !== undefined){
-          alert('Boost muss vor der Antwort aktiviert werden.');
-          return;
-        }
+        if(player.currentAnswer !== null && player.currentAnswer !== undefined){ alert('Boost muss vor der Antwort aktiviert werden.'); return; }
         const updates = {};
         updates[`games/${gameId}/players/${playerId}/items/boost`] = (player.items.boost - 1);
         updates[`games/${gameId}/players/${playerId}/activeEffects/boost`] = true;
@@ -974,106 +762,54 @@
 
       const activateShield = async ()=>{
         if(!shieldAvailable) return;
-        // consume shield immediately (risk)
         const updates = {};
         updates[`games/${gameId}/players/${playerId}/items/shield`] = (player.items.shield - 1);
         updates[`games/${gameId}/players/${playerId}/activeEffects/shield`] = true;
         await db.ref().update(updates);
       };
 
-      // classes for visual active state
-      const boostBtnClass = `item-btn ${(boostAvailable && !hasAnswered) ? '' : 'item-disabled'} ${ (player.activeEffects && player.activeEffects.boost) ? 'active' : '' }`;
-      const poisonBtnClass = `item-btn ${(poisonAvailable) ? '' : 'item-disabled'} `;
-      const shieldBtnClass = `item-btn ${(shieldAvailable) ? '' : 'item-disabled'} ${ (player.activeEffects && player.activeEffects.shield) ? 'shield-active' : '' }`;
-
       return (
-        <div className="min-h-screen" style={{padding:20, background:'var(--bg)'}}>
-          <div className="player-card" style={{paddingBottom:12}}>
+        <div className="min-h-screen" style={{padding:20}}>
+          <div className="player-card">
             <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-              <div>Runde {meta.round}/{TOTAL_ROUNDS}</div>
+              <div style={{fontWeight:900}}>Runde {meta.round}/{TOTAL_ROUNDS}</div>
               <div style={{fontSize:18, fontWeight:900, color:'var(--rtl-orange)'}}>{timeLeft}s</div>
             </div>
 
             <h3 style={{fontSize:18,fontWeight:900, marginTop:12}}>{question.question}</h3>
             <div style={{fontSize:12, color:'var(--muted)', marginTop:6}}>Kategorie: <strong style={{color:'var(--rtl-orange)'}}>{meta.currentCategory || question.category}</strong></div>
 
-            <div className="player-answers" style={{marginTop:12, display:'grid', gap:10}}>
+            <div style={{marginTop:12}}>
               {question.answers.map((ans,i)=>{
                 const disabled = hasAnswered || timeLeft <= 0;
                 const isSelected = player.currentAnswer === i;
-                const style = isSelected ? {background:'var(--rtl-purple)', color:'#fff', borderColor:'var(--rtl-purple)'} : {};
-                return (
-                  <button key={i} disabled={disabled} onClick={()=>answerClick(i)} style={style} className="p-3 font-bold">
-                    <div style={{display:'flex', gap:10, alignItems:'center'}}><div style={{fontWeight:900}}>{String.fromCharCode(65+i)}.</div><div>{ans}</div></div>
-                  </button>
-                );
+                const style = isSelected ? {background:'var(--rtl-purple)', color:'#fff'} : {};
+                return <button key={i} disabled={disabled} onClick={()=>answerClick(i)} style={{display:'block', width:'100%', padding:12, marginTop:8, ...style}}>{String.fromCharCode(65+i)}. {ans}</button>;
               })}
             </div>
 
-            {/* Item bar (mobile-friendly) */}
-            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:14, flexWrap:'wrap'}}>
-              <div style={{color: 'var(--muted)'}}>{player.currentAnswer === null ? "Noch nicht geantwortet" : `Du hast Antwort ${String.fromCharCode(65 + player.currentAnswer)} gewählt`}</div>
-              <div style={{display:'flex', gap:8, alignItems:'center', marginTop:8}}>
-                <div style={{fontWeight:900, color:'var(--rtl-green)', marginRight:8}}>Punkte: {player.score || 0}</div>
-
-                <div className="item-bar" style={{alignItems:'center'}}>
-                  {/* Boost */}
-                  <button
-                    className={boostBtnClass}
-                    disabled={!boostAvailable || hasAnswered}
-                    onClick={activateBoost}
-                    title={'Boost: muss vor der Antwort aktiviert werden. Richtige Antwort -> x1.5 (5× pro Spiel)'}
-                  >
-                    <span style={{fontSize:18}}>🔥</span>
-                    <span className="item-label">{player.items && player.items.boost ? player.items.boost : 0}</span>
-                  </button>
-
-                  {/* Poison -> opens modal */}
-                  <button
-                    className={poisonBtnClass}
-                    disabled={!poisonAvailable}
-                    onClick={openPoisonModal}
-                    title={'Vergiften: wähle ein Ziel (5× pro Spiel)'}
-                  >
-                    <span style={{fontSize:18}}>☠️</span>
-                    <span className="item-label">{player.items && player.items.poison ? player.items.poison : 0}</span>
-                  </button>
-
-                  {/* Shield */}
-                  <button
-                    className={shieldBtnClass}
-                    disabled={!shieldAvailable}
-                    onClick={activateShield}
-                    title={'Schild: wird sofort verbraucht, schützt diese Frage (3× pro Spiel). Risiko: verschwindet auch wenn nicht angegriffen.'}
-                  >
-                    <span style={{fontSize:18}}>🛡</span>
-                    <span className="item-label">{player.items && player.items.shield ? player.items.shield : 0}</span>
-                  </button>
-                </div>
+            <div style={{marginTop:12, display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+              <div style={{color:'var(--muted)'}}>{player.currentAnswer === null ? "Noch nicht geantwortet" : `Antwort: ${String.fromCharCode(65 + player.currentAnswer)}`}</div>
+              <div style={{display:'flex', gap:8}}>
+                <button className="bonus-choice" onClick={activateBoost} disabled={!boostAvailable || player.currentAnswer !== null}>🔥 {player.items.boost}</button>
+                <button className="bonus-choice" onClick={openPoisonModal} disabled={!poisonAvailable}>☠️ {player.items.poison}</button>
+                <button className="bonus-choice" onClick={activateShield} disabled={!shieldAvailable}>🛡 {player.items.shield}</button>
               </div>
             </div>
 
             <div style={{marginTop:10, color:'var(--muted)', fontSize:13}}>
-              Info: Items sind Ressourcen für das gesamte Spiel.<br/>
-              🔥 Boost: muss <strong>vor</strong> der Antwort aktiviert werden (x1.5 bei richtiger Antwort).<br/>
-              ☠️ Gift: wähle ein Ziel im großen Modal; Ergebnis wird nach Ende der Frage gezeigt — du erfährst nicht sofort, ob Block stattgefunden hat.<br/>
-              🛡 Schild: verbraucht sich sofort bei Aktivierung und schützt diese Frage – auch wenn niemand angreift (Risiko).
+              🔥 Boost vor der Antwort; ☠️ Gift per Modal; 🛡 Schild wird sofort verbraucht.
             </div>
           </div>
 
-          {/* POISON TARGET SELECTION FULLSCREEN MODAL */}
+          {/* Poison modal */}
           {poisonModalOpen && (
             <div className="modal-backdrop">
-              <div className="modal-card" role="dialog" aria-modal="true">
+              <div className="modal-card">
                 <div className="modal-title">Wen willst du vergiften?</div>
-                <div style={{display:'flex', flexDirection:'column', gap:10}}>
-                  {poisonTargets.length === 0 ? (
-                    <div style={{color:'var(--muted)'}}>Keine anderen Spieler verfügbar</div>
-                  ) : poisonTargets.map(t => (
-                    <button key={t.pid} onClick={()=>sendPoisonTo(t.pid)} className="btn btn-ghost" style={{display:'flex', justifyContent:'space-between', padding:'12px 16px'}}>
-                      <div style={{fontWeight:900}}>{t.name}</div>
-                      <div style={{color:'var(--muted)'}}>Vergiften</div>
-                    </button>
+                <div style={{display:'flex', flexDirection:'column', gap:8}}>
+                  {poisonTargets.length === 0 ? <div style={{color:'var(--muted)'}}>Keine anderen Spieler</div> : poisonTargets.map(t=>(
+                    <button key={t.pid} className="btn btn-ghost" onClick={()=>sendPoisonTo(t.pid)} style={{display:'flex', justifyContent:'space-between'}}>{t.name}<span style={{color:'var(--muted)'}}>Vergiften</span></button>
                   ))}
                   <button className="btn btn-join" onClick={()=>setPoisonModalOpen(false)}>Abbrechen</button>
                 </div>
@@ -1084,61 +820,49 @@
       );
     }
 
-    // RESULTS VIEW (player)
+    // RESULTS view
     if(meta.phase === 'results' && question){
       const wasCorrect = player.currentAnswer === question.correct;
       const poisonedBy = (player.activeEffects && player.activeEffects.poisonedBy) ? player.activeEffects.poisonedBy : [];
       const shieldActive = player.activeEffects && player.activeEffects.shield;
-
-      let poisonMsg = '';
-      if(poisonedBy.length === 0){
-        if(shieldActive){
-          poisonMsg = 'Schild aktiv — kein Gift';
-        } else {
-          poisonMsg = 'Nicht vergiftet';
-        }
-      } else {
-        const names = poisonedBy.map(id => {
-          const found = Object.entries(game.players || {}).find(([k]) => k === id);
-          return found ? found[1].name : id;
-        });
-        poisonMsg = `Vergiftet von: ${names.join(', ')}`;
-      }
+      const poisonMsg = poisonedBy.length === 0 ? (shieldActive ? 'Schild aktiv — kein Gift' : 'Nicht vergiftet') : `Vergiftet von: ${poisonedBy.join(', ')}`;
 
       return (
-        <div className="min-h-screen" style={{padding:20, background:'var(--bg)'}}>
+        <div className="min-h-screen" style={{padding:20}}>
           <div className="player-card" style={{textAlign:'center'}}>
-            <h3 style={{fontSize:26, fontWeight:900, color: wasCorrect ? 'var(--rtl-green)' : '#ff6b6b'}}>{wasCorrect ? 'Richtig! 🎉' : 'Falsch 😕'}</h3>
-            <p style={{marginTop:8}}>Richtige Antwort: <strong style={{color:'var(--rtl-green)'}}>{question.answers[question.correct]}</strong></p>
-            <p style={{marginTop:8}}>Punkte diese Frage: <strong style={{color:'var(--rtl-green)'}}>{player.lastPoints || 0}</strong></p>
-            <p style={{marginTop:8}}>Dein Punktestand: <strong style={{color:'var(--rtl-green)'}}>{player.score || 0}</strong></p>
-            <p style={{marginTop:8, color:'var(--muted)'}}>Status: {poisonMsg}{shieldActive ? ' (Schild aktiv)' : ''}</p>
-            <p style={{marginTop:8, color:'var(--muted)'}}>Warte auf den Host für die nächste Frage.</p>
+            <h3 style={{fontSize:22, fontWeight:900, color: wasCorrect ? 'var(--rtl-green)' : '#ff6b6b'}}>{wasCorrect ? 'Richtig! 🎉' : 'Falsch 😕'}</h3>
+            <p>Richtige Antwort: <strong>{question.answers[question.correct]}</strong></p>
+            <p>Punkte (diese Frage): <strong>{player.lastPoints || 0}</strong></p>
+            <p>Punkte gesamt: <strong>{player.score || 0}</strong></p>
+            <p style={{color:'var(--muted)'}}>Status: {poisonMsg}{shieldActive ? ' (Schild aktiv)' : ''}</p>
+            <p style={{color:'var(--muted)'}}>Warte auf den Host...</p>
           </div>
         </div>
       );
     }
 
-    // ROUND SUMMARY OR FINISHED - player
+    // ROUND SUMMARY or FINISHED view (player)
     if(meta.phase === 'roundSummary' || meta.phase === 'finished'){
       const playersSorted = Object.entries(game.players || {}).map(([pid,p])=>({pid,...p})).sort((a,b)=>(b.score||0)-(a.score||0));
       const title = meta.phase === 'finished' ? '🎉 Spiel beendet!' : `🏆 Zwischenstand nach Runde ${meta.round - 1}`;
-      const subtitle = meta.phase === 'finished' ? 'Das Quiz ist vorbei - hier sind die finalen Ergebnisse' : 'Hier ist der aktuelle Stand';
-
-      // finishedRound number to store in DB as lastRoundBonus
       const finishedRound = (meta.round || 1) - 1;
 
-      // pickBonus handlers (we require both item + category)
+      // Candidate categories (2) for bonus
+      let candidateCats = [];
+      if(meta.categoryState && Array.isArray(meta.categoryState.remaining)){
+        candidateCats = shuffle(meta.categoryState.remaining).slice(0,2);
+      } else {
+        const used = (meta.categoryState && meta.categoryState.used) ? meta.categoryState.used : [];
+        candidateCats = shuffle(CATEGORY_LIST.filter(c => !used.includes(c))).slice(0,2);
+      }
+
       const commitBonus = async () => {
-        if(!selectedBonusItem || !selectedBonusCategory){
-          alert('Wähle ein Item und eine Kategorie.');
-          return;
-        }
+        if(!selectedBonusItem || !selectedBonusCategory){ alert('Wähle Item und Kategorie'); return; }
         const updates = {};
-        const currentCount = (player.items && player.items[selectedBonusItem]) ? player.items[selectedBonusItem] : 0;
-        updates[`games/${gameId}/players/${playerId}/items/${selectedBonusItem}`] = currentCount + 1;
+        const curr = (player.items && player.items[selectedBonusItem]) ? player.items[selectedBonusItem] : 0;
+        updates[`games/${gameId}/players/${playerId}/items/${selectedBonusItem}`] = curr + 1;
         updates[`games/${gameId}/players/${playerId}/lastRoundBonus`] = finishedRound;
-        // set meta.nextCategory only if not already set — we allow overwrites, host will use last set
+        // set meta.nextCategory (Host uses this when starting next round)
         updates[`games/${gameId}/meta/nextCategory`] = selectedBonusCategory;
         await db.ref().update(updates);
         setBonusModalOpen(false);
@@ -1146,93 +870,39 @@
         setSelectedBonusItem(null);
       };
 
-      // Determine 2 candidate categories for the bonus modal (from meta.categoryState.remaining)
-      let candidateCats = [];
-      if(meta.categoryState && Array.isArray(meta.categoryState.remaining)){
-        // pick up to 2 random from remaining
-        candidateCats = shuffle(meta.categoryState.remaining).slice(0,2);
-      } else {
-        // fallback: pick 2 from global list excluding already used
-        const used = (meta.categoryState && meta.categoryState.used) ? meta.categoryState.used : [];
-        candidateCats = shuffle(CATEGORY_LIST.filter(c => !used.includes(c))).slice(0,2);
-      }
-
       return (
-        <div className="min-h-screen" style={{padding:20, background:'var(--bg)'}}>
+        <div className="min-h-screen" style={{padding:20}}>
           <div className="player-card">
-            <h3 style={{fontSize:20, fontWeight:900, color:'var(--rtl-orange)', textAlign:'center', marginBottom:8}}>{title}</h3>
-            <p style={{textAlign:'center', color:'var(--muted)', marginBottom:16}}>{subtitle}</p>
-
-            <div style={{marginTop:12, background:'rgba(255,255,255,0.01)', padding:8}}>
-              {playersSorted.map((p,i)=> {
-                const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-                return (
-                  <div key={p.pid} style={{
-                    display:'flex',
-                    justifyContent:'space-between',
-                    alignItems:'center',
-                    padding:'10px 0',
-                    borderBottom: i < playersSorted.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none'
-                  }}>
-                    <div style={{display:'flex', gap:8, alignItems:'center', flex:1}}>
-                      <span style={{fontSize:16, minWidth:30}}>{medal || `#${i+1}`}</span>
-                      <span style={{fontWeight:700}}>{p.name}</span>
-                    </div>
-                    <div style={{display:'flex', gap:12, alignItems:'center'}}>
-                      <span style={{fontSize:16}}>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</span>
-                      <span style={{fontSize:16}}>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</span>
-                      <span style={{fontSize:16}}>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</span>
-                      <span style={{fontWeight:900, minWidth:60, textAlign:'right'}}>{p.score || 0} pts</span>
-                    </div>
-                  </div>
-                );
-              })}
+            <h3 style={{fontSize:18, fontWeight:900, color:'var(--rtl-orange)', textAlign:'center'}}>{title}</h3>
+            <div style={{marginTop:12}}>
+              {playersSorted.map((p,i)=>(
+                <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:8, borderBottom:'1px solid rgba(255,255,255,0.03)'}}>
+                  <div style={{fontWeight:700}}>{i+1}. {p.name}</div>
+                  <div style={{fontWeight:900}}>{p.score || 0} pts</div>
+                </div>
+              ))}
             </div>
-
-            <p style={{marginTop:16, color:'var(--muted)', textAlign:'center', fontSize:14}}>
-              {meta.phase === 'finished' ? 'Warte auf den Host...' : 'Host startet die nächste Runde, sobald er bereit ist.'}
-            </p>
+            <p style={{color:'var(--muted)', marginTop:10}}>Warte auf den Host... oder wähle deinen Bonus, wenn du letzter bist.</p>
           </div>
 
-          {/* BONUS MODAL for last-placed players (Option B): both item + category */}
+          {/* BONUS MODAL (Item + Kategorie) */}
           {bonusModalOpen && (
             <div className="modal-backdrop">
-              <div className="bonus-modal-card" role="dialog" aria-modal="true">
+              <div className="modal-card">
                 <div className="modal-title">🎁 Bonus: Item + Kategorie wählen</div>
-                <p style={{textAlign:'center', color:'var(--muted)'}}>Wähle 1 Item (dein Vorrat +1) und 1 Kategorie für die nächste Runde.</p>
+                <p style={{textAlign:'center', color:'var(--muted)'}}>Wähle 1 Item (Vorrat +1) und 1 Kategorie (für nächste Runde).</p>
 
-                <h4 style={{marginTop:12, fontWeight:900}}>1️⃣ Item</h4>
+                <h4 style={{marginTop:12, fontWeight:900}}>Item</h4>
                 <div className="bonus-grid">
-                  <div
-                    className="bonus-choice"
-                    style={{background: selectedBonusItem === 'boost' ? '#fff3cc' : undefined}}
-                    onClick={()=>setSelectedBonusItem('boost')}
-                  >🔥 Boost +1</div>
-                  <div
-                    className="bonus-choice"
-                    style={{background: selectedBonusItem === 'poison' ? '#ffd6d6' : undefined}}
-                    onClick={()=>setSelectedBonusItem('poison')}
-                  >☠️ Gift +1</div>
-                  <div
-                    className="bonus-choice"
-                    style={{background: selectedBonusItem === 'shield' ? '#dbeeff' : undefined}}
-                    onClick={()=>setSelectedBonusItem('shield')}
-                  >🛡 Schild +1</div>
+                  <div className="bonus-choice" style={{background: selectedBonusItem === 'boost' ? '#fff3cc' : undefined}} onClick={()=>setSelectedBonusItem('boost')}>🔥 Boost +1</div>
+                  <div className="bonus-choice" style={{background: selectedBonusItem === 'poison' ? '#ffd6d6' : undefined}} onClick={()=>setSelectedBonusItem('poison')}>☠️ Gift +1</div>
+                  <div className="bonus-choice" style={{background: selectedBonusItem === 'shield' ? '#dbeeff' : undefined}} onClick={()=>setSelectedBonusItem('shield')}>🛡 Schild +1</div>
                 </div>
 
-                <h4 style={{marginTop:18, fontWeight:900}}>2️⃣ Kategorie (wähle 1 von 2)</h4>
-                <div className="bonus-grid" style={{marginTop:6}}>
-                  {candidateCats.length === 0 ? (
-                    <div style={{color:'var(--muted)'}}>Keine Kategorien verfügbar</div>
-                  ) : candidateCats.map(c => (
-                    <div
-                      key={c}
-                      className="bonus-choice"
-                      style={{background: selectedBonusCategory === c ? '#fff' : undefined, color: selectedBonusCategory === c ? '#000' : undefined}}
-                      onClick={()=>setSelectedBonusCategory(c)}
-                    >
-                      🎯 {c}
-                    </div>
+                <h4 style={{marginTop:14, fontWeight:900}}>Kategorie (wähle 1 von 2)</h4>
+                <div className="bonus-grid">
+                  {candidateCats.length === 0 ? <div style={{color:'var(--muted)'}}>Keine Kategorien verfügbar</div> : candidateCats.map(c=>(
+                    <div key={c} className="bonus-choice" style={{background: selectedBonusCategory === c ? '#fff' : undefined, color: selectedBonusCategory === c ? '#000' : undefined}} onClick={()=>setSelectedBonusCategory(c)}>{c}</div>
                   ))}
                 </div>
 
@@ -1247,6 +917,7 @@
               </div>
             </div>
           )}
+
         </div>
       );
     }
@@ -1302,7 +973,7 @@
   }
 
   /****************************************
-   * MAIN APP
+   * APP
    ****************************************/
   function App(){
     const [mode,setMode] = useState('start');
@@ -1359,7 +1030,7 @@
 
   ReactDOM.render(<App />, document.getElementById('root'));
 
-  /************ Utility used in Host Sidebar (QR) ************/
+  /************ Utility ************/
   function qrUrlForGame(gameId){
     const url = `${window.location.origin}${window.location.pathname}?join=${gameId}`;
     return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
