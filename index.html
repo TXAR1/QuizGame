@@ -375,12 +375,11 @@
         // If this was the last question of a round -> go to roundSummary (players then get bonus)
         const questionInRound = (qIndex + 1) % QUESTIONS_PER_ROUND;
         if (questionInRound === 0) {
-  const finishedRound = Math.floor((qIndex + 1) / QUESTIONS_PER_ROUND);
-  await db.ref(`games/${gameId}/meta`).update({
-    phase: 'roundSummary',
-    round: finishedRound + 1
-  });
-}/meta`).update({ phase: 'roundSummary' });
+          const finishedRound = Math.floor((qIndex + 1) / QUESTIONS_PER_ROUND);
+          await db.ref(`games/${gameId}/meta`).update({
+            phase: 'roundSummary',
+            round: finishedRound + 1
+          });
         }
       }catch(e){ console.error(e); }
     };
@@ -403,18 +402,13 @@
         const metaVal = metaSnap.exists() ? metaSnap.val() : {};
         const catState = metaVal.categoryState || { used: [], remaining: [] };
 
-        // HOST GUARD: require that a player has chosen the nextCategory before proceeding
-        if(!metaVal.nextCategory){
-          alert("Spieler muss zuerst Kategorie wählen!");
-          return;
-        }
-
+        // HOST GUARD: nextCategory may be set by a last-place player; if missing, pick a sensible fallback
         let chosenCategory = metaVal.nextCategory || null;
-// fallback if none chosen
-if(!chosenCategory){
-  const fallbackCat = (catState.remaining && catState.remaining.length>0) ? catState.remaining[0] : (catState.used ? catState.used[0] : null);
-  chosenCategory = fallbackCat;
-}
+        if(!chosenCategory){
+          // fallback: take first remaining category or a used one
+          const fallbackCat = (catState.remaining && catState.remaining.length>0) ? catState.remaining[0] : (catState.used && catState.used.length>0 ? catState.used[0] : null);
+          chosenCategory = fallbackCat;
+        }
 
         // update used/remaining
         const remaining = (catState.remaining || []).filter(c => c !== chosenCategory);
@@ -1242,6 +1236,7 @@ if(!chosenCategory){
   </script>
 </body>
 </html>
+
 
 
 
