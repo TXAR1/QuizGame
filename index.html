@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Multiplayer (Items + Bonus)</title>
+  <title>RTL AdAlliance Quiz - Multiplayer (Items + Bonus + Kategorien)</title>
 
   <!-- React + Babel -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -126,13 +126,7 @@
 
   <script type="text/babel">
   /**********************************************
-   * Quiz mit Items + Fullscreen Poison Modal + Last-Place Bonus (L4)
-   * - Boost: 5x, muss vor Antwort aktiviert werden, wirkt für 1 Frage (x1.5)
-   * - Poison: 5x, wählbares Ziel per Modal, -20 pro Treffer, Angreifer erfährt Block nicht
-   * - Shield: 3x, wird bei Aktivierung sofort verbraucht, schützt eine Frage (Risiko)
-   * - Mobile item bar: two-row layout for small screens (Option 1)
-   * - Item display: Icon + Zahl (T2)
-   * - Last-place bonus: In Round Summary, ALL tied last-place players see a modal and can choose 1 item (+1)
+   * Quiz mit Items + Fullscreen Poison Modal + Last-Place Bonus (L4) + Kategorien
    **********************************************/
 
   const { useState, useEffect, useRef } = React;
@@ -156,38 +150,78 @@
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  /************ Sample Questions ************/
-  const QUESTION_POOL = [
-    { question: "Was ist die Hauptstadt von Österreich?", answers: ["Wien","Graz","Salzburg","Innsbruck"], correct: 0 },
-    { question: "Welcher Planet ist der größte?", answers: ["Mars","Saturn","Jupiter","Neptun"], correct: 2 },
-    { question: "Wer malte die Mona Lisa?", answers: ["Picasso","Van Gogh","Da Vinci","Monet"], correct: 2 },
-    { question: "In welchem Jahr fiel die Berliner Mauer?", answers: ["1987","1989","1991","1993"], correct: 1 },
-    { question: "Was ist die chemische Formel für Wasser?", answers: ["CO2","H2O","O2","NaCl"], correct: 1 },
-    { question: "Wie viele Kontinente gibt es?", answers: ["5","6","7","8"], correct: 2 },
-    { question: "Welches ist das größte Säugetier?", answers: ["Elefant","Blauwal","Giraffe","Nashorn"], correct: 1 },
-    { question: "Wer schrieb 'Romeo und Julia'?", answers: ["Goethe","Shakespeare","Schiller","Molière"], correct: 1 },
-    { question: "Welches Land hat die meisten Einwohner?", answers: ["Indien","China","USA","Indonesien"], correct: 1 },
-    { question: "Was ist die Hauptstadt von Frankreich?", answers: ["Lyon","Marseille","Paris","Nizza"], correct: 2 },
+  /************ CATEGORY SYSTEM ************/
+  const CATEGORY_LIST = [
+    "Fernsehen",
+    "Musik",
+    "Sport",
+    "Politik",
+    "Games",
+    "Geografie"
   ];
 
-  /************ Helpers ************/
+  // helper shuffle
   function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
   function randomGameID(){ return Math.random().toString(36).substr(2,6).toUpperCase(); }
   function makePlayerId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2,4); }
-  function generateQuestions(){
-    const needed = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
-    let pool = [...QUESTION_POOL];
-    while(pool.length < needed) pool = pool.concat(QUESTION_POOL);
-    pool = shuffle(pool).slice(0, needed).map((q, idx) => ({ id: idx, ...q }));
-    return pool;
-  }
-  function qrUrlForGame(gameId){
-    const url = `${window.location.origin}${window.location.pathname}?join=${gameId}`;
-    return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
-  }
 
   /************ Default Items ************/
   const DEFAULT_ITEMS = { boost: 5, poison: 5, shield: 3 };
+
+  /************ Sample Questions with assigned categories (Option A) ************/
+  // Ich habe die vorhandenen Beispiel-Fragen passend kategorisiert.
+  const QUESTION_POOL = [
+    { question: "Was ist die Hauptstadt von Österreich?", category: "Geografie", answers: ["Wien","Graz","Salzburg","Innsbruck"], correct: 0 },
+    { question: "Welcher Planet ist der größte?", category: "Wissenschaft", answers: ["Mars","Saturn","Jupiter","Neptun"], correct: 2 },
+    { question: "Wer malte die Mona Lisa?", category: "Kultur", answers: ["Picasso","Van Gogh","Da Vinci","Monet"], correct: 2 },
+    { question: "In welchem Jahr fiel die Berliner Mauer?", category: "Politik", answers: ["1987","1989","1991","1993"], correct: 1 },
+    { question: "Was ist die chemische Formel für Wasser?", category: "Wissenschaft", answers: ["CO2","H2O","O2","NaCl"], correct: 1 },
+    { question: "Wie viele Kontinente gibt es?", category: "Geografie", answers: ["5","6","7","8"], correct: 2 },
+    { question: "Welches ist das größte Säugetier?", category: "Wissenschaft", answers: ["Elefant","Blauwal","Giraffe","Nashorn"], correct: 1 },
+    { question: "Wer schrieb 'Romeo und Julia'?", category: "Kultur", answers: ["Goethe","Shakespeare","Schiller","Molière"], correct: 1 },
+    { question: "Welches Land hat die meisten Einwohner?", category: "Geografie", answers: ["Indien","China","USA","Indonesien"], correct: 1 },
+    { question: "Was ist die Hauptstadt von Frankreich?", category: "Geografie", answers: ["Lyon","Marseille","Paris","Nizza"], correct: 2 },
+
+    // Zusätzliche Beispiel-Fragen (damit Pool für jede Kategorie größer ist)
+    { question: "Wer ist DOMINANT in der Popmusik (Beispiel)?", category: "Musik", answers: ["Künstler A","Künstler B","Künstler C","Künstler D"], correct: 0 },
+    { question: "Welche Serie gewann viele Preise?", category: "Fernsehen", answers: ["Serie A","Serie B","Serie C","Serie D"], correct: 1 },
+    { question: "Welcher Spieler hat Rekorde im Torwurf?", category: "Sport", answers: ["Spieler A","Spieler B","Spieler C","Spieler D"], correct: 2 },
+    { question: "Welches Videospiel ist ein Shooter?", category: "Games", answers: ["Spiel A","Spiel B","Spiel C","Spiel D"], correct: 0 },
+    { question: "Welche Partei gewann eine Wahl (Beispiel)?", category: "Politik", answers: ["Partei A","Partei B","Partei C","Partei D"], correct: 2 },
+    { question: "Welches Lied ist ein Hit (Beispiel)?", category: "Musik", answers: ["Song A","Song B","Song C","Song D"], correct: 1 },
+  ];
+
+  /************ Helper: Fragen aus Pool für eine Kategorie wählen ************/
+  function getQuestionsForCategory(category, count, usedIds = []) {
+    // Filter pool for the target category (also consider approximate matches: if category not found, fallback to any)
+    const pool = QUESTION_POOL.filter(q => q.category === category);
+    let source = pool.length ? pool.slice() : QUESTION_POOL.slice();
+    source = shuffle(source);
+
+    const selected = [];
+    let idx = 0;
+    while (selected.length < count) {
+      if (source.length === 0) {
+        // fallback: refill with pool (allows repeats if pool smaller than count)
+        source = (pool.length ? pool.slice() : QUESTION_POOL.slice());
+        source = shuffle(source);
+      }
+      const candidate = source[idx % source.length];
+      // avoid duplicate IDs inside same round if possible by comparing question text
+      if (!selected.find(s => s.question === candidate.question) && !usedIds.includes(candidate.question)) {
+        selected.push({ ...candidate });
+      }
+      idx++;
+      // safety break
+      if (idx > count * 10) {
+        // fill with whatever
+        while (selected.length < count) selected.push({ ...source[(idx++) % source.length] });
+        break;
+      }
+    }
+    // give each question a stable id (composite) to store in DB
+    return selected.map((q, i) => ({ id: `${category}-${Date.now()}-${Math.random().toString(36).substr(2,5)}-${i}`, ...q }));
+  }
 
   /************ RTL Logo ************/
   function RTLLogo({size='md'}){
@@ -271,6 +305,21 @@
             </div>
           )}
         </div>
+
+        {/* Kategorie-Status im Host-Panel */}
+        {meta && meta.categoryState && (
+          <div style={{marginTop:12}}>
+            <h4 style={{fontWeight:900}}>🔖 Kategorien (Spielplan)</h4>
+            <div style={{display:'flex', gap:8, flexWrap:'wrap', marginTop:8}}>
+              {(meta.categoryState.used || []).map(c=>(
+                <div key={c} style={{padding:'6px 10px', background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.03)'}}>{c} ✅</div>
+              ))}
+              {(meta.categoryState.remaining || []).map(c=>(
+                <div key={c} style={{padding:'6px 10px', background:'rgba(255,255,255,0.01)', border:'1px dashed rgba(255,255,255,0.03)'}}>{c}</div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -355,15 +404,79 @@
     const startNextRound = async ()=>{
       if(!meta) return;
 
-      if(meta.phase === 'roundSummary'){
-        const currentIndex = meta.questionIndex ?? 0;
-        const nextIndex = currentIndex + 1;
-        const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
-        if(nextIndex >= totalQuestions){
-          await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
-          return;
+      // When coming from a roundSummary (host clicked continue), or results->next
+      // We need to pick the category for the next round, apply meta.nextCategory (if set),
+      // mark used/remaining, and ensure that the questions block for that round uses that category.
+
+      const currentIndex = meta.questionIndex ?? 0;
+      const nextIndex = currentIndex + 1;
+      const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
+
+      // If nextIndex beyond total -> finish
+      if(nextIndex >= totalQuestions){
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+        return;
+      }
+
+      const currentRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
+      const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
+
+      // If we're entering a new round (i.e., nextRound > currentRound), handle category selection and round summary logic
+      if(nextRound > currentRound){
+        // Host is moving into next round. Determine category:
+        const metaSnap = await db.ref(`games/${gameId}/meta`).get();
+        const metaVal = metaSnap.val() || {};
+        const catState = metaVal.categoryState || { used: [], remaining: [] };
+        let nextCategory = metaVal.nextCategory || null;
+
+        // If no nextCategory chosen by last-place -> take the first remaining planned category
+        if (!nextCategory) {
+          nextCategory = (catState.remaining || [])[0];
         }
-        // reset players for next question
+
+        if (!nextCategory) {
+          // fallback: choose any from CATEGORY_LIST not used yet
+          const fallback = CATEGORY_LIST.find(c => !(catState.used || []).includes(c));
+          nextCategory = fallback || CATEGORY_LIST[0];
+        }
+
+        // update used/remaining
+        const remaining = (catState.remaining || []).filter(c => c !== nextCategory);
+        const used = [...(catState.used || []), nextCategory];
+        await db.ref(`games/${gameId}/meta/categoryState`).set({ used, remaining });
+
+        // Replace the block of questions for that next round to use nextCategory
+        // compute slice indices:
+        const start = (nextRound - 1) * QUESTIONS_PER_ROUND;
+        const end = start + QUESTIONS_PER_ROUND;
+
+        // fetch current questions
+        const qSnap = await db.ref(`games/${gameId}/questions`).get();
+        const qArr = qSnap.exists() ? qSnap.val() : [];
+
+        // generate new block
+        const usedIdsInGame = (qArr || []).map(q => q.question);
+        const newBlock = getQuestionsForCategory(nextCategory, QUESTIONS_PER_ROUND, usedIdsInGame);
+
+        // replace block
+        const newQuestions = Array.isArray(qArr) ? qArr.slice() : [];
+        for (let i = 0; i < newBlock.length; i++) {
+          newQuestions[start + i] = newBlock[i];
+        }
+        // write back questions and update meta
+        await db.ref(`games/${gameId}/questions`).set(newQuestions);
+
+        // reset nextCategory in meta
+        await db.ref(`games/${gameId}/meta`).update({
+          questionIndex: nextIndex,
+          phase: 'question',
+          questionStartTime: Date.now(),
+          round: nextRound,
+          currentCategory: nextCategory,
+          nextCategory: null
+        });
+
+        // reset players' currentAnswer & effects
         const pSnap = await db.ref(`games/${gameId}/players`).get();
         const pObj = pSnap.val() || {};
         const updates = {};
@@ -372,33 +485,10 @@
           updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost:false, shield:false, poisonedBy: [] };
         });
         await db.ref().update(updates);
-
-        const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
-        await db.ref(`games/${gameId}/meta`).update({
-          questionIndex: nextIndex,
-          phase: 'question',
-          questionStartTime: Date.now(),
-          round: nextRound
-        });
         return;
       }
 
-      // Normal flow from results to next question
-      const currentIndex = meta.questionIndex ?? 0;
-      const nextIndex = currentIndex + 1;
-      const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
-      if(nextIndex >= totalQuestions){
-        await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
-        return;
-      }
-      const currentRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
-      const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
-      if(nextRound > currentRound){
-        await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', round: nextRound });
-        return;
-      }
-
-      // continue
+      // Normal (within same round) flow: just advance to next question
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const pObj = pSnap.val() || {};
       const updates = {};
@@ -417,9 +507,26 @@
     };
 
     const startGame = async ()=>{
-      const questions = generateQuestions();
-      const metaObj = { phase: 'question', questionIndex: 0, round: 1, questionStartTime: Date.now() };
-      await db.ref(`games/${gameId}/questions`).set(questions);
+      // Build game question list: choose TOTAL_ROUNDS categories (4) out of 6, do not repeat
+      const categoriesForGame = shuffle(CATEGORY_LIST).slice(0, TOTAL_ROUNDS);
+
+      // For each chosen category, prepare QUESTIONS_PER_ROUND questions and append in order
+      let allQuestions = [];
+      const usedQuestions = [];
+      for (let r = 0; r < categoriesForGame.length; r++){
+        const cat = categoriesForGame[r];
+        const block = getQuestionsForCategory(cat, QUESTIONS_PER_ROUND, usedQuestions);
+        block.forEach(q => usedQuestions.push(q.question));
+        allQuestions = allQuestions.concat(block);
+      }
+
+      // set questions and initial meta
+      const metaObj = { phase: 'question', questionIndex: 0, round: 1, questionStartTime: Date.now(), currentCategory: categoriesForGame[0] };
+
+      await db.ref(`games/${gameId}/questions`).set(allQuestions);
+
+      // categoryState: used empty, remaining = planned categories in order
+      await db.ref(`games/${gameId}/meta/categoryState`).set({ used: [], remaining: categoriesForGame });
 
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const pObj = pSnap.val() || {};
@@ -442,6 +549,7 @@
     const backToLobby = async ()=>{
       await db.ref(`games/${gameId}/meta`).set({ phase: 'lobby' });
       await db.ref(`games/${gameId}/questions`).remove();
+      await db.ref(`games/${gameId}/meta/categoryState`).remove();
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const pObj = pSnap.val() || {};
       const updates = {};
@@ -504,6 +612,7 @@
                   <div>
                     <div style={{fontSize:14, color:'var(--muted)'}}>Runde {meta.round}/{TOTAL_ROUNDS}</div>
                     <div style={{fontSize:14, color:'var(--muted)'}}>Frage {qIndex + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</div>
+                    <div style={{fontSize:12, color:'var(--muted)'}}>Kategorie: <strong style={{color:'var(--rtl-orange)'}}>{meta.currentCategory || question.category || '—'}</strong></div>
                   </div>
                 </div>
                 <div style={{display:'flex', gap:8}}>
@@ -583,7 +692,7 @@
           {meta.phase === 'roundSummary' && (
             <div className="round-summary">
               <h2 className="result-title">🏆 Zwischenstand nach Runde {meta.round - 1}</h2>
-              <p style={{color:'var(--muted)', marginBottom:20}}>Hier ist der aktuelle Stand aller Spieler (inkl. Item-Vorrat). Letzte(n) Spieler erhalten je 1 Bonus-Item zur Auswahl.</p>
+              <p style={{color:'var(--muted)', marginBottom:20}}>Hier ist der aktuelle Stand aller Spieler (inkl. Item-Vorrat). Letzte(n) Spieler erhalten je 1 Bonus-Item zur Auswahl und können eine Kategorie wählen.</p>
 
               <div style={{display:'grid', gap:12, maxWidth:900, margin:'0 auto'}}>
                 {playersArr.map((p,i)=>{
@@ -726,6 +835,10 @@
     // modal state for last-place bonus (shown when in roundSummary & player is last)
     const [bonusModalOpen, setBonusModalOpen] = useState(false);
 
+    // local modal selections (we require both item & category to be chosen)
+    const [selectedBonusItem, setSelectedBonusItem] = useState(null);
+    const [selectedBonusCategory, setSelectedBonusCategory] = useState(null);
+
     useEffect(()=>{
       const gRef = db.ref(`games/${gameId}`);
       gRef.on('value', snap => setGame(snap.val()));
@@ -753,6 +866,8 @@
       if(!game || !meta || !player) return;
       if(meta.phase !== 'roundSummary') {
         setBonusModalOpen(false);
+        setSelectedBonusCategory(null);
+        setSelectedBonusItem(null);
         return;
       }
 
@@ -803,7 +918,6 @@
       if(!targetSnap.exists()){
         // decrement poison only
         await db.ref().update(updates);
-        // no confirmation alert per Wunsch — simply return silently
         return;
       }
       const targetData = targetSnap.val();
@@ -817,7 +931,6 @@
         existingActions.push({ type:'poison', from: playerId, to: targetPid, blocked: true, ts: Date.now() });
         await actionRef.set(existingActions);
         await db.ref().update(updates);
-        // per request: do NOT alert the attacker about blocked or not — no confirmation shown
         return;
       } else {
         // not shielded: apply to target.activeEffects.poisonedBy
@@ -829,7 +942,6 @@
         await actionRef.set(existingActions);
 
         await db.ref().update(updates);
-        // per request: do NOT alert — just close modal
         return;
       }
     };
@@ -883,6 +995,7 @@
             </div>
 
             <h3 style={{fontSize:18,fontWeight:900, marginTop:12}}>{question.question}</h3>
+            <div style={{fontSize:12, color:'var(--muted)', marginTop:6}}>Kategorie: <strong style={{color:'var(--rtl-orange)'}}>{meta.currentCategory || question.category}</strong></div>
 
             <div className="player-answers" style={{marginTop:12, display:'grid', gap:10}}>
               {question.answers.map((ans,i)=>{
@@ -1012,22 +1125,37 @@
       const title = meta.phase === 'finished' ? '🎉 Spiel beendet!' : `🏆 Zwischenstand nach Runde ${meta.round - 1}`;
       const subtitle = meta.phase === 'finished' ? 'Das Quiz ist vorbei - hier sind die finalen Ergebnisse' : 'Hier ist der aktuelle Stand';
 
-      // Bonus modal logic: show if bonusModalOpen is true
-      // We'll also compute the finishedRound number to store in DB as lastRoundBonus
+      // finishedRound number to store in DB as lastRoundBonus
       const finishedRound = (meta.round || 1) - 1;
 
-      // Handler for picking a bonus item
-      const pickBonus = async (choice) => {
-        // choice: 'boost' | 'poison' | 'shield'
-        // Increment the player's chosen item by 1 and set lastRoundBonus to finishedRound
+      // pickBonus handlers (we require both item + category)
+      const commitBonus = async () => {
+        if(!selectedBonusItem || !selectedBonusCategory){
+          alert('Wähle ein Item und eine Kategorie.');
+          return;
+        }
         const updates = {};
-        const currentCount = (player.items && player.items[choice]) ? player.items[choice] : 0;
-        updates[`games/${gameId}/players/${playerId}/items/${choice}`] = currentCount + 1;
+        const currentCount = (player.items && player.items[selectedBonusItem]) ? player.items[selectedBonusItem] : 0;
+        updates[`games/${gameId}/players/${playerId}/items/${selectedBonusItem}`] = currentCount + 1;
         updates[`games/${gameId}/players/${playerId}/lastRoundBonus`] = finishedRound;
+        // set meta.nextCategory only if not already set — we allow overwrites, host will use last set
+        updates[`games/${gameId}/meta/nextCategory`] = selectedBonusCategory;
         await db.ref().update(updates);
-        // close modal
         setBonusModalOpen(false);
+        setSelectedBonusCategory(null);
+        setSelectedBonusItem(null);
       };
+
+      // Determine 2 candidate categories for the bonus modal (from meta.categoryState.remaining)
+      let candidateCats = [];
+      if(meta.categoryState && Array.isArray(meta.categoryState.remaining)){
+        // pick up to 2 random from remaining
+        candidateCats = shuffle(meta.categoryState.remaining).slice(0,2);
+      } else {
+        // fallback: pick 2 from global list excluding already used
+        const used = (meta.categoryState && meta.categoryState.used) ? meta.categoryState.used : [];
+        candidateCats = shuffle(CATEGORY_LIST.filter(c => !used.includes(c))).slice(0,2);
+      }
 
       return (
         <div className="min-h-screen" style={{padding:20, background:'var(--bg)'}}>
@@ -1066,19 +1194,55 @@
             </p>
           </div>
 
-          {/* BONUS MODAL for last-placed players (L4). Only shown to eligible players. */}
+          {/* BONUS MODAL for last-placed players (Option B): both item + category */}
           {bonusModalOpen && (
             <div className="modal-backdrop">
               <div className="bonus-modal-card" role="dialog" aria-modal="true">
-                <div className="modal-title">🎁 Du liegst hinten — wähle ein Bonus-Item</div>
-                <div style={{textAlign:'center', color:'var(--muted)'}}>Wähle genau 1 Item, das deinem Vorrat +1 gibt.</div>
+                <div className="modal-title">🎁 Bonus: Item + Kategorie wählen</div>
+                <p style={{textAlign:'center', color:'var(--muted)'}}>Wähle 1 Item (dein Vorrat +1) und 1 Kategorie für die nächste Runde.</p>
+
+                <h4 style={{marginTop:12, fontWeight:900}}>1️⃣ Item</h4>
                 <div className="bonus-grid">
-                  <div className="bonus-choice" onClick={()=>pickBonus('boost')} style={{background:'#fff3cc', color:'#000'}}>🔥 Boost +1</div>
-                  <div className="bonus-choice" onClick={()=>pickBonus('poison')} style={{background:'#ffd6d6', color:'#000'}}>☠️ Gift +1</div>
-                  <div className="bonus-choice" onClick={()=>pickBonus('shield')} style={{background:'#dbeeff', color:'#000'}}>🛡 Schild +1</div>
+                  <div
+                    className="bonus-choice"
+                    style={{background: selectedBonusItem === 'boost' ? '#fff3cc' : undefined}}
+                    onClick={()=>setSelectedBonusItem('boost')}
+                  >🔥 Boost +1</div>
+                  <div
+                    className="bonus-choice"
+                    style={{background: selectedBonusItem === 'poison' ? '#ffd6d6' : undefined}}
+                    onClick={()=>setSelectedBonusItem('poison')}
+                  >☠️ Gift +1</div>
+                  <div
+                    className="bonus-choice"
+                    style={{background: selectedBonusItem === 'shield' ? '#dbeeff' : undefined}}
+                    onClick={()=>setSelectedBonusItem('shield')}
+                  >🛡 Schild +1</div>
                 </div>
-                <div style={{textAlign:'center', marginTop:12}}>
-                  <button className="btn btn-join" onClick={()=>setBonusModalOpen(false)}>Später</button>
+
+                <h4 style={{marginTop:18, fontWeight:900}}>2️⃣ Kategorie (wähle 1 von 2)</h4>
+                <div className="bonus-grid" style={{marginTop:6}}>
+                  {candidateCats.length === 0 ? (
+                    <div style={{color:'var(--muted)'}}>Keine Kategorien verfügbar</div>
+                  ) : candidateCats.map(c => (
+                    <div
+                      key={c}
+                      className="bonus-choice"
+                      style={{background: selectedBonusCategory === c ? '#fff' : undefined, color: selectedBonusCategory === c ? '#000' : undefined}}
+                      onClick={()=>setSelectedBonusCategory(c)}
+                    >
+                      🎯 {c}
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{display:'flex', gap:8, justifyContent:'center', marginTop:12}}>
+                  <button className="btn btn-host" onClick={commitBonus}>Bestätigen</button>
+                  <button className="btn btn-join" onClick={()=>{
+                    setBonusModalOpen(false);
+                    setSelectedBonusCategory(null);
+                    setSelectedBonusItem(null);
+                  }}>Später</button>
                 </div>
               </div>
             </div>
@@ -1194,9 +1358,17 @@
   }
 
   ReactDOM.render(<App />, document.getElementById('root'));
+
+  /************ Utility used in Host Sidebar (QR) ************/
+  function qrUrlForGame(gameId){
+    const url = `${window.location.origin}${window.location.pathname}?join=${gameId}`;
+    return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
+  }
+
   </script>
 </body>
 </html>
+
 
 
 
