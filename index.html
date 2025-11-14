@@ -31,29 +31,41 @@
     html,body,#root{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
     body{ background:linear-gradient(180deg,var(--bg), #090909); color:var(--tile); }
     * { box-sizing:border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
-    input, textarea, select { background: white !important; color: #0b0b0b !important; border: 1px solid rgba(0,0,0,0.1); padding: 10px; }
-    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:800; padding:10px 14px; cursor:pointer; border:none; }
+    input, textarea, select { background: white !important; color: #0b0b0b !important; border: 1px solid rgba(0,0,0,0.1); padding: 10px; border-radius:6px; }
+    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:800; padding:10px 14px; cursor:pointer; border:none; border-radius:10px; background:rgba(255,255,255,0.03); color:var(--tile); }
     .btn-host{ background:var(--rtl-orange); color:white; }
     .btn-join{ background:var(--rtl-purple); color:white; }
     .btn-show-results{ background:var(--rtl-green); color:white; }
-    .card{ padding:16px; background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); }
+    .card{ padding:16px; background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
     .host-screen{ display:flex; gap:20px; padding:24px; height:100vh; align-items:stretch; }
-    .host-main{ flex:2; padding:28px; display:flex; flex-direction:column; gap:18px; min-height:0; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); }
-    .host-side{ flex:1; padding:18px; overflow:auto; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); }
-    .countdown-badge{ width:110px; height:110px; display:flex; align-items:center; justify-content:center; font-size:2.6rem; font-weight:800; color:var(--tile); border:3px solid rgba(255,255,255,0.06); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); flex-shrink:0; }
+    .host-main{ flex:2; padding:28px; display:flex; flex-direction:column; gap:18px; min-height:0; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
+    .host-side{ flex:1; padding:18px; overflow:auto; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
+    .countdown-badge{ width:110px; height:110px; display:flex; align-items:center; justify-content:center; font-size:2.6rem; font-weight:800; color:var(--tile); border:3px solid rgba(255,255,255,0.06); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); flex-shrink:0; border-radius:14px; }
     .countdown-badge.warning{ border-color:var(--rtl-orange); color:var(--rtl-orange); }
     .countdown-badge.danger{ border-color:var(--rtl-red); color:var(--rtl-red); box-shadow:0 6px 30px rgba(227,31,35,0.09); transform-origin:center; animation:pulse 1s infinite; }
     @keyframes pulse { 0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)} }
     .answers-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; margin-top:18px; }
-    .answer-btn{ background: #ffffff; color:#0b0b0b; padding:20px; font-size:1.05rem; font-weight:700; min-height:110px; display:flex; align-items:center; gap:12px; }
+    .answer-btn{ background: #ffffff; color:#0b0b0b; padding:20px; font-size:1.05rem; font-weight:700; min-height:110px; display:flex; align-items:center; gap:12px; border-radius:10px; }
     .item-bar{ display:flex; gap:8px; align-items:center; }
-    .item-btn{ padding:8px 12px; font-weight:800; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); cursor:pointer; color:var(--tile); display:flex; gap:8px; align-items:center; min-width:72px; justify-content:center; }
+    .item-btn{ padding:8px 12px; font-weight:800; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); cursor:pointer; color:var(--tile); display:flex; gap:8px; align-items:center; min-width:72px; justify-content:center; border-radius:8px; }
     .item-btn.item-disabled{ opacity:0.35; cursor:not-allowed; }
     .item-btn.active { background: linear-gradient(90deg, #fff3cc, #ffd580); color: #000; }
     .item-btn.shield-active { background: linear-gradient(90deg, #dbeeff, #8ec5ff); color: #000; }
-    .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; }
-    .modal-card{ width:95%; max-width:520px; background:linear-gradient(180deg,#0f0f0f,#0b0b0b); border:1px solid rgba(255,255,255,0.06); padding:18px; color:var(--tile); box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
-    @media (max-width:600px){ .answers-grid{ grid-template-columns:1fr; } .countdown-badge{ width:86px;height:86px;font-size:1.8rem; } }
+    .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; padding:16px; }
+    .modal-card{ width:95%; max-width:520px; background:linear-gradient(180deg,#0f0f0f,#0b0b0b); border:1px solid rgba(255,255,255,0.06); padding:18px; color:var(--tile); box-shadow: 0 10px 40px rgba(0,0,0,0.6); border-radius:12px; }
+    .host-main.fullwidth{ width:100%; }
+    @media (max-width:600px){ 
+      .answers-grid{ grid-template-columns:1fr; } 
+      .countdown-badge{ width:86px;height:86px;font-size:1.8rem; } 
+      .host-screen{ flex-direction:column; padding:12px; }
+      .host-side{ order:2; }
+      .host-main{ order:1; }
+    }
+    /* extra small modal tweak */
+    @media (max-width:420px){
+      .modal-card{ max-width:380px; padding:18px; border-radius:14px; }
+      .btn{ padding:12px 14px; border-radius:12px; font-size:15px; }
+    }
   </style>
 </head>
 <body>
@@ -283,14 +295,24 @@
         // move to results
         await db.ref(`games/${gameId}/meta`).update({ phase: 'results' });
 
-        // If this was the last question of a round -> go to roundSummary
+        // If this was the last question of a round -> decide whether to go to roundSummary or finish
         const questionInRound = (qIndex + 1) % QUESTIONS_PER_ROUND;
         if (questionInRound === 0) {
+          // finishedRound is number of finished rounds
           const finishedRound = Math.floor((qIndex + 1) / QUESTIONS_PER_ROUND);
-          await db.ref(`games/${gameId}/meta`).update({
-            phase: 'roundSummary',
-            round: finishedRound + 1
-          });
+          // nextRoundMeta (existing code expects meta.round = nextRound number)
+          const nextRoundMeta = finishedRound + 1;
+          // Variant A: skip roundSummary if nextRoundMeta >= TOTAL_ROUNDS (i.e., last round)
+          if (nextRoundMeta >= TOTAL_ROUNDS) {
+            await db.ref(`games/${gameId}/meta`).update({
+              phase: 'finished'
+            });
+          } else {
+            await db.ref(`games/${gameId}/meta`).update({
+              phase: 'roundSummary',
+              round: nextRoundMeta
+            });
+          }
         }
       }catch(e){ console.error(e); }
     };
@@ -370,6 +392,11 @@
       const currentRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
       const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
       if(nextRound > currentRound){
+        // Variant A: if nextRound would be the final TOTAL_ROUNDS -> skip roundSummary and finish
+        if(nextRound >= TOTAL_ROUNDS){
+          await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+          return;
+        }
         await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', round: nextRound });
         return;
       }
@@ -500,12 +527,12 @@
               <div>
                 <div style={{fontSize:28, fontWeight:900}}>{question.question}</div>
                 <div className="answers-grid" style={{marginTop:18}}>
-                  {question.answers.map((a,i)=>((
+                  {question.answers.map((a,i)=>(((
                     <div key={i} className="answer-btn">
                       <div style={{fontWeight:900, marginRight:8}}>{String.fromCharCode(65+i)}.</div>
                       <div>{a}</div>
                     </div>
-                  )))}
+                  ))))}
                 </div>
               </div>
             </div>
@@ -532,7 +559,7 @@
               <div style={{marginTop:18}}>
                 <h3 style={{fontWeight:900, color:'var(--rtl-orange)'}}>Aktionen & Effekte (diese Frage)</h3>
                 <div style={{marginTop:8, display:'grid', gap:8}}>
-                  {playersArr.map((p)=>((
+                  {playersArr.map((p)=>(((
                     <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:10, background:'rgba(255,255,255,0.01)'}}>
                       <div style={{display:'flex', gap:12, alignItems:'center'}}>
                         <div style={{fontWeight:900}}>{p.name}</div>
@@ -594,12 +621,12 @@
               <p style={{color:'var(--muted)'}}>Das Quiz ist vorbei - hier sind die finalen Ergebnisse</p>
 
               <div style={{marginTop:20}}>
-                {playersArr.slice(0,3).map((p,i)=>(
+                {playersArr.slice(0,3).map((p,i)=>((
                   <div key={p.pid} style={{marginBottom:12}}>
                     <div style={{fontWeight:900}}>{i===0?'🥇':i===1?'🥈':'🥉'} {p.name}</div>
                     <div style={{fontWeight:900}}>{p.score || 0} pts</div>
                   </div>
-                ))}
+                )))}
               </div>
 
               <div style={{marginTop:20}}>
@@ -616,7 +643,7 @@
             <div style={{marginTop:16}}>
               <h3 style={{fontWeight:900, color:'var(--rtl-orange)'}}>🏅 Spieler & Punkte</h3>
               <div style={{maxHeight:220, overflow:'auto', marginTop:8}}>
-                {playersArr.map((p,idx)=>((
+                {playersArr.map((p,idx)=>(((
                   <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:10}}>
                     <div style={{display:'flex', gap:8, alignItems:'center'}}>
                       <div style={{fontWeight:900, color:'var(--rtl-purple)'}}>#{idx+1}</div>
@@ -768,7 +795,7 @@
               {question.answers.map((ans,i)=>{
                 const disabled = hasAnswered || timeLeft <= 0;
                 const isSelected = player.currentAnswer === i;
-                const style = isSelected ? {background:'var(--rtl-purple)', color:'#fff', borderColor:'var(--rtl-purple)'} : {};
+                const style = isSelected ? {background:'var(--rtl-purple)', color:'#fff', borderColor:'var(--rtl-purple)', borderRadius:10, padding:'10px 12px'} : {borderRadius:10, padding:'10px 12px', background:'rgba(255,255,255,0.02)'};
                 return (
                   <button key={i} disabled={disabled} onClick={()=>answerClick(i)} style={style} className="p-3 font-bold">
                     <div style={{display:'flex', gap:10, alignItems:'center'}}><div style={{fontWeight:900}}>{String.fromCharCode(65+i)}.</div><div>{ans}</div></div>
@@ -808,13 +835,13 @@
 
           {poisonModalOpen && (
             <div className="modal-backdrop">
-              <div className="modal-card">
+              <div className="modal-card" style={{maxWidth:420}}>
                 <div style={{fontWeight:900, fontSize:18, marginBottom:12}}>Wen willst du vergiften?</div>
                 <div style={{display:'flex', flexDirection:'column', gap:8}}>
                   {poisonTargets.length === 0 ? <div style={{color:'var(--muted)'}}>Keine anderen Spieler verfügbar</div> : poisonTargets.map(t => (
-                    <button key={t.pid} onClick={()=>sendPoisonTo(t.pid)} className="btn btn-ghost" style={{display:'flex', justifyContent:'space-between'}}>{t.name}<span>Vergiften</span></button>
+                    <button key={t.pid} onClick={()=>sendPoisonTo(t.pid)} className="btn btn-host" style={{width:'100%', padding:'12px 16px', fontSize:16, display:'flex', justifyContent:'space-between'}}>{t.name}<span style={{opacity:0.9}}>Vergiften</span></button>
                   ))}
-                  <button className="btn btn-join" onClick={()=>setPoisonModalOpen(false)}>Abbrechen</button>
+                  <button className="btn btn-join" onClick={()=>setPoisonModalOpen(false)} style={{width:'100%', padding:'12px 16px', fontSize:16}}>Abbrechen</button>
                 </div>
               </div>
             </div>
@@ -885,40 +912,40 @@
           <div style={{padding:16}} className="card">
             <h3 style={{fontSize:20, fontWeight:900, color:'var(--rtl-orange)', textAlign:'center'}}>{title}</h3>
             <div style={{marginTop:12}}>
-              {playersSorted.map((p,i)=>(
+              {playersSorted.map((p,i)=>((
                 <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.03)'}}>
                   <div style={{fontWeight:900}}>{i<3? (i===0?'🥇':i===1?'🥈':'🥉') : `#${i+1}`} {p.name}</div>
                   <div style={{display:'flex', gap:12, alignItems:'center'}}><div>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</div><div>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</div><div>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div><div style={{fontWeight:900}}>{p.score || 0}</div></div>
                 </div>
-              ))}
+              )))}
             </div>
             <p style={{marginTop:12, color:'var(--muted)', textAlign:'center'}}>{meta.phase === 'finished' ? 'Warte auf den Host...' : 'Host startet die nächste Runde, sobald er bereit ist.'}</p>
           </div>
 
           {bonusItemModalOpen && (
             <div className="modal-backdrop">
-              <div className="modal-card">
-                <div style={{fontWeight:900, fontSize:18}}>🎁 Du liegst hinten — wähle ein Bonus-Item</div>
-                <div style={{display:'flex', gap:8, marginTop:12}}>
-                  <div style={{flex:1, padding:12, border:'1px solid rgba(255,255,255,0.06)', cursor:'pointer'}} onClick={()=>pickBonusItem('boost')}>🔥 Boost +1</div>
-                  <div style={{flex:1, padding:12, border:'1px solid rgba(255,255,255,0.06)', cursor:'pointer'}} onClick={()=>pickBonusItem('poison')}>☠️ Gift +1</div>
-                  <div style={{flex:1, padding:12, border:'1px solid rgba(255,255,255,0.06)', cursor:'pointer'}} onClick={()=>pickBonusItem('shield')}>🛡 Schild +1</div>
+              <div className="modal-card" style={{maxWidth:420}}>
+                <div style={{fontWeight:900, fontSize:18, marginBottom:12, textAlign:'center'}}>🎁 Du liegst hinten — wähle ein Bonus-Item</div>
+                <div style={{display:'flex', flexDirection:'column', gap:10}}>
+                  <button className="btn btn-host" onClick={()=>pickBonusItem('boost')} style={{width:'100%', padding:'12px 14px', fontSize:16}}>🔥 Boost +1</button>
+                  <button className="btn btn-host" onClick={()=>pickBonusItem('poison')} style={{width:'100%', padding:'12px 14px', fontSize:16}}>☠️ Gift +1</button>
+                  <button className="btn btn-host" onClick={()=>pickBonusItem('shield')} style={{width:'100%', padding:'12px 14px', fontSize:16}}>🛡 Schild +1</button>
                 </div>
-                <div style={{marginTop:12, textAlign:'center'}}><button className="btn btn-join" onClick={()=>setBonusItemModalOpen(false)}>Später</button></div>
+                <div style={{marginTop:12, textAlign:'center'}}><button className="btn btn-join" onClick={()=>setBonusItemModalOpen(false)} style={{width:'100%', padding:'12px 14px'}}>Später</button></div>
               </div>
             </div>
           )}
 
           {bonusCategoryModalOpen && (
             <div className="modal-backdrop">
-              <div className="modal-card">
-                <div style={{fontWeight:900, fontSize:18}}>🏷️ Wähle eine Kategorie für die nächste Runde</div>
-                <div style={{display:'flex', gap:8, marginTop:12}}>
+              <div className="modal-card" style={{maxWidth:420}}>
+                <div style={{fontWeight:900, fontSize:18, marginBottom:12, textAlign:'center'}}>🏷️ Wähle eine Kategorie für die nächste Runde</div>
+                <div style={{display:'flex', flexDirection:'column', gap:10}}>
                   {(candidateCategories.length === 0 ? CATEGORY_LIST.slice(0,2) : candidateCategories).map(c => (
-                    <div key={c} style={{flex:1, padding:12, border:'1px solid rgba(255,255,255,0.06)', cursor:'pointer'}} onClick={()=>pickBonusCategory(c)}>{c}</div>
+                    <button key={c} className="btn btn-join" onClick={()=>pickBonusCategory(c)} style={{width:'100%', padding:'12px 14px', fontSize:16}}>{c}</button>
                   ))}
                 </div>
-                <div style={{marginTop:12, textAlign:'center'}}><button className="btn btn-join" onClick={()=>setBonusCategoryModalOpen(false)}>Später</button></div>
+                <div style={{marginTop:12, textAlign:'center'}}><button className="btn btn-join" onClick={()=>setBonusCategoryModalOpen(false)} style={{width:'100%', padding:'12px 14px'}}>Später</button></div>
               </div>
             </div>
           )}
@@ -1026,12 +1053,13 @@
       <>
         {mode === 'start' && <StartScreen onCreate={handleCreate} onJoin={handleJoin} />}
         {mode === 'hostLobby' && <HostScreen gameId={gameId} hostName={hostName} />}
-        {mode === 'playerGame' && <PlayerView gameId={gameId} playerId={playerId} />}
+        {mode === 'playerGame' && <PlayerView(gameId={gameId} playerId={playerId} />)}
         {mode === 'playerJoin' && <PlayerJoin joinGameId={gameId} onJoined={handlePlayerJoined} />}
       </>
     );
   }
 
+  // NOTE: React 18 new API - using legacy render for simplicity (same as original)
   ReactDOM.render(<App />, document.getElementById('root'));
 
   /************ Utility ************/
