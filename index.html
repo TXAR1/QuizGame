@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Multiplayer</title>
+  <title>RTL AdAlliance Quiz - Multiplayer (Items: Boost/Poison/Shield)</title>
 
   <!-- React + Babel -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -36,10 +36,8 @@
       color:var(--tile);
     }
 
-    /* reset weird global border-radius - ALLE ECKEN ECKIG */
     * { box-sizing: border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; border-radius: 0 !important; }
 
-    /* Input Felder - schwarzer Text für Sichtbarkeit */
     input, textarea, select {
       background: white !important;
       color: #0b0b0b !important;
@@ -70,7 +68,6 @@
       min-height:0;
     }
 
-    /* Host main fullwidth when game running */
     .host-main.fullwidth {
       flex: 1;
     }
@@ -83,12 +80,10 @@
       overflow:auto;
     }
 
-    /* Hide sidebar during game */
     .host-side.hidden {
       display: none;
     }
 
-    /* top header area */
     .rtl-header{
       display:flex;
       gap:12px;
@@ -100,14 +95,12 @@
       color:var(--tile);
     }
 
-    /* card style white tiles */
     .card{
       background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
       border:1px solid rgba(255,255,255,0.03);
       padding:16px;
     }
 
-    /* countdown / top controls */
     .question-top-bar{
       display:flex;
       justify-content:space-between;
@@ -162,14 +155,12 @@
       cursor:default;
     }
 
-    /* results layout */
     .result-title{ font-size:1.8rem; font-weight:900; color:var(--rtl-orange); margin-bottom:10px; }
     .correct-answer{ background: rgba(255,255,255,0.05); border-left:4px solid rgba(255,255,255,0.2); padding:12px; font-weight:700; margin-bottom:12px; color:var(--tile); }
 
     .result-answer-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
     .result-answer{ padding:12px; border:2px solid rgba(0,0,0,0.06); background:rgba(255,255,255,0.02); font-weight:700; color:var(--tile); }
-    
-    /* Richtige Antwort = weiße Kachel, falsche = schwarze Kachel */
+
     .result-answer.correct {
       background: #ffffff;
       color: #0b0b0b;
@@ -181,11 +172,9 @@
       border: 2px solid rgba(255,255,255,0.1);
     }
 
-    /* host-side items */
     .leaderboard-title{ font-weight:900; letter-spacing:1px; color:var(--rtl-orange); margin-bottom:8px; border-bottom:2px solid rgba(255,255,255,0.03); padding-bottom:8px; display:inline-block; }
     .player-item{ display:flex; justify-content:space-between; gap:10px; padding:10px; background:rgba(255,255,255,0.01); border-left:4px solid rgba(255,255,255,0.02); }
 
-    /* start card style */
     .start-card{
       max-width:760px;
       margin:auto;
@@ -194,7 +183,6 @@
       background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
     }
 
-    /* buttons - ECKIG */
     .btn{
       display:inline-flex;
       align-items:center;
@@ -210,14 +198,16 @@
     .btn-show-results{ background:var(--rtl-green); color:white; }
     .btn-ghost{ background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--tile); }
 
-    /* player view */
     .player-card{ max-width:520px; margin:20px auto; padding:20px; border:1px solid rgba(255,255,255,0.03); background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); }
     .player-answers button{ width:100%; text-align:left; padding:14px; font-weight:800; border:2px solid rgba(255,255,255,0.04); background:white; color:#0b0b0b; }
     .boost-btn{ padding:10px 12px; font-weight:900; }
     .boost-available{ background:linear-gradient(90deg, #ffb347, #ff6600); color:#000; }
     .boost-used{ background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.6); border:1px dashed rgba(255,255,255,0.04); }
 
-    /* small screens */
+    .item-bar{ display:flex; gap:8px; align-items:center; }
+    .item-btn{ padding:8px 10px; font-weight:800; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); cursor:pointer; }
+    .item-disabled{ opacity:0.45; cursor:not-allowed; }
+
     @media (max-width:900px){
       .host-screen{ flex-direction:column; padding:12px; }
       .answers-grid{ grid-template-columns:1fr; }
@@ -244,7 +234,7 @@
     authDomain: "qiuz-64055.firebaseapp.com",
     databaseURL: "https://qiuz-64055-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "qiuz-64055",
-    storageBucket: "qiuz-64055.firebasestorage.app",
+    storageBucket: "qiuz-64055.firebasedatabase.app",
     messagingSenderId: "605853616985",
     appId: "1:605853616985:web:95579b246a10d89ba51a48"
   };
@@ -298,6 +288,9 @@
       </svg>
     );
   }
+
+  /************ Default Item Counts ************/
+  const DEFAULT_ITEMS = { boost: 5, poison: 5, shield: 3 };
 
   /************ StartScreen ************/
   function StartScreen({ onCreate, onJoin }){
@@ -406,46 +399,70 @@
 
         const playerObj = g.players || {};
         const updates = {};
+        const actionLogRef = db.ref(`games/${gameId}/meta/actions/${qIndex}`);
+        // ensure action log exists (may already have poison actions)
+        const actionEntriesSnap = await actionLogRef.get();
+        const existingActions = actionEntriesSnap.exists() ? actionEntriesSnap.val() : [];
+
+        // Compute points per player
         Object.entries(playerObj).forEach(([pid,p])=>{
           const ans = p.currentAnswer;
           const correct = typeof ans === 'number' && ans === q.correct;
           let points = correct ? BASE_POINTS : 0;
-          const boostForRound = p.boostForRound || null;
-          if(correct && boostForRound && boostForRound === g.meta.round){
+
+          // Boost active? (activeEffects.boost true)
+          const boostActive = p.activeEffects && p.activeEffects.boost;
+          if(correct && boostActive){
             points = Math.round(points * 1.5);
           }
+
+          // Poison(s)
+          const poisonArr = (p.activeEffects && p.activeEffects.poisonedBy) ? p.activeEffects.poisonedBy : [];
+          const poisonCount = Array.isArray(poisonArr) ? poisonArr.length : 0;
+          points -= (poisonCount * 20);
+
+          // floor 0
+          if(points < 0) points = 0;
+
           const newScore = (p.score || 0) + points;
           updates[`games/${gameId}/players/${pid}/score`] = newScore;
+
+          // store per-player lastPoints for UI (optional)
+          updates[`games/${gameId}/players/${pid}/lastPoints`] = points;
         });
+
+        // update DB: scores + set phase results
         await db.ref().update(updates);
         await db.ref(`games/${gameId}/meta`).update({ phase: 'results' });
+
       }catch(e){ console.error(e); }
     };
 
     const startNextRound = async ()=>{
       if(!meta) return;
-      
+
       // If we're in roundSummary, move to next round's first question
       if(meta.phase === 'roundSummary'){
         const currentIndex = meta.questionIndex ?? 0;
         const nextIndex = currentIndex + 1;
         const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
-        
+
         // Check if we've completed all questions
         if(nextIndex >= totalQuestions){
           await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
           return;
         }
-        
-        // Reset player answers and start next question
+
+        // Reset player answers and per-question activeEffects
         const pSnap = await db.ref(`games/${gameId}/players`).get();
         const pObj = pSnap.val() || {};
         const updates = {};
         Object.keys(pObj).forEach(pid => {
           updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
+          updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost: false, shield: false, poisonedBy: [] };
         });
         await db.ref().update(updates);
-        
+
         const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
         await db.ref(`games/${gameId}/meta`).update({
           questionIndex: nextIndex,
@@ -455,33 +472,34 @@
         });
         return;
       }
-      
+
       // Normal flow from results to next question
       const currentIndex = meta.questionIndex ?? 0;
       const nextIndex = currentIndex + 1;
       const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
-      
+
       // Check if we've completed all questions
       if(nextIndex >= totalQuestions){
         await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
         return;
       }
-      
+
       const currentRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
       const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
-      
+
       // Check if we're moving to a new round
       if(nextRound > currentRound){
         await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', round: nextRound });
         return;
       }
-      
+
       // Continue with next question in same round
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const pObj = pSnap.val() || {};
       const updates = {};
       Object.keys(pObj).forEach(pid => {
         updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
+        updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost: false, shield: false, poisonedBy: [] };
       });
       await db.ref().update(updates);
       await db.ref(`games/${gameId}/meta`).update({
@@ -501,17 +519,24 @@
         questionStartTime: Date.now()
       };
       await db.ref(`games/${gameId}/questions`).set(questions);
+
+      // initialize players: reset scores, currentAnswer, items, activeEffects
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const pObj = pSnap.val() || {};
       const updates = {};
       Object.keys(pObj).forEach(pid=>{
         updates[`games/${gameId}/players/${pid}/score`] = 0;
         updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-        updates[`games/${gameId}/players/${pid}/boostUsed`] = false;
-        updates[`games/${gameId}/players/${pid}/boostForRound`] = null;
+        // items and activeEffects default
+        updates[`games/${gameId}/players/${pid}/items`] = DEFAULT_ITEMS;
+        updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost: false, shield: false, poisonedBy: [] };
+        updates[`games/${gameId}/players/${pid}/lastPoints`] = 0;
       });
       await db.ref().update(updates);
       await db.ref(`games/${gameId}/meta`).set(metaObj);
+
+      // clear actions log
+      await db.ref(`games/${gameId}/meta/actions`).remove();
     };
 
     const backToLobby = async ()=>{
@@ -525,8 +550,9 @@
       Object.keys(pObj).forEach(pid=>{
         updates[`games/${gameId}/players/${pid}/score`] = 0;
         updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-        updates[`games/${gameId}/players/${pid}/boostUsed`] = false;
-        updates[`games/${gameId}/players/${pid}/boostForRound`] = null;
+        updates[`games/${gameId}/players/${pid}/items`] = DEFAULT_ITEMS;
+        updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost:false, shield:false, poisonedBy: [] };
+        updates[`games/${gameId}/players/${pid}/lastPoints`] = 0;
       });
       await db.ref().update(updates);
     };
@@ -540,7 +566,6 @@
     const countdownProgress = (timeLeft/QUESTION_TIME) * 360;
     const countdownClass = timeLeft <= 10 ? 'danger' : timeLeft <= 20 ? 'warning' : '';
 
-    // Sidebar nur in Lobby anzeigen
     const showSidebar = meta.phase === 'lobby';
 
     return (
@@ -556,17 +581,17 @@
               <h2 style={{fontSize:36, fontWeight:900}}>⏳ Warte auf Spieler</h2>
               <p style={{color:'var(--muted)'}}>Spielcode:</p>
               <div style={{fontFamily:'monospace', background:'#fff', color:'#000', padding:'8px 12px', fontSize:24, fontWeight:900}}>{gameId}</div>
-              
+
               {playersArr.length > 0 && (
                 <div style={{marginTop:20, width:'100%', maxWidth:600}}>
                   <h3 style={{fontSize:18, fontWeight:800, marginBottom:12, color:'var(--rtl-orange)'}}>Angemeldete Spieler ({playersArr.length})</h3>
                   <div style={{display:'grid', gap:8}}>
-                    {playersArr.map((p,i)=>(
+                    {playersArr.map((p,i)=>(p && (
                       <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:12, background:'rgba(255,255,255,0.02)', borderLeft:'3px solid var(--rtl-purple)'}}>
                         <div style={{fontWeight:700}}>{p.name}</div>
                         <div style={{color:'var(--muted)'}}>Bereit ✓</div>
                       </div>
-                    ))}
+                    )))}
                   </div>
                 </div>
               )}
@@ -595,12 +620,12 @@
               <div>
                 <div className="question-text">{question.question}</div>
                 <div className="answers-grid" style={{marginTop:18}}>
-                  {question.answers.map((a,i)=>(
+                  {question.answers.map((a,i)=>((
                     <div key={i} className="answer-btn">
                       <div style={{fontWeight:900, marginRight:8}}>{String.fromCharCode(65+i)}.</div>
                       <div>{a}</div>
                     </div>
-                  ))}
+                  )))}
                 </div>
               </div>
             </div>
@@ -618,12 +643,46 @@
                   return (
                     <div key={i} className={`result-answer ${isCorrect ? 'correct' : 'incorrect'}`}>
                       <div style={{fontWeight:900}}>{String.fromCharCode(65+i)}. {a}</div>
-                      <div style={{opacity:0.7, marginTop:8}}>{voters.length > 0 ? voters.map(p => p.name + (p.boostForRound === meta.round ? ' 🔥' : '')).join(', ') : '(Niemand)'}</div>
+                      <div style={{opacity:0.7, marginTop:8}}>{voters.length > 0 ? voters.map(p => {
+                        // show if boost or shield active at time of question (from activeEffects)
+                        const boostActive = p.activeEffects && p.activeEffects.boost;
+                        return p.name + (boostActive ? ' 🔥' : '');
+                      }).join(', ') : '(Niemand)'}</div>
                     </div>
                   );
                 })}
               </div>
-              
+
+              {/* Show per-player poison/shield actions and item counts */}
+              <div style={{marginTop:18}}>
+                <h3 style={{fontWeight:900, color:'var(--rtl-orange)'}}>Item-Aktionen & Vorräte</h3>
+                <div style={{marginTop:8, display:'grid', gap:8}}>
+                  {playersArr.map((p,idx)=>{
+                    const poisonedBy = (p.activeEffects && p.activeEffects.poisonedBy) ? p.activeEffects.poisonedBy : [];
+                    const shieldActive = p.activeEffects && p.activeEffects.shield;
+                    return (
+                      <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:10, background:'rgba(255,255,255,0.01)', borderLeft:'4px solid rgba(255,255,255,0.03)'}}>
+                        <div style={{display:'flex', gap:12, alignItems:'center'}}>
+                          <div style={{fontWeight:900}}>{p.name}</div>
+                          <div style={{color:'var(--muted)', fontSize:13}}>
+                            {poisonedBy.length > 0 ? `Vergiftet von: ${poisonedBy.map(id => {
+                              const pl = playersArr.find(x => x.pid === id);
+                              return pl ? pl.name : id;
+                            }).join(', ')}` : (shieldActive ? 'Geschützt (Schild)' : '')}
+                          </div>
+                        </div>
+                        <div style={{display:'flex', gap:10, alignItems:'center'}}>
+                          <div style={{fontSize:14}}>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</div>
+                          <div style={{fontSize:14}}>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</div>
+                          <div style={{fontSize:14}}>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
+                          <div style={{fontWeight:900, minWidth:80, textAlign:'right'}}>{p.lastPoints || 0} pts</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Next button directly in results */}
               <div style={{marginTop:20}}>
                 <button className="btn btn-host" onClick={startNextRound}>Nächste Frage →</button>
@@ -635,19 +694,17 @@
           {meta.phase === 'roundSummary' && (
             <div className="round-summary">
               <h2 className="result-title">🏆 Zwischenstand nach Runde {meta.round - 1}</h2>
-              <p style={{color:'var(--muted)', marginBottom:20}}>Hier ist der aktuelle Stand aller Spieler</p>
-              
+              <p style={{color:'var(--muted)', marginBottom:20}}>Hier ist der aktuelle Stand aller Spieler (inkl. Item-Vorrat)</p>
+
               <div style={{display:'grid', gap:12, maxWidth:800, margin:'0 auto'}}>
                 {playersArr.map((p,i)=>{
                   const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-                  const boostStatus = p.boostUsed ? '🔥 Verwendet' : '⚡ Verfügbar';
-                  const boostColor = p.boostUsed ? 'rgba(255,255,255,0.4)' : 'var(--rtl-orange)';
                   return (
                     <div key={p.pid} style={{
-                      display:'flex', 
-                      justifyContent:'space-between', 
+                      display:'flex',
+                      justifyContent:'space-between',
                       alignItems:'center',
-                      padding:16, 
+                      padding:16,
                       background: i < 3 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.01)',
                       borderLeft:`4px solid ${i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'rgba(255,255,255,0.1)'}`
                     }}>
@@ -656,14 +713,16 @@
                         <div style={{fontWeight:800, fontSize:18}}>{p.name}</div>
                       </div>
                       <div style={{display:'flex', gap:20, alignItems:'center'}}>
-                        <div style={{fontSize:14, color:boostColor, fontWeight:700}}>{boostStatus}</div>
+                        <div style={{fontSize:14, fontWeight:700}}>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</div>
+                        <div style={{fontSize:14, fontWeight:700}}>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</div>
+                        <div style={{fontSize:14, fontWeight:700}}>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
                         <div style={{fontSize:22, fontWeight:900, color:'var(--tile)', minWidth:80, textAlign:'right'}}>{p.score || 0} pts</div>
                       </div>
                     </div>
                   );
                 })}
               </div>
-              
+
               <div style={{marginTop:30, textAlign:'center'}}>
                 <button className="btn btn-host" style={{fontSize:18, padding:'14px 28px'}} onClick={startNextRound}>Weiter zur nächsten Runde →</button>
               </div>
@@ -675,7 +734,7 @@
             <div style={{textAlign:'center', maxWidth:900, margin:'0 auto'}}>
               <h2 className="result-title" style={{fontSize:'2.5rem', marginBottom:8}}>🎉 Spiel beendet!</h2>
               <p style={{color:'var(--muted)', fontSize:18, marginBottom:30}}>Das Quiz ist vorbei - hier sind die finalen Ergebnisse</p>
-              
+
               {/* Top 3 Podium */}
               <div style={{display:'flex', gap:20, justifyContent:'center', alignItems:'flex-end', marginBottom:40}}>
                 {playersArr.slice(0,3).map((p,i)=>{
@@ -689,7 +748,7 @@
                       <div style={{fontWeight:900, fontSize:20, marginBottom:8}}>{p.name}</div>
                       <div style={{fontSize:28, fontWeight:900, color:colors[i], marginBottom:12}}>{p.score || 0} pts</div>
                       <div style={{
-                        height:heights[i], 
+                        height:heights[i],
                         background:`linear-gradient(180deg, ${colors[i]}, ${colors[i]}CC)`,
                         display:'flex',
                         alignItems:'center',
@@ -705,17 +764,22 @@
                 })}
               </div>
 
-              {/* Alle weiteren Spieler */}
+              {/* Weiter Plätze mit item-Vorräten */}
               {playersArr.length > 3 && (
                 <div style={{marginTop:40}}>
                   <h3 style={{fontSize:20, fontWeight:800, marginBottom:16, color:'var(--rtl-orange)'}}>Weitere Platzierungen</h3>
                   <div style={{display:'grid', gap:8}}>
-                    {playersArr.slice(3).map((p,i)=>(
+                    {playersArr.slice(3).map((p,i)=>((
                       <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:12, background:'rgba(255,255,255,0.01)', borderLeft:'4px solid rgba(255,255,255,0.1)'}}>
                         <div style={{fontWeight:700}}>#{i+4} {p.name}</div>
-                        <div style={{fontWeight:900, color:'var(--tile)'}}>{p.score || 0} pts</div>
+                        <div style={{display:'flex', gap:12, alignItems:'center'}}>
+                          <div style={{fontWeight:700}}>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</div>
+                          <div style={{fontWeight:700}}>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</div>
+                          <div style={{fontWeight:700}}>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
+                          <div style={{fontWeight:900, color:'var(--tile)'}}>{p.score || 0} pts</div>
+                        </div>
                       </div>
-                    ))}
+                    )))}
                   </div>
                 </div>
               )}
@@ -735,15 +799,18 @@
             <div style={{marginTop:16}}>
               <h3 className="leaderboard-title">🏅 Spieler & Punkte</h3>
               <div style={{maxHeight:220, overflow:'auto', marginTop:8}}>
-                {playersArr.map((p,idx)=>(
+                {playersArr.map((p,idx)=>((
                   <div key={p.pid} className="player-item">
                     <div style={{display:'flex', gap:8, alignItems:'center'}}>
                       <div style={{fontWeight:900, color:'var(--rtl-purple)'}}>#{idx+1}</div>
                       <div style={{fontWeight:700}}>{p.name}</div>
                     </div>
-                    <div style={{fontWeight:900, color:'var(--rtl-green)'}}>{p.score || 0}</div>
+                    <div style={{display:'flex', gap:12, alignItems:'center'}}>
+                      <div style={{fontWeight:900, color:'var(--rtl-green)'}}>{p.score || 0}</div>
+                      <div style={{fontSize:13, color:'var(--muted)'}}>🔥{(p.items && p.items.boost) ? p.items.boost : 0} ☠️{(p.items && p.items.poison) ? p.items.poison : 0} 🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
+                    </div>
                   </div>
-                ))}
+                )))}
               </div>
             </div>
 
@@ -805,6 +872,7 @@
             <h2 style={{fontSize:20, fontWeight:900, marginTop:8, color:'var(--rtl-orange)'}}>Warte auf Start</h2>
             <p style={{color:'var(--muted)'}}>Spielcode: <span style={{fontFamily:'monospace', background:'#fff', color:'#000', padding:'2px 6px'}}>{gameId}</span></p>
             <p style={{marginTop:6}}>Dein Name: <strong>{player.name}</strong></p>
+            <div style={{marginTop:12, color:'var(--muted)'}}>Items: 🔥{(player.items && player.items.boost) ? player.items.boost : 0}  ☠️{(player.items && player.items.poison) ? player.items.poison : 0}  🛡{(player.items && player.items.shield) ? player.items.shield : 0}</div>
           </div>
         </div>
       );
@@ -813,20 +881,94 @@
     // question view
     if(meta.phase === 'question' && question){
       const hasAnswered = player.currentAnswer !== null && player.currentAnswer !== undefined;
-      const boostAvailable = !player.boostUsed;
-      const boostActive = player.boostForRound && player.boostForRound === meta.round;
+      const boostAvailable = (player.items && player.items.boost > 0);
+      const poisonAvailable = (player.items && player.items.poison > 0);
+      const shieldAvailable = (player.items && player.items.shield > 0);
+      const boostActive = player.activeEffects && player.activeEffects.boost;
+      const shieldActive = player.activeEffects && player.activeEffects.shield;
 
-      const answerClick = (i)=>{
+      const answerClick = async (i)=>{
         if(hasAnswered || timeLeft <= 0) return;
-        db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i);
+        await db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i);
       };
 
       const activateBoost = async ()=>{
+        // Option A: boost must be activated BEFORE answering
         if(!boostAvailable) return;
+        if(player.currentAnswer !== null && player.currentAnswer !== undefined){
+          alert('Boost muss vor der Antwort aktiviert werden (Option A).');
+          return;
+        }
+        // set activeEffects.boost true and decrement items.boost
         const updates = {};
-        updates[`games/${gameId}/players/${playerId}/boostUsed`] = true;
-        updates[`games/${gameId}/players/${playerId}/boostForRound`] = meta.round;
+        updates[`games/${gameId}/players/${playerId}/items/boost`] = (player.items.boost - 1);
+        updates[`games/${gameId}/players/${playerId}/activeEffects/boost`] = true;
         await db.ref().update(updates);
+      };
+
+      const activateShield = async ()=>{
+        if(!shieldAvailable) return;
+        if(player.currentAnswer !== null && player.currentAnswer !== undefined){
+          // allow placing shield even after answer? We allow only during question, but logically before being poisoned.
+          // Keep consistent UX: allow shield anytime during question (but it needs to be active when poison used to block).
+        }
+        const updates = {};
+        updates[`games/${gameId}/players/${playerId}/items/shield`] = (player.items.shield - 1);
+        updates[`games/${gameId}/players/${playerId}/activeEffects/shield`] = true;
+        await db.ref().update(updates);
+      };
+
+      const activatePoison = async ()=>{
+        if(!poisonAvailable) return;
+        // choose target - show simple choice dialog
+        const playerEntries = Object.entries(game.players || {}).filter(([pid]) => pid !== playerId);
+        if(playerEntries.length === 0){ alert('Keine anderen Spieler verfügbar'); return; }
+        // Build prompt text
+        let promptText = 'Wen willst du vergiften? (Nummer eingeben)\\n';
+        playerEntries.forEach(([pid,p], idx) => {
+          promptText += `${idx+1}: ${p.name} (🔥${(p.items && p.items.boost)?p.items.boost:0} ☠️${(p.items&&p.items.poison)?p.items.poison:0} 🛡${(p.items&&p.items.shield)?p.items.shield:0})\\n`;
+        });
+        const choice = prompt(promptText + '\\nGib die Nummer ein, z.B. 1');
+        if(!choice) return;
+        const idx = parseInt(choice,10) - 1;
+        if(isNaN(idx) || idx < 0 || idx >= playerEntries.length){ alert('Ungültige Auswahl'); return; }
+        const [targetPid, targetPlayer] = playerEntries[idx];
+
+        // Proceed: decrement attacker's poison, and add attacker to target.activeEffects.poisonedBy if not shielded
+        // We must read target's current activeEffects.shield to determine block
+        const targetSnap = await db.ref(`games/${gameId}/players/${targetPid}`).get();
+        if(!targetSnap.exists()){ alert('Ziel nicht gefunden'); return; }
+        const targetData = targetSnap.val();
+        const targetShield = targetData.activeEffects && targetData.activeEffects.shield;
+        const updates = {};
+        updates[`games/${gameId}/players/${playerId}/items/poison`] = (player.items.poison - 1);
+
+        const qIndexLocal = meta.questionIndex || 0;
+        const actionRef = db.ref(`games/${gameId}/meta/actions/${qIndexLocal}`);
+
+        // Get current action log for this question
+        const actionsSnap = await actionRef.get();
+        const actions = actionsSnap.exists() ? actionsSnap.val() : [];
+
+        // If target has shield active => blocked; store action entry flagged blocked
+        if(targetShield){
+          actions.push({ type: 'poison', from: playerId, to: targetPid, blocked: true, ts: Date.now() });
+          await actionRef.set(actions);
+          // attacker used poison but poison blocked (shield consumed earlier when activated)
+          await db.ref().update(updates);
+          alert('Angriff durchgeführt — aber Ziel war geschützt (Schild aktiv).');
+          return;
+        }else{
+          // not shielded: append attacker to target.poisonedBy
+          const prevPoisoned = (targetData.activeEffects && Array.isArray(targetData.activeEffects.poisonedBy)) ? targetData.activeEffects.poisonedBy : [];
+          const newPoisoned = [...prevPoisoned, playerId];
+          updates[`games/${gameId}/players/${targetPid}/activeEffects/poisonedBy`] = newPoisoned;
+          actions.push({ type: 'poison', from: playerId, to: targetPid, blocked: false, ts: Date.now() });
+          await actionRef.set(actions);
+          await db.ref().update(updates);
+          alert('Ziel erfolgreich vergiftet.');
+          return;
+        }
       };
 
       return (
@@ -857,21 +999,46 @@
               <div style={{display:'flex', gap:8, alignItems:'center'}}>
                 <div style={{fontWeight:900, color:'var(--rtl-green)'}}>Punkte: {player.score || 0}</div>
 
-                {/* Boost button */}
-                <div>
-                  {boostActive ? (
-                    <button className="boost-btn boost-available" disabled>🔥 Boost aktiv (diese Runde)</button>
-                  ) : boostAvailable ? (
-                    <button className="boost-btn boost-available" onClick={activateBoost}>🔥 Boost einsetzen</button>
-                  ) : (
-                    <button className="boost-btn boost-used" disabled>🔥 Boost verwendet</button>
-                  )}
+                {/* Item bar */}
+                <div className="item-bar" style={{alignItems:'center'}}>
+                  {/* Boost */}
+                  <button
+                    className={`item-btn ${(!boostAvailable || hasAnswered) ? 'item-disabled' : ''}`}
+                    disabled={!boostAvailable || hasAnswered}
+                    onClick={activateBoost}
+                    title={hasAnswered ? 'Boost muss vor der Antwort verwendet werden' : 'Boost: erhöht richtige Antwort auf x1.5 (5× pro Spiel)'}
+                  >
+                    🔥 {player.items && player.items.boost ? player.items.boost : 0}
+                  </button>
+
+                  {/* Poison */}
+                  <button
+                    className={`item-btn ${!poisonAvailable ? 'item-disabled' : ''}`}
+                    disabled={!poisonAvailable}
+                    onClick={activatePoison}
+                    title={'Vergiften: wähle einen anderen Spieler, -20 Punkte auf diese Frage (5× pro Spiel)'}
+                  >
+                    ☠️ {player.items && player.items.poison ? player.items.poison : 0}
+                  </button>
+
+                  {/* Shield */}
+                  <button
+                    className={`item-btn ${!shieldAvailable ? 'item-disabled' : ''}`}
+                    disabled={!shieldAvailable}
+                    onClick={activateShield}
+                    title={'Schild: schützt diese Frage vor Gift (3× pro Spiel)'}
+                  >
+                    🛡 {player.items && player.items.shield ? player.items.shield : 0}
+                  </button>
                 </div>
               </div>
             </div>
 
             <div style={{marginTop:10, color:'var(--muted)', fontSize:13}}>
-              Boost: Einmal pro Spiel verfügbar. Wenn eingesetzt, gilt er für <strong>die gesamte aktuelle Runde</strong> und erhöht richtige Antworten auf x1.5 Punkte.
+              Info: Items sind Ressourcen für das gesamte Spiel.<br/>
+              🔥 Boost: muss <strong>vor</strong> der Antwort aktiviert werden und wirkt nur für diese Frage (x1.5 bei richtig).<br/>
+              ☠️ Gift: wähle ein Ziel während der Frage; Ziel verliert -20 Punkte für diese Frage (Shield blockt).<br/>
+              🛡 Schild: blockt Gift für diese Frage.
             </div>
           </div>
         </div>
@@ -881,12 +1048,31 @@
     // results phase for player
     if(meta.phase === 'results' && question){
       const wasCorrect = player.currentAnswer === question.correct;
+      const poisonedBy = (player.activeEffects && player.activeEffects.poisonedBy) ? player.activeEffects.poisonedBy : [];
+      const shieldActive = player.activeEffects && player.activeEffects.shield;
+      // Compose message
+      let poisonMsg = '';
+      if(poisonedBy.length === 0){
+        poisonMsg = shieldActive ? 'Schild aktiv — kein Gift' : 'Nicht vergiftet';
+      } else {
+        // map attacker ids to names
+        const names = poisonedBy.map(id => {
+          const p = Object.values(game.players || {}).find(x => x && x.pid === id);
+          // game.players entries in host view have pid keys; here we can find by id key
+          // But simpler: find by key in game.players
+          const found = Object.entries(game.players || {}).find(([k]) => k === id);
+          return found ? found[1].name : id;
+        });
+        poisonMsg = `Vergiftet von: ${names.join(', ')}`;
+      }
       return (
         <div className="min-h-screen" style={{padding:20, background:'var(--bg)'}}>
           <div className="player-card" style={{textAlign:'center'}}>
             <h3 style={{fontSize:26, fontWeight:900, color: wasCorrect ? 'var(--rtl-green)' : '#ff6b6b'}}>{wasCorrect ? 'Richtig! 🎉' : 'Falsch 😕'}</h3>
             <p style={{marginTop:8}}>Richtige Antwort: <strong style={{color:'var(--rtl-green)'}}>{question.answers[question.correct]}</strong></p>
+            <p style={{marginTop:8}}>Punkte diese Frage: <strong style={{color:'var(--rtl-green)'}}>{player.lastPoints || 0}</strong></p>
             <p style={{marginTop:8}}>Dein Punktestand: <strong style={{color:'var(--rtl-green)'}}>{player.score || 0}</strong></p>
+            <p style={{marginTop:8, color:'var(--muted)'}}>Status: {poisonMsg}{shieldActive ? ' (Schild aktiv)' : ''}</p>
             <p style={{marginTop:8, color:'var(--muted)'}}>Warte auf den Host für die nächste Frage.</p>
           </div>
         </div>
@@ -895,7 +1081,7 @@
 
     // round summary / finished
     if(meta.phase === 'roundSummary' || meta.phase === 'finished'){
-      const playersSorted = Object.values(game.players || {}).sort((a,b)=>(b.score||0)-(a.score||0));
+      const playersSorted = Object.entries(game.players || {}).map(([pid,p])=>({pid,...p})).sort((a,b)=>(b.score||0)-(a.score||0));
       const title = meta.phase === 'finished' ? '🎉 Spiel beendet!' : `🏆 Zwischenstand nach Runde ${meta.round - 1}`;
       const subtitle = meta.phase === 'finished' ? 'Das Quiz ist vorbei - hier sind die finalen Ergebnisse' : 'Hier ist der aktuelle Stand';
       
@@ -906,14 +1092,12 @@
             <p style={{textAlign:'center', color:'var(--muted)', marginBottom:16}}>{subtitle}</p>
             
             <div style={{marginTop:12, background:'rgba(255,255,255,0.01)', padding:8}}>
-              {playersSorted.map((p,i)=>{
+              {playersSorted.map((p,i)=> {
                 const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-                const boostIcon = p.boostUsed ? '🔥' : '⚡';
-                const boostColor = p.boostUsed ? 'rgba(255,255,255,0.4)' : 'var(--rtl-orange)';
                 return (
-                  <div key={i} style={{
-                    display:'flex', 
-                    justifyContent:'space-between', 
+                  <div key={p.pid} style={{
+                    display:'flex',
+                    justifyContent:'space-between',
                     alignItems:'center',
                     padding:'10px 0',
                     borderBottom: i < playersSorted.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none'
@@ -923,7 +1107,9 @@
                       <span style={{fontWeight:700}}>{p.name}</span>
                     </div>
                     <div style={{display:'flex', gap:12, alignItems:'center'}}>
-                      <span style={{fontSize:16, color:boostColor}}>{boostIcon}</span>
+                      <span style={{fontSize:16}}>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</span>
+                      <span style={{fontSize:16}}>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</span>
+                      <span style={{fontSize:16}}>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</span>
                       <span style={{fontWeight:900, minWidth:60, textAlign:'right'}}>{p.score || 0} pts</span>
                     </div>
                   </div>
@@ -953,7 +1139,15 @@
         const snap = await db.ref(`games/${joinGameId}`).get();
         if(!snap.exists()){ setError('Spiel nicht gefunden'); return; }
         const pid = makePlayerId();
-        const playerObj = { name, score: 0, currentAnswer: null, joinedAt: Date.now(), boostUsed: false, boostForRound: null };
+        const playerObj = {
+          name,
+          score: 0,
+          currentAnswer: null,
+          joinedAt: Date.now(),
+          items: DEFAULT_ITEMS,
+          activeEffects: { boost:false, shield:false, poisonedBy: [] },
+          lastPoints: 0
+        };
         await db.ref(`games/${joinGameId}/players/${pid}`).set(playerObj);
         localStorage.setItem(`quiz_player_${joinGameId}`, pid);
         localStorage.setItem(`quiz_name_${joinGameId}`, name);
@@ -996,6 +1190,7 @@
       setHostName(name);
       const gid = randomGameID();
       setGameId(gid);
+      // create minimal game node and set meta lobby
       await db.ref(`games/${gid}/meta`).set({ phase: 'lobby' });
       setMode('hostLobby');
     };
@@ -1005,7 +1200,15 @@
         const snap = await db.ref(`games/${code}`).get();
         if(!snap.exists()){ alert('Spiel nicht gefunden'); return; }
         const pid = makePlayerId();
-        const playerObj = { name, score: 0, currentAnswer: null, joinedAt: Date.now(), boostUsed:false, boostForRound:null };
+        const playerObj = {
+          name,
+          score: 0,
+          currentAnswer: null,
+          joinedAt: Date.now(),
+          items: DEFAULT_ITEMS,
+          activeEffects: { boost:false, shield:false, poisonedBy: [] },
+          lastPoints: 0
+        };
         await db.ref(`games/${code}/players/${pid}`).set(playerObj);
         setGameId(code); setPlayerId(pid); setPlayerName(name); setMode('playerGame');
       }catch(e){ console.error(e); alert('Fehler'); }
@@ -1027,4 +1230,7 @@
   </script>
 </body>
 </html>
+
+</html>
+
 
