@@ -459,7 +459,7 @@
       const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
       if(nextRound > currentRound){
         // if crossing into next round without roundSummary -> ensure roundSummary appears
-        await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', round: nextRound });
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', round: currentRound });
         return;
       }
 
@@ -1232,6 +1232,7 @@
   </script>
 </body>
 </html>
+
 
 
 
