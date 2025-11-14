@@ -126,7 +126,7 @@
 
   /************ CONFIG ************/
   const TOTAL_ROUNDS = 4;
-  const QUESTIONS_PER_ROUND = 3; // wie gewünscht: aktuell nur 1 Frage pro Runde / Kategorie
+  const QUESTIONS_PER_ROUND = 1; // wie gewünscht: aktuell nur 1 Frage pro Runde / Kategorie
   const QUESTION_TIME = 40;
   const BASE_POINTS = 100;
 
@@ -374,9 +374,13 @@
 
         // If this was the last question of a round -> go to roundSummary (players then get bonus)
         const questionInRound = (qIndex + 1) % QUESTIONS_PER_ROUND;
-        if (questionInRound === 0) {
-          await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary' });
-        }
+       if (questionInRound === 0) {
+  const finishedRound = Math.floor((qIndex + 1) / QUESTIONS_PER_ROUND);
+  await db.ref(`games/${gameId}/meta`).update({
+    phase: 'roundSummary',
+    round: finishedRound + 1   // <- WICHTIG!
+  });
+}
       }catch(e){ console.error(e); }
     };
 
@@ -459,7 +463,7 @@
       const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
       if(nextRound > currentRound){
         // if crossing into next round without roundSummary -> ensure roundSummary appears
-        await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', round: currentRound });
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', round: nextRound });
         return;
       }
 
