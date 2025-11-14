@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Multiplayer (Items + Modal)</title>
+  <title>RTL AdAlliance Quiz - Multiplayer (Items + Bonus)</title>
 
   <!-- React + Babel -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -114,6 +114,11 @@
     @media (min-width:601px){
       .item-btn{ min-width:110px; }
     }
+
+    /* Bonus modal style (last place) */
+    .bonus-modal-card{ width:95%; max-width:520px; background:linear-gradient(180deg,#0f0f0f,#0b0b0b); border:1px solid rgba(255,255,255,0.06); padding:18px; color:var(--tile); box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
+    .bonus-grid{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:12px; }
+    .bonus-choice{ padding:12px 16px; border:1px solid rgba(255,255,255,0.06); cursor:pointer; font-weight:900; min-width:120px; text-align:center; }
   </style>
 </head>
 <body>
@@ -121,12 +126,13 @@
 
   <script type="text/babel">
   /**********************************************
-   * Quiz mit Items + Fullscreen Poison Modal
+   * Quiz mit Items + Fullscreen Poison Modal + Last-Place Bonus (L4)
    * - Boost: 5x, muss vor Antwort aktiviert werden, wirkt für 1 Frage (x1.5)
    * - Poison: 5x, wählbares Ziel per Modal, -20 pro Treffer, Angreifer erfährt Block nicht
    * - Shield: 3x, wird bei Aktivierung sofort verbraucht, schützt eine Frage (Risiko)
    * - Mobile item bar: two-row layout for small screens (Option 1)
    * - Item display: Icon + Zahl (T2)
+   * - Last-place bonus: In Round Summary, ALL tied last-place players see a modal and can choose 1 item (+1)
    **********************************************/
 
   const { useState, useEffect, useRef } = React;
@@ -357,7 +363,7 @@
           await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
           return;
         }
-        // reset players
+        // reset players for next question
         const pSnap = await db.ref(`games/${gameId}/players`).get();
         const pObj = pSnap.val() || {};
         const updates = {};
@@ -426,6 +432,7 @@
         }
         updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost:false, shield:false, poisonedBy: [] };
         updates[`games/${gameId}/players/${pid}/lastPoints`] = 0;
+        updates[`games/${gameId}/players/${pid}/lastRoundBonus`] = null; // reset any past bonus marker
       });
       await db.ref().update(updates);
       await db.ref(`games/${gameId}/meta`).set(metaObj);
@@ -444,6 +451,7 @@
         updates[`games/${gameId}/players/${pid}/items`] = DEFAULT_ITEMS;
         updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost:false, shield:false, poisonedBy: [] };
         updates[`games/${gameId}/players/${pid}/lastPoints`] = 0;
+        updates[`games/${gameId}/players/${pid}/lastRoundBonus`] = null;
       });
       await db.ref().update(updates);
     };
@@ -575,7 +583,7 @@
           {meta.phase === 'roundSummary' && (
             <div className="round-summary">
               <h2 className="result-title">🏆 Zwischenstand nach Runde {meta.round - 1}</h2>
-              <p style={{color:'var(--muted)', marginBottom:20}}>Hier ist der aktuelle Stand aller Spieler (inkl. Item-Vorrat)</p>
+              <p style={{color:'var(--muted)', marginBottom:20}}>Hier ist der aktuelle Stand aller Spieler (inkl. Item-Vorrat). Letzte(n) Spieler erhalten je 1 Bonus-Item zur Auswahl.</p>
 
               <div style={{display:'grid', gap:12, maxWidth:900, margin:'0 auto'}}>
                 {playersArr.map((p,i)=>{
@@ -703,7 +711,7 @@
   }
 
   /****************************************
-   * PLAYER VIEW (inkl. Gift Modal + Mobile Item Bar)
+   * PLAYER VIEW (inkl. Poison Modal + Bonus Modal)
    ****************************************/
   function PlayerView({ gameId, playerId }){
     const [game,setGame] = useState(null);
@@ -714,6 +722,9 @@
     // modal state for poison target selection
     const [poisonModalOpen, setPoisonModalOpen] = useState(false);
     const [poisonTargets, setPoisonTargets] = useState([]); // array of {pid, name}
+
+    // modal state for last-place bonus (shown when in roundSummary & player is last)
+    const [bonusModalOpen, setBonusModalOpen] = useState(false);
 
     useEffect(()=>{
       const gRef = db.ref(`games/${gameId}`);
@@ -735,6 +746,31 @@
       const t = setInterval(tick, 500);
       return ()=> clearInterval(t);
     },[meta?.questionStartTime, meta?.phase]);
+
+    // When we enter roundSummary, check if current player is among the tied last-placed players.
+    // If yes, and player hasn't already chosen a bonus for that round, open the bonus modal for them.
+    useEffect(()=>{
+      if(!game || !meta || !player) return;
+      if(meta.phase !== 'roundSummary') {
+        setBonusModalOpen(false);
+        return;
+      }
+
+      // Determine min score
+      const playersArr = Object.entries(game.players || {}).map(([pid,p])=>({pid,...p}));
+      if(playersArr.length === 0) return;
+      const minScore = Math.min(...playersArr.map(p => p.score || 0));
+      const lastPlayers = playersArr.filter(p => (p.score || 0) === minScore).map(p => p.pid);
+
+      const roundNumberJustFinished = (meta.round || 1) - 1; // meta.round is nextRound; finished round is meta.round-1
+
+      // If current player is among last players AND hasn't already taken bonus for this finished round -> open modal
+      if(lastPlayers.includes(playerId) && (player.lastRoundBonus !== roundNumberJustFinished)){
+        setBonusModalOpen(true);
+      } else {
+        setBonusModalOpen(false);
+      }
+    },[game, meta, player]);
 
     if(!game || !meta || !player) return <div className="min-h-screen flex items-center justify-center">Warte auf Spiel...</div>;
 
@@ -767,7 +803,7 @@
       if(!targetSnap.exists()){
         // decrement poison only
         await db.ref().update(updates);
-        alert('Ziel nicht gefunden.');
+        // no confirmation alert per Wunsch — simply return silently
         return;
       }
       const targetData = targetSnap.val();
@@ -781,8 +817,7 @@
         existingActions.push({ type:'poison', from: playerId, to: targetPid, blocked: true, ts: Date.now() });
         await actionRef.set(existingActions);
         await db.ref().update(updates);
-        // attacker is NOT told whether blocked — just a confirmation
-        alert('Gift eingesetzt (Ergebnis wird nach Ende der Frage angezeigt).');
+        // per request: do NOT alert the attacker about blocked or not — no confirmation shown
         return;
       } else {
         // not shielded: apply to target.activeEffects.poisonedBy
@@ -794,7 +829,7 @@
         await actionRef.set(existingActions);
 
         await db.ref().update(updates);
-        alert('Gift eingesetzt (Ergebnis wird nach Ende der Frage angezeigt).');
+        // per request: do NOT alert — just close modal
         return;
       }
     };
@@ -977,6 +1012,23 @@
       const title = meta.phase === 'finished' ? '🎉 Spiel beendet!' : `🏆 Zwischenstand nach Runde ${meta.round - 1}`;
       const subtitle = meta.phase === 'finished' ? 'Das Quiz ist vorbei - hier sind die finalen Ergebnisse' : 'Hier ist der aktuelle Stand';
 
+      // Bonus modal logic: show if bonusModalOpen is true
+      // We'll also compute the finishedRound number to store in DB as lastRoundBonus
+      const finishedRound = (meta.round || 1) - 1;
+
+      // Handler for picking a bonus item
+      const pickBonus = async (choice) => {
+        // choice: 'boost' | 'poison' | 'shield'
+        // Increment the player's chosen item by 1 and set lastRoundBonus to finishedRound
+        const updates = {};
+        const currentCount = (player.items && player.items[choice]) ? player.items[choice] : 0;
+        updates[`games/${gameId}/players/${playerId}/items/${choice}`] = currentCount + 1;
+        updates[`games/${gameId}/players/${playerId}/lastRoundBonus`] = finishedRound;
+        await db.ref().update(updates);
+        // close modal
+        setBonusModalOpen(false);
+      };
+
       return (
         <div className="min-h-screen" style={{padding:20, background:'var(--bg)'}}>
           <div className="player-card">
@@ -1013,6 +1065,24 @@
               {meta.phase === 'finished' ? 'Warte auf den Host...' : 'Host startet die nächste Runde, sobald er bereit ist.'}
             </p>
           </div>
+
+          {/* BONUS MODAL for last-placed players (L4). Only shown to eligible players. */}
+          {bonusModalOpen && (
+            <div className="modal-backdrop">
+              <div className="bonus-modal-card" role="dialog" aria-modal="true">
+                <div className="modal-title">🎁 Du liegst hinten — wähle ein Bonus-Item</div>
+                <div style={{textAlign:'center', color:'var(--muted)'}}>Wähle genau 1 Item, das deinem Vorrat +1 gibt.</div>
+                <div className="bonus-grid">
+                  <div className="bonus-choice" onClick={()=>pickBonus('boost')} style={{background:'#fff3cc', color:'#000'}}>🔥 Boost +1</div>
+                  <div className="bonus-choice" onClick={()=>pickBonus('poison')} style={{background:'#ffd6d6', color:'#000'}}>☠️ Gift +1</div>
+                  <div className="bonus-choice" onClick={()=>pickBonus('shield')} style={{background:'#dbeeff', color:'#000'}}>🛡 Schild +1</div>
+                </div>
+                <div style={{textAlign:'center', marginTop:12}}>
+                  <button className="btn btn-join" onClick={()=>setBonusModalOpen(false)}>Später</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
@@ -1040,7 +1110,8 @@
           joinedAt: Date.now(),
           items: DEFAULT_ITEMS,
           activeEffects: { boost:false, shield:false, poisonedBy: [] },
-          lastPoints: 0
+          lastPoints: 0,
+          lastRoundBonus: null
         };
         await db.ref(`games/${joinGameId}/players/${pid}`).set(playerObj);
         localStorage.setItem(`quiz_player_${joinGameId}`, pid);
@@ -1102,7 +1173,8 @@
           joinedAt: Date.now(),
           items: DEFAULT_ITEMS,
           activeEffects: { boost:false, shield:false, poisonedBy: [] },
-          lastPoints: 0
+          lastPoints: 0,
+          lastRoundBonus: null
         };
         await db.ref(`games/${code}/players/${pid}`).set(playerObj);
         setGameId(code); setPlayerId(pid); setPlayerName(name); setMode('playerGame');
@@ -1125,6 +1197,9 @@
   </script>
 </body>
 </html>
+
+
+
 
 
 
