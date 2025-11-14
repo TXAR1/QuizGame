@@ -174,31 +174,25 @@
   function makePlayerId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2,4); }
 
   // build N questions for a category (fallback to pool)
-  function getQuestionsForCategory(category, count, usedQuestions=[]){
-    // prefer questions with matching category; otherwise fallback to pool
-    let pool = QUESTION_POOL.filter(q => q.category === category);
-    if(pool.length < count) {
-      // fill with any questions (excluding usedQuestions if possible)
-      pool = pool.concat(QUESTION_POOL.filter(q => !usedQuestions.includes(q.question)));
+unction getQuestionsForCategory(category, count, usedQuestions = []) {
+  // Filter NUR Fragen aus dieser Kategorie
+  let pool = QUESTION_POOL.filter(q => q.category === category);
+
+  // Prevent fallback from pulling wrong-category questions
+  if (pool.length < count) {
+    // Duplicate questions from this category only
+    while (pool.length < count) {
+      pool = pool.concat(pool);
     }
-    pool = pool.length ? shuffle(pool) : shuffle(QUESTION_POOL);
-    const selected = [];
-    let i = 0;
-    while(selected.length < count && i < pool.length){
-      if(!selected.find(s=>s.question===pool[i].question) && !usedQuestions.includes(pool[i].question)){
-        selected.push({...pool[i]});
-      }
-      i++;
-      if(i >= pool.length && selected.length < count){
-        // allow duplicates fallback
-        for(let j=0; selected.length < count; j++){
-          selected.push({...pool[j % pool.length]});
-        }
-      }
-    }
-    // assign stable id for storage
-    return selected.map((q, idx) => ({ id: `${category}-${Date.now()}-${Math.random().toString(36).substr(2,5)}-${idx}`, ...q }));
   }
+
+  pool = shuffle(pool).slice(0, count);
+
+  return pool.map((q, idx) => ({
+    id: `${category}-${Date.now()}-${Math.random().toString(36).substr(2,5)}-${idx}`,
+    ...q
+  }));
+}
 
   /************ Default Items ************/
   const DEFAULT_ITEMS = { boost: 5, poison: 5, shield: 3 };
@@ -388,13 +382,25 @@
       if(!meta) return;
 
       // If we're on roundSummary -> host confirmed: start next round using chosen category (if any)
-      if(meta.phase === 'roundSummary'){
+      if(meta.phase === 'roundSummary' && (meta.round - 1) >= 2){
         const currentIndex = meta.questionIndex ?? 0;
         const nextIndex = currentIndex + 1;
         const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
         if(nextIndex >= totalQuestions){
           await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
           return;
+
+        // Nach Runde 4 kein Bonus mehr
+if ((meta.round - 1) >= TOTAL_ROUNDS) {
+  setBonusItemModalOpen(false);
+  setBonusCategoryModalOpen(false);
+  return;
+if(!meta.nextCategory){
+  alert("Spieler muss zuerst Kategorie wählen!");
+  return;
+}
+  
+}
         }
 
         // determine next round number
@@ -1236,6 +1242,7 @@
   </script>
 </body>
 </html>
+
 
 
 
