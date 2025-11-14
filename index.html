@@ -79,7 +79,7 @@
   const { useState, useEffect, useRef } = React;
 
   /************ CONFIG ************/
-  const TOTAL_ROUNDS = 5;
+  const TOTAL_ROUNDS = 4;
   const QUESTIONS_PER_ROUND = 1;
   const QUESTION_TIME = 40;
   const BASE_POINTS = 100;
@@ -392,7 +392,7 @@
       const currentRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
       const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
       if(nextRound > currentRound){
-        if(nextRound >= TOTAL_ROUNDS){
+        if(nextRound > TOTAL_ROUNDS){
           await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
           return;
         }
@@ -1107,6 +1107,7 @@
   </script>
 </body>
 </html>
+
 
 
 
