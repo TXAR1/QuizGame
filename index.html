@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Multiplayer (Items + Bonus + Kategorien) - CLEAN</title>
+  <title>RTL AdAlliance Quiz - Multiplayer</title>
 
   <!-- React + Babel -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Tailwind utilities (optional) -->
+  <!-- Tailwind utilities -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Firebase compat -->
@@ -31,29 +31,40 @@
     html,body,#root{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
     body{ background:linear-gradient(180deg,var(--bg), #090909); color:var(--tile); }
     * { box-sizing:border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
-    input, textarea, select { background: white !important; color: #0b0b0b !important; border: 1px solid rgba(0,0,0,0.1); padding: 10px; }
-    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:800; padding:10px 14px; cursor:pointer; border:none; }
+    input, textarea, select { background: white !important; color: #0b0b0b !important; border: 1px solid rgba(0,0,0,0.1); padding: 10px; border-radius:6px; }
+    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:800; padding:10px 14px; cursor:pointer; border:none; border-radius:10px; background:rgba(255,255,255,0.03); color:var(--tile); }
     .btn-host{ background:var(--rtl-orange); color:white; }
     .btn-join{ background:var(--rtl-purple); color:white; }
     .btn-show-results{ background:var(--rtl-green); color:white; }
-    .card{ padding:16px; background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); }
+    .card{ padding:16px; background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
     .host-screen{ display:flex; gap:20px; padding:24px; height:100vh; align-items:stretch; }
-    .host-main{ flex:2; padding:28px; display:flex; flex-direction:column; gap:18px; min-height:0; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); }
-    .host-side{ flex:1; padding:18px; overflow:auto; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); }
-    .countdown-badge{ width:110px; height:110px; display:flex; align-items:center; justify-content:center; font-size:2.6rem; font-weight:800; color:var(--tile); border:3px solid rgba(255,255,255,0.06); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); flex-shrink:0; }
+    .host-main{ flex:2; padding:28px; display:flex; flex-direction:column; gap:18px; min-height:0; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
+    .host-side{ flex:1; padding:18px; overflow:auto; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
+    .countdown-badge{ width:110px; height:110px; display:flex; align-items:center; justify-content:center; font-size:2.6rem; font-weight:800; color:var(--tile); border:3px solid rgba(255,255,255,0.06); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); flex-shrink:0; border-radius:14px; }
     .countdown-badge.warning{ border-color:var(--rtl-orange); color:var(--rtl-orange); }
     .countdown-badge.danger{ border-color:var(--rtl-red); color:var(--rtl-red); box-shadow:0 6px 30px rgba(227,31,35,0.09); transform-origin:center; animation:pulse 1s infinite; }
     @keyframes pulse { 0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)} }
     .answers-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; margin-top:18px; }
-    .answer-btn{ background: #ffffff; color:#0b0b0b; padding:20px; font-size:1.05rem; font-weight:700; min-height:110px; display:flex; align-items:center; gap:12px; }
+    .answer-btn{ background: #ffffff; color:#0b0b0b; padding:20px; font-size:1.05rem; font-weight:700; min-height:110px; display:flex; align-items:center; gap:12px; border-radius:10px; }
     .item-bar{ display:flex; gap:8px; align-items:center; }
-    .item-btn{ padding:8px 12px; font-weight:800; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); cursor:pointer; color:var(--tile); display:flex; gap:8px; align-items:center; min-width:72px; justify-content:center; }
+    .item-btn{ padding:8px 12px; font-weight:800; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); cursor:pointer; color:var(--tile); display:flex; gap:8px; align-items:center; min-width:72px; justify-content:center; border-radius:8px; }
     .item-btn.item-disabled{ opacity:0.35; cursor:not-allowed; }
     .item-btn.active { background: linear-gradient(90deg, #fff3cc, #ffd580); color: #000; }
     .item-btn.shield-active { background: linear-gradient(90deg, #dbeeff, #8ec5ff); color: #000; }
-    .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; }
-    .modal-card{ width:95%; max-width:520px; background:linear-gradient(180deg,#0f0f0f,#0b0b0b); border:1px solid rgba(255,255,255,0.06); padding:18px; color:var(--tile); box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
-    @media (max-width:600px){ .answers-grid{ grid-template-columns:1fr; } .countdown-badge{ width:86px;height:86px;font-size:1.8rem; } }
+    .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; padding:16px; }
+    .modal-card{ width:95%; max-width:520px; background:linear-gradient(180deg,#0f0f0f,#0b0b0b); border:1px solid rgba(255,255,255,0.06); padding:18px; color:var(--tile); box-shadow: 0 10px 40px rgba(0,0,0,0.6); border-radius:12px; }
+    .host-main.fullwidth{ width:100%; }
+    @media (max-width:600px){ 
+      .answers-grid{ grid-template-columns:1fr; } 
+      .countdown-badge{ width:86px;height:86px;font-size:1.8rem; } 
+      .host-screen{ flex-direction:column; padding:12px; }
+      .host-side{ order:2; }
+      .host-main{ order:1; }
+    }
+    @media (max-width:420px){
+      .modal-card{ max-width:380px; padding:18px; border-radius:14px; }
+      .btn{ padding:12px 14px; border-radius:12px; font-size:15px; }
+    }
   </style>
 </head>
 <body>
@@ -68,7 +79,6 @@
   const QUESTION_TIME = 40;
   const BASE_POINTS = 100;
 
-  // Firebase config (keine Änderung)
   const firebaseConfig = {
     apiKey: "AIzaSyCsxAEsivsJVFVcnerdAWezFpruoCv7Z2I",
     authDomain: "qiuz-64055.firebaseapp.com",
@@ -119,16 +129,26 @@
 
   const DEFAULT_ITEMS = { boost: 5, poison: 5, shield: 3 };
 
-  function RTLLogo({size='md'}){ const sizeMap={sm:40,md:60,lg:100}; const h = sizeMap[size]||60; const w = (h/300)*1520; return (
-    <svg viewBox="0 0 1520 300" height={h} width={w} xmlns="http://www.w3.org/2000/svg">
-      <rect x="0" y="0" width="490" height="300" fill="#FF6600"/>
-      <text x="245" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">R</text>
-      <rect x="515" y="0" width="490" height="300" fill="#E31F23"/>
-      <text x="760" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">T</text>
-      <rect x="1030" y="0" width="490" height="300" fill="#7B2CBF"/>
-      <text x="1275" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">L</text>
-    </svg>
-  ); }
+  function RTLLogo({size='md'}){ 
+    const sizeMap={sm:40,md:60,lg:100}; 
+    const h = sizeMap[size]||60; 
+    const w = (h/300)*1520; 
+    return (
+      <svg viewBox="0 0 1520 300" height={h} width={w} xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="490" height="300" fill="#FF6600"/>
+        <text x="245" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">R</text>
+        <rect x="515" y="0" width="490" height="300" fill="#E31F23"/>
+        <text x="760" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">T</text>
+        <rect x="1030" y="0" width="490" height="300" fill="#7B2CBF"/>
+        <text x="1275" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">L</text>
+      </svg>
+    );
+  }
+
+  function qrUrlForGame(gameId){
+    const url = `${window.location.origin}${window.location.pathname}?join=${gameId}`;
+    return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
+  }
 
   /****************************************
    * START SCREEN
@@ -162,7 +182,7 @@
   }
 
   /****************************************
-   * HOST CONTROLLER (Sidebar widget)
+   * HOST CONTROLLER
    ****************************************/
   function HostController({ gameId, meta, startNextRound, showResultsNow, startGame }){
     const [players,setPlayers] = useState({});
@@ -210,7 +230,7 @@
   }
 
   /****************************************
-   * HOST SCREEN (single, cleaned version)
+   * HOST SCREEN
    ****************************************/
   function HostScreen({ gameId, hostName }){
     const [game,setGame] = useState(null);
@@ -240,9 +260,8 @@
       clearInterval(timerRef.current);
       timerRef.current = setInterval(tick, 500);
       return ()=> clearInterval(timerRef.current);
-    },[meta?.phase, meta?.questionStartTime, gameId]);
+    },[meta?.phase, meta?.questionStartTime]);
 
-    // Show results now: compute points, update scores, set lastPoints
     const showResultsNow = async ()=>{
       try{
         const snap = await db.ref(`games/${gameId}`).get();
@@ -279,18 +298,22 @@
         });
 
         await db.ref().update(updates);
-
-        // move to results
         await db.ref(`games/${gameId}/meta`).update({ phase: 'results' });
 
-        // If this was the last question of a round -> go to roundSummary
         const questionInRound = (qIndex + 1) % QUESTIONS_PER_ROUND;
         if (questionInRound === 0) {
           const finishedRound = Math.floor((qIndex + 1) / QUESTIONS_PER_ROUND);
-          await db.ref(`games/${gameId}/meta`).update({
-            phase: 'roundSummary',
-            round: finishedRound + 1
-          });
+          const nextRoundMeta = finishedRound + 1;
+          if (nextRoundMeta >= TOTAL_ROUNDS) {
+            await db.ref(`games/${gameId}/meta`).update({
+              phase: 'finished'
+            });
+          } else {
+            await db.ref(`games/${gameId}/meta`).update({
+              phase: 'roundSummary',
+              round: nextRoundMeta
+            });
+          }
         }
       }catch(e){ console.error(e); }
     };
@@ -298,7 +321,6 @@
     const startNextRound = async ()=>{
       if(!meta) return;
 
-      // If we're on roundSummary -> host confirmed: start next round using chosen category (if any)
       if(meta.phase === 'roundSummary'){
         const currentIndex = meta.questionIndex ?? 0;
         const nextIndex = currentIndex + 1;
@@ -308,7 +330,6 @@
           return;
         }
 
-        // read meta category state and nextCategory
         const metaSnap = await db.ref(`games/${gameId}/meta`).get();
         const metaVal = metaSnap.exists() ? metaSnap.val() : {};
         const catState = metaVal.categoryState || { used: [], remaining: [] };
@@ -323,7 +344,6 @@
         const used = [...(catState.used || []), chosenCategory];
         await db.ref(`games/${gameId}/meta/categoryState`).set({ used, remaining });
 
-        // Replace questions for that next block
         const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
         const start = (nextRound - 1) * QUESTIONS_PER_ROUND;
         const qSnap = await db.ref(`games/${gameId}/questions`).get();
@@ -337,7 +357,6 @@
         }
         await db.ref(`games/${gameId}/questions`).set(newQuestions);
 
-        // reset players state for next question
         const pSnap = await db.ref(`games/${gameId}/players`).get();
         const pObj = pSnap.val() || {};
         const updates = {};
@@ -347,7 +366,6 @@
         });
         await db.ref().update(updates);
 
-        // set meta to next question
         await db.ref(`games/${gameId}/meta`).update({
           questionIndex: nextIndex,
           phase: 'question',
@@ -359,7 +377,6 @@
         return;
       }
 
-      // normal flow from results to next question (same round)
       const currentIndex = meta.questionIndex ?? 0;
       const nextIndex = currentIndex + 1;
       const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
@@ -370,11 +387,14 @@
       const currentRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
       const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
       if(nextRound > currentRound){
+        if(nextRound >= TOTAL_ROUNDS){
+          await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+          return;
+        }
         await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', round: nextRound });
         return;
       }
 
-      // continue to next question in same round
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const pObj = pSnap.val() || {};
       const updates = {};
@@ -500,12 +520,12 @@
               <div>
                 <div style={{fontSize:28, fontWeight:900}}>{question.question}</div>
                 <div className="answers-grid" style={{marginTop:18}}>
-                  {question.answers.map((a,i)=>((
+                  {question.answers.map((a,i)=>(
                     <div key={i} className="answer-btn">
                       <div style={{fontWeight:900, marginRight:8}}>{String.fromCharCode(65+i)}.</div>
                       <div>{a}</div>
                     </div>
-                  )))}
+                  ))}
                 </div>
               </div>
             </div>
@@ -532,7 +552,7 @@
               <div style={{marginTop:18}}>
                 <h3 style={{fontWeight:900, color:'var(--rtl-orange)'}}>Aktionen & Effekte (diese Frage)</h3>
                 <div style={{marginTop:8, display:'grid', gap:8}}>
-                  {playersArr.map((p)=>((
+                  {playersArr.map((p)=>(
                     <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:10, background:'rgba(255,255,255,0.01)'}}>
                       <div style={{display:'flex', gap:12, alignItems:'center'}}>
                         <div style={{fontWeight:900}}>{p.name}</div>
@@ -550,7 +570,7 @@
                         <div style={{fontWeight:900, minWidth:80, textAlign:'right'}}>{p.lastPoints || 0} pts</div>
                       </div>
                     </div>
-                  )))}
+                  ))}
                 </div>
               </div>
 
@@ -566,20 +586,23 @@
               <p style={{color:'var(--muted)'}}>Hier ist der aktuelle Stand aller Spieler (inkl. Item-Vorrat).</p>
 
               <div style={{display:'grid', gap:12, marginTop:12}}>
-                {playersArr.map((p,i)=>{ const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':''; return (
-                  <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:12, background:i<3?'rgba(255,255,255,0.03)':'rgba(255,255,255,0.01)'}}>
-                    <div style={{display:'flex', gap:12, alignItems:'center'}}>
-                      <div style={{fontSize:20}}>{medal || `#${i+1}`}</div>
-                      <div style={{fontWeight:900}}>{p.name}</div>
+                {playersArr.map((p,i)=>{ 
+                  const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':''; 
+                  return (
+                    <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:12, background:i<3?'rgba(255,255,255,0.03)':'rgba(255,255,255,0.01)'}}>
+                      <div style={{display:'flex', gap:12, alignItems:'center'}}>
+                        <div style={{fontSize:20}}>{medal || `#${i+1}`}</div>
+                        <div style={{fontWeight:900}}>{p.name}</div>
+                      </div>
+                      <div style={{display:'flex', gap:16, alignItems:'center'}}>
+                        <div>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</div>
+                        <div>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</div>
+                        <div>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
+                        <div style={{fontWeight:900}}>{p.score || 0} pts</div>
+                      </div>
                     </div>
-                    <div style={{display:'flex', gap:16, alignItems:'center'}}>
-                      <div>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</div>
-                      <div>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</div>
-                      <div>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
-                      <div style={{fontWeight:900}}>{p.score || 0} pts</div>
-                    </div>
-                  </div>
-                );})}
+                  );
+                })}
               </div>
 
               <div style={{marginTop:20, textAlign:'center'}}>
@@ -616,7 +639,7 @@
             <div style={{marginTop:16}}>
               <h3 style={{fontWeight:900, color:'var(--rtl-orange)'}}>🏅 Spieler & Punkte</h3>
               <div style={{maxHeight:220, overflow:'auto', marginTop:8}}>
-                {playersArr.map((p,idx)=>((
+                {playersArr.map((p,idx)=>(
                   <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:10}}>
                     <div style={{display:'flex', gap:8, alignItems:'center'}}>
                       <div style={{fontWeight:900, color:'var(--rtl-purple)'}}>#{idx+1}</div>
@@ -627,7 +650,7 @@
                       <div style={{fontSize:13, color:'var(--muted)'}}>🔥{(p.items && p.items.boost) ? p.items.boost : 0} ☠️{(p.items && p.items.poison) ? p.items.poison : 0} 🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
                     </div>
                   </div>
-                )))}
+                ))}
               </div>
             </div>
 
@@ -702,14 +725,19 @@
       } else {
         setBonusItemModalOpen(false);
       }
-    },[game, meta, player]);
+    },[game, meta, player, playerId]);
 
     if(!game || !meta || !player) return <div className="min-h-screen flex items-center justify-center">Warte auf Spiel...</div>;
 
     const qIndex = meta.questionIndex || 0;
     const question = (game.questions || [])[qIndex];
 
-    const openPoisonModal = ()=>{ const entries = Object.entries(game.players || {}).filter(([pid]) => pid !== playerId).map(([pid,p]) => ({ pid, name: p.name })); setPoisonTargets(entries); setPoisonModalOpen(true); };
+    const openPoisonModal = ()=>{ 
+      const entries = Object.entries(game.players || {}).filter(([pid]) => pid !== playerId).map(([pid,p]) => ({ pid, name: p.name })); 
+      setPoisonTargets(entries); 
+      setPoisonModalOpen(true); 
+    };
+
     const sendPoisonTo = async (targetPid) => {
       setPoisonModalOpen(false);
       if(!(player.items && player.items.poison > 0)) { alert('Kein Gift verfügbar'); return; }
@@ -744,11 +772,30 @@
       const poisonAvailable = (player.items && player.items.poison > 0);
       const shieldAvailable = (player.items && player.items.shield > 0);
 
-      const answerClick = async (i)=>{ if(hasAnswered || timeLeft <= 0) return; await db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i); };
+      const answerClick = async (i)=>{ 
+        if(hasAnswered || timeLeft <= 0) return; 
+        await db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i); 
+      };
 
-      const activateBoost = async ()=>{ if(!boostAvailable) return; if(player.currentAnswer !== null && player.currentAnswer !== undefined){ alert('Boost muss vor der Antwort aktiviert werden.'); return; } const updates = {}; updates[`games/${gameId}/players/${playerId}/items/boost`] = (player.items.boost - 1); updates[`games/${gameId}/players/${playerId}/activeEffects/boost`] = true; await db.ref().update(updates); };
+      const activateBoost = async ()=>{ 
+        if(!boostAvailable) return; 
+        if(player.currentAnswer !== null && player.currentAnswer !== undefined){ 
+          alert('Boost muss vor der Antwort aktiviert werden.'); 
+          return; 
+        } 
+        const updates = {}; 
+        updates[`games/${gameId}/players/${playerId}/items/boost`] = (player.items.boost - 1); 
+        updates[`games/${gameId}/players/${playerId}/activeEffects/boost`] = true; 
+        await db.ref().update(updates); 
+      };
 
-      const activateShield = async ()=>{ if(!shieldAvailable) return; const updates = {}; updates[`games/${gameId}/players/${playerId}/items/shield`] = (player.items.shield - 1); updates[`games/${gameId}/players/${playerId}/activeEffects/shield`] = true; await db.ref().update(updates); };
+      const activateShield = async ()=>{ 
+        if(!shieldAvailable) return; 
+        const updates = {}; 
+        updates[`games/${gameId}/players/${playerId}/items/shield`] = (player.items.shield - 1); 
+        updates[`games/${gameId}/players/${playerId}/activeEffects/shield`] = true; 
+        await db.ref().update(updates); 
+      };
 
       const boostBtnClass = `item-btn ${(boostAvailable && !hasAnswered) ? '' : 'item-disabled'} ${ (player.activeEffects && player.activeEffects.boost) ? 'active' : '' }`;
       const poisonBtnClass = `item-btn ${(poisonAvailable) ? '' : 'item-disabled'} `;
@@ -768,10 +815,13 @@
               {question.answers.map((ans,i)=>{
                 const disabled = hasAnswered || timeLeft <= 0;
                 const isSelected = player.currentAnswer === i;
-                const style = isSelected ? {background:'var(--rtl-purple)', color:'#fff', borderColor:'var(--rtl-purple)'} : {};
+                const style = isSelected ? {background:'var(--rtl-purple)', color:'#fff', borderColor:'var(--rtl-purple)', borderRadius:10, padding:'10px 12px'} : {borderRadius:10, padding:'10px 12px', background:'rgba(255,255,255,0.02)'};
                 return (
                   <button key={i} disabled={disabled} onClick={()=>answerClick(i)} style={style} className="p-3 font-bold">
-                    <div style={{display:'flex', gap:10, alignItems:'center'}}><div style={{fontWeight:900}}>{String.fromCharCode(65+i)}.</div><div>{ans}</div></div>
+                    <div style={{display:'flex', gap:10, alignItems:'center'}}>
+                      <div style={{fontWeight:900}}>{String.fromCharCode(65+i)}.</div>
+                      <div>{ans}</div>
+                    </div>
                   </button>
                 );
               })}
@@ -808,13 +858,13 @@
 
           {poisonModalOpen && (
             <div className="modal-backdrop">
-              <div className="modal-card">
+              <div className="modal-card" style={{maxWidth:420}}>
                 <div style={{fontWeight:900, fontSize:18, marginBottom:12}}>Wen willst du vergiften?</div>
                 <div style={{display:'flex', flexDirection:'column', gap:8}}>
                   {poisonTargets.length === 0 ? <div style={{color:'var(--muted)'}}>Keine anderen Spieler verfügbar</div> : poisonTargets.map(t => (
-                    <button key={t.pid} onClick={()=>sendPoisonTo(t.pid)} className="btn btn-ghost" style={{display:'flex', justifyContent:'space-between'}}>{t.name}<span>Vergiften</span></button>
+                    <button key={t.pid} onClick={()=>sendPoisonTo(t.pid)} className="btn btn-host" style={{width:'100%', padding:'12px 16px', fontSize:16, display:'flex', justifyContent:'space-between'}}>{t.name}<span style={{opacity:0.9}}>Vergiften</span></button>
                   ))}
-                  <button className="btn btn-join" onClick={()=>setPoisonModalOpen(false)}>Abbrechen</button>
+                  <button className="btn btn-join" onClick={()=>setPoisonModalOpen(false)} style={{width:'100%', padding:'12px 16px', fontSize:16}}>Abbrechen</button>
                 </div>
               </div>
             </div>
@@ -831,7 +881,10 @@
       if(poisonedBy.length === 0){
         poisonMsg = shieldActive ? 'Schild aktiv — kein Gift' : 'Nicht vergiftet';
       } else {
-        const names = poisonedBy.map(id => { const found = Object.entries(game.players || {}).find(([k]) => k === id); return found ? found[1].name : id; });
+        const names = poisonedBy.map(id => { 
+          const found = Object.entries(game.players || {}).find(([k]) => k === id); 
+          return found ? found[1].name : id; 
+        });
         poisonMsg = `Vergiftet von: ${names.join(', ')}`;
       }
 
@@ -849,7 +902,6 @@
       );
     }
 
-    // roundSummary / finished view (player)
     if(meta.phase === 'roundSummary' || meta.phase === 'finished'){
       const playersSorted = Object.entries(game.players || {}).map(([pid,p])=>({pid,...p})).sort((a,b)=>(b.score||0)-(a.score||0));
       const title = meta.phase === 'finished' ? '🎉 Spiel beendet!' : `🏆 Zwischenstand nach Runde ${meta.round - 1}`;
@@ -888,7 +940,12 @@
               {playersSorted.map((p,i)=>(
                 <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.03)'}}>
                   <div style={{fontWeight:900}}>{i<3? (i===0?'🥇':i===1?'🥈':'🥉') : `#${i+1}`} {p.name}</div>
-                  <div style={{display:'flex', gap:12, alignItems:'center'}}><div>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</div><div>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</div><div>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div><div style={{fontWeight:900}}>{p.score || 0}</div></div>
+                  <div style={{display:'flex', gap:12, alignItems:'center'}}>
+                    <div>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</div>
+                    <div>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</div>
+                    <div>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
+                    <div style={{fontWeight:900}}>{p.score || 0}</div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -897,28 +954,32 @@
 
           {bonusItemModalOpen && (
             <div className="modal-backdrop">
-              <div className="modal-card">
-                <div style={{fontWeight:900, fontSize:18}}>🎁 Du liegst hinten — wähle ein Bonus-Item</div>
-                <div style={{display:'flex', gap:8, marginTop:12}}>
-                  <div style={{flex:1, padding:12, border:'1px solid rgba(255,255,255,0.06)', cursor:'pointer'}} onClick={()=>pickBonusItem('boost')}>🔥 Boost +1</div>
-                  <div style={{flex:1, padding:12, border:'1px solid rgba(255,255,255,0.06)', cursor:'pointer'}} onClick={()=>pickBonusItem('poison')}>☠️ Gift +1</div>
-                  <div style={{flex:1, padding:12, border:'1px solid rgba(255,255,255,0.06)', cursor:'pointer'}} onClick={()=>pickBonusItem('shield')}>🛡 Schild +1</div>
+              <div className="modal-card" style={{maxWidth:420}}>
+                <div style={{fontWeight:900, fontSize:18, marginBottom:12, textAlign:'center'}}>🎁 Du liegst hinten — wähle ein Bonus-Item</div>
+                <div style={{display:'flex', flexDirection:'column', gap:10}}>
+                  <button className="btn btn-host" onClick={()=>pickBonusItem('boost')} style={{width:'100%', padding:'12px 14px', fontSize:16}}>🔥 Boost +1</button>
+                  <button className="btn btn-host" onClick={()=>pickBonusItem('poison')} style={{width:'100%', padding:'12px 14px', fontSize:16}}>☠️ Gift +1</button>
+                  <button className="btn btn-host" onClick={()=>pickBonusItem('shield')} style={{width:'100%', padding:'12px 14px', fontSize:16}}>🛡 Schild +1</button>
                 </div>
-                <div style={{marginTop:12, textAlign:'center'}}><button className="btn btn-join" onClick={()=>setBonusItemModalOpen(false)}>Später</button></div>
+                <div style={{marginTop:12, textAlign:'center'}}>
+                  <button className="btn btn-join" onClick={()=>setBonusItemModalOpen(false)} style={{width:'100%', padding:'12px 14px'}}>Später</button>
+                </div>
               </div>
             </div>
           )}
 
           {bonusCategoryModalOpen && (
             <div className="modal-backdrop">
-              <div className="modal-card">
-                <div style={{fontWeight:900, fontSize:18}}>🏷️ Wähle eine Kategorie für die nächste Runde</div>
-                <div style={{display:'flex', gap:8, marginTop:12}}>
+              <div className="modal-card" style={{maxWidth:420}}>
+                <div style={{fontWeight:900, fontSize:18, marginBottom:12, textAlign:'center'}}>🏷️ Wähle eine Kategorie für die nächste Runde</div>
+                <div style={{display:'flex', flexDirection:'column', gap:10}}>
                   {(candidateCategories.length === 0 ? CATEGORY_LIST.slice(0,2) : candidateCategories).map(c => (
-                    <div key={c} style={{flex:1, padding:12, border:'1px solid rgba(255,255,255,0.06)', cursor:'pointer'}} onClick={()=>pickBonusCategory(c)}>{c}</div>
+                    <button key={c} className="btn btn-join" onClick={()=>pickBonusCategory(c)} style={{width:'100%', padding:'12px 14px', fontSize:16}}>{c}</button>
                   ))}
                 </div>
-                <div style={{marginTop:12, textAlign:'center'}}><button className="btn btn-join" onClick={()=>setBonusCategoryModalOpen(false)}>Später</button></div>
+                <div style={{marginTop:12, textAlign:'center'}}>
+                  <button className="btn btn-join" onClick={()=>setBonusCategoryModalOpen(false)} style={{width:'100%', padding:'12px 14px'}}>Später</button>
+                </div>
               </div>
             </div>
           )}
@@ -1020,7 +1081,12 @@
       }catch(e){ console.error(e); alert('Fehler'); }
     };
 
-    const handlePlayerJoined = (code,pid,name) => { setGameId(code); setPlayerId(pid); setPlayerName(name); setMode('playerGame'); };
+    const handlePlayerJoined = (code,pid,name) => { 
+      setGameId(code); 
+      setPlayerId(pid); 
+      setPlayerName(name); 
+      setMode('playerGame'); 
+    };
 
     return (
       <>
@@ -1033,13 +1099,6 @@
   }
 
   ReactDOM.render(<App />, document.getElementById('root'));
-
-  /************ Utility ************/
-  function qrUrlForGame(gameId){
-    const url = `${window.location.origin}${window.location.pathname}?join=${gameId}`;
-    return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300`;
-  }
-
   </script>
 </body>
 </html>
