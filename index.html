@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Multiplayer (Items)</title>
+  <title>RTL AdAlliance Quiz - Multiplayer (Items + Modal)</title>
 
   <!-- React + Babel -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Tailwind utility (optional) -->
+  <!-- Tailwind utilities (optional) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Firebase compat -->
@@ -19,7 +19,7 @@
 
   <style>
     /* --------------------------
-       BASIC THEME + LAYOUT
+       THEME + LAYOUT
        -------------------------- */
     :root{
       --rtl-orange:#FF6600;
@@ -36,7 +36,7 @@
     html,body,#root{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
     body{ background:linear-gradient(180deg,var(--bg), #090909); color:var(--tile); }
 
-    * { box-sizing:border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; border-radius:0 !important; }
+    * { box-sizing:border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; border-radius: 0 !important; }
     input, textarea, select { background: white !important; color: #0b0b0b !important; border: 1px solid rgba(0,0,0,0.1); padding: 10px; }
     input::placeholder { color: rgba(0,0,0,0.5) !important; }
 
@@ -74,7 +74,6 @@
     .player-item{ display:flex; justify-content:space-between; gap:10px; padding:10px; background:rgba(255,255,255,0.01); border-left:4px solid rgba(255,255,255,0.02); }
 
     .start-card{ max-width:760px; margin:auto; padding:28px; border:1px solid rgba(255,255,255,0.03); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); }
-
     .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:800; padding:10px 14px; cursor:pointer; border:none; }
     .btn-host{ background:var(--rtl-orange); color:white; }
     .btn-join{ background:var(--rtl-purple); color:white; }
@@ -84,20 +83,36 @@
     .player-card{ max-width:720px; margin:20px auto; padding:20px; border:1px solid rgba(255,255,255,0.03); background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); }
 
     /* Item bar */
-    .item-bar{ display:flex; gap:8px; align-items:center; }
-    .item-btn{ padding:8px 12px; font-weight:800; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); cursor:pointer; color:var(--tile); display:flex; gap:8px; align-items:center; }
+    .item-bar{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .item-btn{ padding:8px 12px; font-weight:800; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); cursor:pointer; color:var(--tile); display:flex; gap:8px; align-items:center; min-width:72px; justify-content:center; }
     .item-btn.item-disabled{ opacity:0.35; cursor:not-allowed; }
     .item-btn.active { background: linear-gradient(90deg, #fff3cc, #ffd580); color: #000; border-color: rgba(0,0,0,0.06); box-shadow: 0 4px 14px rgba(255,213,128,0.12); }
     .item-btn.shield-active { background: linear-gradient(90deg, #dbeeff, #8ec5ff); color: #000; border-color: rgba(0,0,0,0.06); box-shadow: 0 4px 14px rgba(142,197,255,0.12); }
 
-    .item-label{ font-weight:900; min-width:30px; text-align:center; }
+    .item-label{ font-weight:900; min-width:28px; text-align:center; }
 
-    /* small screens */
-    @media (max-width:900px){
-      .host-screen{ flex-direction:column; padding:12px; }
+    /* Modal full-screen for poison target selection */
+    .modal-backdrop{
+      position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999;
+    }
+    .modal-card{
+      width:95%; max-width:520px; background:linear-gradient(180deg,#0f0f0f,#0b0b0b); border:1px solid rgba(255,255,255,0.06); padding:18px; color:var(--tile);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+    .modal-title{ font-size:18px; font-weight:900; margin-bottom:12px; color:var(--rtl-orange); text-align:center; }
+
+    /* Mobile item layout: Two rows on small screens (Option 1) */
+    @media (max-width:600px){
+      .item-bar{ justify-content:center; }
+      /* ensure items wrap nicely: two items first row, third item second row */
+      .item-btn{ min-width:40%; }
       .answers-grid{ grid-template-columns:1fr; }
       .countdown-badge{ width:86px;height:86px;font-size:1.8rem; }
       .question-text{ font-size:1.6rem; }
+    }
+
+    @media (min-width:601px){
+      .item-btn{ min-width:110px; }
     }
   </style>
 </head>
@@ -105,12 +120,14 @@
   <div id="root"></div>
 
   <script type="text/babel">
-  /**************************************
-   * QUIZ MIT ITEMS - Vollständiger Code
-   * - Boost: 5x, wirkt nur für eine Frage, aktivieren VOR Antwort
-   * - Poison: 5x, wählbares Ziel, -20 pro Treffer, Angreifer erfährt nicht ob geblockt
-   * - Shield: 3x, wird bei Aktivierung sofort verbraucht, schützt die laufende Frage
-   **************************************/
+  /**********************************************
+   * Quiz mit Items + Fullscreen Poison Modal
+   * - Boost: 5x, muss vor Antwort aktiviert werden, wirkt für 1 Frage (x1.5)
+   * - Poison: 5x, wählbares Ziel per Modal, -20 pro Treffer, Angreifer erfährt Block nicht
+   * - Shield: 3x, wird bei Aktivierung sofort verbraucht, schützt eine Frage (Risiko)
+   * - Mobile item bar: two-row layout for small screens (Option 1)
+   * - Item display: Icon + Zahl (T2)
+   **********************************************/
 
   const { useState, useEffect, useRef } = React;
 
@@ -120,7 +137,7 @@
   const QUESTION_TIME = 40;
   const BASE_POINTS = 100;
 
-  // Firebase Config - behalte deine Keys / Projekt
+  // Firebase config (keep your own keys)
   const firebaseConfig = {
     apiKey: "AIzaSyCsxAEsivsJVFVcnerdAWezFpruoCv7Z2I",
     authDomain: "qiuz-64055.firebaseapp.com",
@@ -133,7 +150,7 @@
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  /************ Frage-Pool (Beispiel) ************/
+  /************ Sample Questions ************/
   const QUESTION_POOL = [
     { question: "Was ist die Hauptstadt von Österreich?", answers: ["Wien","Graz","Salzburg","Innsbruck"], correct: 0 },
     { question: "Welcher Planet ist der größte?", answers: ["Mars","Saturn","Jupiter","Neptun"], correct: 2 },
@@ -147,7 +164,7 @@
     { question: "Was ist die Hauptstadt von Frankreich?", answers: ["Lyon","Marseille","Paris","Nizza"], correct: 2 },
   ];
 
-  /************ Helferfunktionen ************/
+  /************ Helpers ************/
   function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
   function randomGameID(){ return Math.random().toString(36).substr(2,6).toUpperCase(); }
   function makePlayerId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2,4); }
@@ -166,7 +183,7 @@
   /************ Default Items ************/
   const DEFAULT_ITEMS = { boost: 5, poison: 5, shield: 3 };
 
-  /************ RTL Logo - einfache SVG ************/
+  /************ RTL Logo ************/
   function RTLLogo({size='md'}){
     const sizeMap={sm:40,md:60,lg:100};
     const h = sizeMap[size]||60;
@@ -184,7 +201,7 @@
   }
 
   /****************************************
-   * START SCREEN (Host erstellen / Join)
+   * START SCREEN
    ****************************************/
   function StartScreen({ onCreate, onJoin }){
     const [name,setName] = useState('');
@@ -215,7 +232,7 @@
   }
 
   /****************************************
-   * HOST CONTROLLER (Sidebar Logik)
+   * HOST CONTROLLER
    ****************************************/
   function HostController({ gameId, meta, startNextRound, showResultsNow, startGame }){
     const [players,setPlayers] = useState({});
@@ -253,7 +270,7 @@
   }
 
   /****************************************
-   * HOST SCREEN (Frage, Results, RoundSummary, Finished)
+   * HOST SCREEN
    ****************************************/
   function HostScreen({ gameId, hostName }){
     const [game,setGame] = useState(null);
@@ -269,7 +286,6 @@
       return ()=> { gRef.off(); mRef.off(); clearInterval(timerRef.current); };
     },[gameId]);
 
-    // Timer for questions → automatically show results when time's up
     useEffect(()=>{
       if(!meta || meta.phase !== 'question' || !meta.questionStartTime){ setTimeLeft(0); return; }
       const tick = async ()=>{
@@ -286,7 +302,7 @@
       return ()=> clearInterval(timerRef.current);
     },[meta?.phase, meta?.questionStartTime, gameId]);
 
-    // Compute and write results into DB
+    // Show results now: compute points, update scores, set lastPoints
     const showResultsNow = async ()=>{
       try{
         const snap = await db.ref(`games/${gameId}`).get();
@@ -308,17 +324,16 @@
           const correct = typeof ans === 'number' && ans === q.correct;
           let points = correct ? BASE_POINTS : 0;
 
-          // Boost effect (activeEffects.boost true)
+          // Boost effect
           const boostActive = p.activeEffects && p.activeEffects.boost;
           if(correct && boostActive){
             points = Math.round(points * 1.5);
           }
 
-          // Poisons applied (array of attacker IDs)
+          // Poisons
           const poisonArr = (p.activeEffects && p.activeEffects.poisonedBy) ? p.activeEffects.poisonedBy : [];
           const poisonCount = Array.isArray(poisonArr) ? poisonArr.length : 0;
           points -= (poisonCount * 20);
-
           if(points < 0) points = 0;
 
           const newScore = (p.score || 0) + points;
@@ -326,30 +341,23 @@
           updates[`games/${gameId}/players/${pid}/lastPoints`] = points;
         });
 
-        // Once scores are updated, set phase to 'results'
         await db.ref().update(updates);
         await db.ref(`games/${gameId}/meta`).update({ phase: 'results' });
-
       }catch(e){ console.error(e); }
     };
 
-    // Advance to next question / round summary / finished
     const startNextRound = async ()=>{
       if(!meta) return;
 
-      // If in roundSummary, go to next question index
       if(meta.phase === 'roundSummary'){
         const currentIndex = meta.questionIndex ?? 0;
         const nextIndex = currentIndex + 1;
         const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
-
-        // End if done
         if(nextIndex >= totalQuestions){
           await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
           return;
         }
-
-        // Reset per-player currentAnswer and activeEffects for next question
+        // reset players
         const pSnap = await db.ref(`games/${gameId}/players`).get();
         const pObj = pSnap.val() || {};
         const updates = {};
@@ -369,25 +377,22 @@
         return;
       }
 
-      // Normal flow from results -> next question OR round summary
+      // Normal flow from results to next question
       const currentIndex = meta.questionIndex ?? 0;
       const nextIndex = currentIndex + 1;
       const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
-
       if(nextIndex >= totalQuestions){
         await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
         return;
       }
       const currentRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
       const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
-
-      // If next question starts a new round -> show roundSummary
       if(nextRound > currentRound){
         await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', round: nextRound });
         return;
       }
 
-      // else continue
+      // continue
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const pObj = pSnap.val() || {};
       const updates = {};
@@ -405,25 +410,17 @@
       });
     };
 
-    // Start the game => write questions; reset players (items kept as default on first start)
     const startGame = async ()=>{
       const questions = generateQuestions();
-      const metaObj = {
-        phase: 'question',
-        questionIndex: 0,
-        round: 1,
-        questionStartTime: Date.now()
-      };
+      const metaObj = { phase: 'question', questionIndex: 0, round: 1, questionStartTime: Date.now() };
       await db.ref(`games/${gameId}/questions`).set(questions);
 
-      // Initialize players: score 0, items default if missing, activeEffects reset
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const pObj = pSnap.val() || {};
       const updates = {};
       Object.keys(pObj).forEach(pid=>{
         updates[`games/${gameId}/players/${pid}/score`] = 0;
         updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-        // if items already exist, keep them (e.g., restart); otherwise set defaults
         if(!(pObj[pid] && pObj[pid].items)){
           updates[`games/${gameId}/players/${pid}/items`] = DEFAULT_ITEMS;
         }
@@ -432,13 +429,10 @@
       });
       await db.ref().update(updates);
       await db.ref(`games/${gameId}/meta`).set(metaObj);
-
-      // clear actions log
       await db.ref(`games/${gameId}/meta/actions`).remove();
     };
 
     const backToLobby = async ()=>{
-      // Reset meta, remove questions and reset players' states and items
       await db.ref(`games/${gameId}/meta`).set({ phase: 'lobby' });
       await db.ref(`games/${gameId}/questions`).remove();
       const pSnap = await db.ref(`games/${gameId}/players`).get();
@@ -523,7 +517,7 @@
             </div>
           )}
 
-          {/* RESULTS VIEW (Host sees actions + per-player lastPoints) */}
+          {/* RESULTS VIEW (Host) */}
           {meta.phase === 'results' && question && (
             <div className="results-section">
               <h2 className="result-title">📊 Ergebnisse</h2>
@@ -554,7 +548,6 @@
                       <div style={{display:'flex', gap:12, alignItems:'center'}}>
                         <div style={{fontWeight:900}}>{p.name}</div>
                         <div style={{color:'var(--muted)', fontSize:13}}>
-                          {/* Show poisoners and shield state in results (full transparency) */}
                           { (p.activeEffects && p.activeEffects.poisonedBy && p.activeEffects.poisonedBy.length > 0) ? `Vergiftet von: ${p.activeEffects.poisonedBy.map(id=>{
                               const pl = playersArr.find(x => x.pid === id);
                               return pl ? pl.name : id;
@@ -578,7 +571,7 @@
             </div>
           )}
 
-          {/* ROUND SUMMARY: Zwischenergebnis mit ITEM-Vorräten (wie gewünscht) */}
+          {/* ROUND SUMMARY */}
           {meta.phase === 'roundSummary' && (
             <div className="round-summary">
               <h2 className="result-title">🏆 Zwischenstand nach Runde {meta.round - 1}</h2>
@@ -601,7 +594,6 @@
                         <div style={{fontWeight:800, fontSize:18}}>{p.name}</div>
                       </div>
                       <div style={{display:'flex', gap:20, alignItems:'center'}}>
-                        {/* Show item counts here (Zwischenergebnis) */}
                         <div style={{fontSize:14, fontWeight:700}}>🔥 { (p.items && p.items.boost) ? p.items.boost : 0 }</div>
                         <div style={{fontSize:14, fontWeight:700}}>☠️ { (p.items && p.items.poison) ? p.items.poison : 0 }</div>
                         <div style={{fontSize:14, fontWeight:700}}>🛡 { (p.items && p.items.shield) ? p.items.shield : 0 }</div>
@@ -618,7 +610,7 @@
             </div>
           )}
 
-          {/* FINISHED: Endergebnis (wird keine Item-Vorräte anzeigen - wie gewünscht) */}
+          {/* FINISHED */}
           {meta.phase === 'finished' && (
             <div style={{textAlign:'center', maxWidth:900, margin:'0 auto'}}>
               <h2 className="result-title" style={{fontSize:'2.5rem', marginBottom:8}}>🎉 Spiel beendet!</h2>
@@ -674,7 +666,7 @@
 
         </div>
 
-        {/* Sidebar in Lobby */}
+        {/* Sidebar (Lobby) */}
         {showSidebar && (
           <div className="host-side">
             <HostController gameId={gameId} meta={meta} startNextRound={startNextRound} showResultsNow={showResultsNow} startGame={startGame} />
@@ -711,15 +703,17 @@
   }
 
   /****************************************
-   * PLAYER VIEW (Player UI & Item Actions)
+   * PLAYER VIEW (inkl. Gift Modal + Mobile Item Bar)
    ****************************************/
   function PlayerView({ gameId, playerId }){
     const [game,setGame] = useState(null);
     const [meta,setMeta] = useState(null);
     const [player,setPlayer] = useState(null);
     const [timeLeft,setTimeLeft] = useState(0);
-    const [localSelectingTargetFor, setLocalSelectingTargetFor] = useState(null); // 'poison' when selecting target
-    const [justActivatedItem, setJustActivatedItem] = useState(null); // visual feedback: last activated item
+
+    // modal state for poison target selection
+    const [poisonModalOpen, setPoisonModalOpen] = useState(false);
+    const [poisonTargets, setPoisonTargets] = useState([]); // array of {pid, name}
 
     useEffect(()=>{
       const gRef = db.ref(`games/${gameId}`);
@@ -747,23 +741,63 @@
     const qIndex = meta.questionIndex || 0;
     const question = (game.questions || [])[qIndex];
 
-    // LOBBY VIEW
-    if(meta.phase === 'lobby'){
-      return (
-        <div className="min-h-screen" style={{padding:20, background:'var(--bg)'}}>
-          <div className="player-card">
-            <div style={{display:'flex', alignItems:'center', gap:12}}>
-              <RTLLogo size="sm" />
-              <div style={{fontWeight:900}}>AdAlliance</div>
-            </div>
-            <h2 style={{fontSize:20, fontWeight:900, marginTop:8, color:'var(--rtl-orange)'}}>Warte auf Start</h2>
-            <p style={{color:'var(--muted)'}}>Spielcode: <span style={{fontFamily:'monospace', background:'#fff', color:'#000', padding:'2px 6px'}}>{gameId}</span></p>
-            <p style={{marginTop:6}}>Dein Name: <strong>{player.name}</strong></p>
-            <div style={{marginTop:12, color:'var(--muted)'}}>Items: 🔥{(player.items && player.items.boost) ? player.items.boost : 0}  ☠️{(player.items && player.items.poison) ? player.items.poison : 0}  🛡{(player.items && player.items.shield) ? player.items.shield : 0}</div>
-          </div>
-        </div>
-      );
-    }
+    // Helper: open poison modal & prepare targets
+    const openPoisonModal = ()=>{
+      // build list of other players
+      const entries = Object.entries(game.players || {}).filter(([pid]) => pid !== playerId).map(([pid,p]) => ({ pid, name: p.name }));
+      setPoisonTargets(entries);
+      setPoisonModalOpen(true);
+    };
+
+    // Handler when selecting a poison target from modal
+    const sendPoisonTo = async (targetPid) => {
+      setPoisonModalOpen(false);
+
+      if(!(player.items && player.items.poison > 0)) {
+        alert('Kein Gift verfügbar');
+        return;
+      }
+
+      const updates = {};
+      updates[`games/${gameId}/players/${playerId}/items/poison`] = (player.items.poison - 1);
+
+      // action logging
+      const actionRef = db.ref(`games/${gameId}/meta/actions/${qIndex}`);
+      const targetSnap = await db.ref(`games/${gameId}/players/${targetPid}`).get();
+      if(!targetSnap.exists()){
+        // decrement poison only
+        await db.ref().update(updates);
+        alert('Ziel nicht gefunden.');
+        return;
+      }
+      const targetData = targetSnap.val();
+      const targetShield = targetData.activeEffects && targetData.activeEffects.shield;
+
+      const actionsSnap = await actionRef.get();
+      const existingActions = actionsSnap.exists() ? actionsSnap.val() : [];
+
+      if(targetShield){
+        // blocked: log blocked = true, decrement poison for attacker
+        existingActions.push({ type:'poison', from: playerId, to: targetPid, blocked: true, ts: Date.now() });
+        await actionRef.set(existingActions);
+        await db.ref().update(updates);
+        // attacker is NOT told whether blocked — just a confirmation
+        alert('Gift eingesetzt (Ergebnis wird nach Ende der Frage angezeigt).');
+        return;
+      } else {
+        // not shielded: apply to target.activeEffects.poisonedBy
+        const prevPoisoned = (targetData.activeEffects && Array.isArray(targetData.activeEffects.poisonedBy)) ? targetData.activeEffects.poisonedBy : [];
+        const newPoisoned = [...prevPoisoned, playerId];
+        updates[`games/${gameId}/players/${targetPid}/activeEffects/poisonedBy`] = newPoisoned;
+
+        existingActions.push({ type:'poison', from: playerId, to: targetPid, blocked: false, ts: Date.now() });
+        await actionRef.set(existingActions);
+
+        await db.ref().update(updates);
+        alert('Gift eingesetzt (Ergebnis wird nach Ende der Frage angezeigt).');
+        return;
+      }
+    };
 
     // QUESTION VIEW
     if(meta.phase === 'question' && question){
@@ -774,114 +808,40 @@
       const boostActive = player.activeEffects && player.activeEffects.boost;
       const shieldActive = player.activeEffects && player.activeEffects.shield;
 
-      // Answer click
       const answerClick = async (i)=>{
         if(hasAnswered || timeLeft <= 0) return;
         await db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i);
       };
 
-      // Activate Boost: must be BEFORE answer (Option A)
       const activateBoost = async ()=>{
         if(!boostAvailable) return;
         if(player.currentAnswer !== null && player.currentAnswer !== undefined){
           alert('Boost muss vor der Antwort aktiviert werden.');
           return;
         }
-        // decrement item and set activeEffects.boost true immediately
         const updates = {};
         updates[`games/${gameId}/players/${playerId}/items/boost`] = (player.items.boost - 1);
         updates[`games/${gameId}/players/${playerId}/activeEffects/boost`] = true;
         await db.ref().update(updates);
-        setJustActivatedItem('boost');
-        // visual active state remains until question end
       };
 
-      // Activate Shield: consumes immediately, remains active for this question
       const activateShield = async ()=>{
         if(!shieldAvailable) return;
-        // consume shield immediately (per your request - risk)
+        // consume shield immediately (risk)
         const updates = {};
         updates[`games/${gameId}/players/${playerId}/items/shield`] = (player.items.shield - 1);
         updates[`games/${gameId}/players/${playerId}/activeEffects/shield`] = true;
         await db.ref().update(updates);
-        setJustActivatedItem('shield');
       };
 
-      // Activate Poison: choose a target. IMPORTANT: attacker must NOT be told if the target was protected
-      const activatePoison = async ()=>{
-        if(!poisonAvailable) return;
-        // present a selection of other players
-        const playerEntries = Object.entries(game.players || {}).filter(([pid]) => pid !== playerId);
-        if(playerEntries.length === 0){ alert('Keine anderen Spieler verfügbar'); return; }
-
-        // render a simple prompt with numbered list
-        let promptText = 'Wen willst du vergiften? (Nummer eingeben)\\n';
-        playerEntries.forEach(([pid,p], idx) => {
-          promptText += `${idx+1}: ${p.name}\\n`;
-        });
-        const choice = prompt(promptText + '\\nGib die Nummer ein, z.B. 1');
-        if(!choice) return;
-        const idx = parseInt(choice,10) - 1;
-        if(isNaN(idx) || idx < 0 || idx >= playerEntries.length){ alert('Ungültige Auswahl'); return; }
-        const [targetPid, targetPlayer] = playerEntries[idx];
-
-        // decrement attacker's poison count immediately (attacker uses the resource)
-        const updates = {};
-        updates[`games/${gameId}/players/${playerId}/items/poison`] = (player.items.poison - 1);
-
-        // write action to meta/actions/<qIndex> log (so host can later inspect)
-        const qIndexLocal = meta.questionIndex || 0;
-        const actionRef = db.ref(`games/${gameId}/meta/actions/${qIndexLocal}`);
-
-        // fetch target to check shield (we will apply effect if no shield, or log blocked if shield)
-        const targetSnap = await db.ref(`games/${gameId}/players/${targetPid}`).get();
-        if(!targetSnap.exists()){
-          // still consume attacker's poison
-          await db.ref().update(updates);
-          alert('Ziel nicht gefunden.');
-          return;
-        }
-        const targetData = targetSnap.val();
-        const targetShield = targetData.activeEffects && targetData.activeEffects.shield;
-
-        const actionsSnap = await actionRef.get();
-        const existingActions = actionsSnap.exists() ? actionsSnap.val() : [];
-
-        if(targetShield){
-          // Blocked: record action as blocked — but do NOT inform attacker of block (surprise)
-          existingActions.push({ type:'poison', from: playerId, to: targetPid, blocked: true, ts: Date.now() });
-          await actionRef.set(existingActions);
-
-          // attacker already lost the poison resource (updates contains decremented poison)
-          await db.ref().update(updates);
-          // Inform attacker only that the action was sent — not whether it was blocked
-          alert('Gift eingesetzt (Ergebnis wird nach Ende der Frage angezeigt).');
-          setJustActivatedItem('poison');
-          return;
-        } else {
-          // Not shielded: append attacker to target.activeEffects.poisonedBy
-          const prevPoisoned = (targetData.activeEffects && Array.isArray(targetData.activeEffects.poisonedBy)) ? targetData.activeEffects.poisonedBy : [];
-          const newPoisoned = [...prevPoisoned, playerId];
-          updates[`games/${gameId}/players/${targetPid}/activeEffects/poisonedBy`] = newPoisoned;
-
-          existingActions.push({ type:'poison', from: playerId, to: targetPid, blocked: false, ts: Date.now() });
-          await actionRef.set(existingActions);
-
-          await db.ref().update(updates);
-          setJustActivatedItem('poison');
-          alert('Gift eingesetzt (Ergebnis wird nach Ende der Frage angezeigt).');
-          return;
-        }
-      };
-
-      // UI: item button classes and disabled state
+      // classes for visual active state
       const boostBtnClass = `item-btn ${(boostAvailable && !hasAnswered) ? '' : 'item-disabled'} ${ (player.activeEffects && player.activeEffects.boost) ? 'active' : '' }`;
       const poisonBtnClass = `item-btn ${(poisonAvailable) ? '' : 'item-disabled'} `;
       const shieldBtnClass = `item-btn ${(shieldAvailable) ? '' : 'item-disabled'} ${ (player.activeEffects && player.activeEffects.shield) ? 'shield-active' : '' }`;
 
       return (
         <div className="min-h-screen" style={{padding:20, background:'var(--bg)'}}>
-          <div className="player-card">
+          <div className="player-card" style={{paddingBottom:12}}>
             <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
               <div>Runde {meta.round}/{TOTAL_ROUNDS}</div>
               <div style={{fontSize:18, fontWeight:900, color:'var(--rtl-orange)'}}>{timeLeft}s</div>
@@ -902,12 +862,12 @@
               })}
             </div>
 
-            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:14}}>
+            {/* Item bar (mobile-friendly) */}
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:14, flexWrap:'wrap'}}>
               <div style={{color: 'var(--muted)'}}>{player.currentAnswer === null ? "Noch nicht geantwortet" : `Du hast Antwort ${String.fromCharCode(65 + player.currentAnswer)} gewählt`}</div>
-              <div style={{display:'flex', gap:8, alignItems:'center'}}>
-                <div style={{fontWeight:900, color:'var(--rtl-green)'}}>Punkte: {player.score || 0}</div>
+              <div style={{display:'flex', gap:8, alignItems:'center', marginTop:8}}>
+                <div style={{fontWeight:900, color:'var(--rtl-green)', marginRight:8}}>Punkte: {player.score || 0}</div>
 
-                {/* Item bar */}
                 <div className="item-bar" style={{alignItems:'center'}}>
                   {/* Boost */}
                   <button
@@ -918,19 +878,17 @@
                   >
                     <span style={{fontSize:18}}>🔥</span>
                     <span className="item-label">{player.items && player.items.boost ? player.items.boost : 0}</span>
-                    <div style={{fontSize:12}}>{ (player.activeEffects && player.activeEffects.boost) ? 'Aktiv' : 'Boost' }</div>
                   </button>
 
-                  {/* Poison */}
+                  {/* Poison -> opens modal */}
                   <button
                     className={poisonBtnClass}
                     disabled={!poisonAvailable}
-                    onClick={activatePoison}
-                    title={'Vergiften: wähle ein Ziel. (5× pro Spiel). Ergebnis wird nach Frage gezeigt.'}
+                    onClick={openPoisonModal}
+                    title={'Vergiften: wähle ein Ziel (5× pro Spiel)'}
                   >
                     <span style={{fontSize:18}}>☠️</span>
                     <span className="item-label">{player.items && player.items.poison ? player.items.poison : 0}</span>
-                    <div style={{fontSize:12}}>Poison</div>
                   </button>
 
                   {/* Shield */}
@@ -938,11 +896,10 @@
                     className={shieldBtnClass}
                     disabled={!shieldAvailable}
                     onClick={activateShield}
-                    title={'Schild: wird sofort verbraucht, schützt diese Frage (3× pro Spiel)'}
+                    title={'Schild: wird sofort verbraucht, schützt diese Frage (3× pro Spiel). Risiko: verschwindet auch wenn nicht angegriffen.'}
                   >
                     <span style={{fontSize:18}}>🛡</span>
                     <span className="item-label">{player.items && player.items.shield ? player.items.shield : 0}</span>
-                    <div style={{fontSize:12}}>{ (player.activeEffects && player.activeEffects.shield) ? 'Aktiv' : 'Schild' }</div>
                   </button>
                 </div>
               </div>
@@ -950,22 +907,41 @@
 
             <div style={{marginTop:10, color:'var(--muted)', fontSize:13}}>
               Info: Items sind Ressourcen für das gesamte Spiel.<br/>
-              🔥 Boost: muss <strong>vor</strong> der Antwort aktiviert werden und wirkt nur für diese Frage (x1.5 bei richtig).<br/>
-              ☠️ Gift: wähle ein Ziel während der Frage; Ziel verliert -20 Punkte für diese Frage (Schild blockt). Der Angreifer erfährt nicht, ob das Ziel geschützt war (Überraschung).<br/>
+              🔥 Boost: muss <strong>vor</strong> der Antwort aktiviert werden (x1.5 bei richtiger Antwort).<br/>
+              ☠️ Gift: wähle ein Ziel im großen Modal; Ergebnis wird nach Ende der Frage gezeigt — du erfährst nicht sofort, ob Block stattgefunden hat.<br/>
               🛡 Schild: verbraucht sich sofort bei Aktivierung und schützt diese Frage – auch wenn niemand angreift (Risiko).
             </div>
           </div>
+
+          {/* POISON TARGET SELECTION FULLSCREEN MODAL */}
+          {poisonModalOpen && (
+            <div className="modal-backdrop">
+              <div className="modal-card" role="dialog" aria-modal="true">
+                <div className="modal-title">Wen willst du vergiften?</div>
+                <div style={{display:'flex', flexDirection:'column', gap:10}}>
+                  {poisonTargets.length === 0 ? (
+                    <div style={{color:'var(--muted)'}}>Keine anderen Spieler verfügbar</div>
+                  ) : poisonTargets.map(t => (
+                    <button key={t.pid} onClick={()=>sendPoisonTo(t.pid)} className="btn btn-ghost" style={{display:'flex', justifyContent:'space-between', padding:'12px 16px'}}>
+                      <div style={{fontWeight:900}}>{t.name}</div>
+                      <div style={{color:'var(--muted)'}}>Vergiften</div>
+                    </button>
+                  ))}
+                  <button className="btn btn-join" onClick={()=>setPoisonModalOpen(false)}>Abbrechen</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
 
-    // RESULTS VIEW (Player sees lastPoints and effects; attackers now can see whether poison hit or was blocked)
+    // RESULTS VIEW (player)
     if(meta.phase === 'results' && question){
       const wasCorrect = player.currentAnswer === question.correct;
       const poisonedBy = (player.activeEffects && player.activeEffects.poisonedBy) ? player.activeEffects.poisonedBy : [];
       const shieldActive = player.activeEffects && player.activeEffects.shield;
 
-      // Build poison message: show who poisoned you (and whether shield prevented?) - for target we can show shield info
       let poisonMsg = '';
       if(poisonedBy.length === 0){
         if(shieldActive){
@@ -974,7 +950,6 @@
           poisonMsg = 'Nicht vergiftet';
         }
       } else {
-        // map attacker ids to names using game.players
         const names = poisonedBy.map(id => {
           const found = Object.entries(game.players || {}).find(([k]) => k === id);
           return found ? found[1].name : id;
@@ -996,7 +971,7 @@
       );
     }
 
-    // ROUND SUMMARY OR FINISHED view for player
+    // ROUND SUMMARY OR FINISHED - player
     if(meta.phase === 'roundSummary' || meta.phase === 'finished'){
       const playersSorted = Object.entries(game.players || {}).map(([pid,p])=>({pid,...p})).sort((a,b)=>(b.score||0)-(a.score||0));
       const title = meta.phase === 'finished' ? '🎉 Spiel beendet!' : `🏆 Zwischenstand nach Runde ${meta.round - 1}`;
@@ -1024,7 +999,6 @@
                       <span style={{fontWeight:700}}>{p.name}</span>
                     </div>
                     <div style={{display:'flex', gap:12, alignItems:'center'}}>
-                      {/* Show item counts in round summary (player requested) */}
                       <span style={{fontSize:16}}>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</span>
                       <span style={{fontSize:16}}>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</span>
                       <span style={{fontSize:16}}>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</span>
@@ -1047,7 +1021,7 @@
   }
 
   /****************************************
-   * PLAYER JOIN (Einloggen ins Spiel)
+   * PLAYER JOIN
    ****************************************/
   function PlayerJoin({ joinGameId, onJoined }){
     const [name,setName] = useState('');
@@ -1093,7 +1067,7 @@
   }
 
   /****************************************
-   * APP (Routing zwischen Start / Host / Player)
+   * MAIN APP
    ****************************************/
   function App(){
     const [mode,setMode] = useState('start');
@@ -1112,7 +1086,6 @@
       setHostName(name);
       const gid = randomGameID();
       setGameId(gid);
-      // create game with meta lobby
       await db.ref(`games/${gid}/meta`).set({ phase: 'lobby' });
       setMode('hostLobby');
     };
@@ -1152,6 +1125,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
