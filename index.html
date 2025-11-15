@@ -18,84 +18,191 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
   <style>
-    :root{
-      --rtl-orange:#FF6600;
-      --rtl-red:#E31F23;
-      --rtl-purple:#7B2CBF;
-      --rtl-green:#22C55E;
-      --bg:#0b0b0b;
-      --panel:#0f0f0f;
-      --tile:#ffffff;
-      --muted:rgba(255,255,255,0.65);
-    }
-    
-    html,body,#root{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
-    body{ background:linear-gradient(180deg,var(--bg), #090909); color:var(--tile); }
-    * { box-sizing:border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
-    input, textarea, select { background: white !important; color: #0b0b0b !important; border: 1px solid rgba(0,0,0,0.1); padding: 10px; border-radius:6px; }
-    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:800; padding:10px 14px; cursor:pointer; border:none; border-radius:10px; background:rgba(255,255,255,0.03); color:var(--tile); }
-    .btn-host{ background:var(--rtl-orange); color:white; }
-    .btn-join{ background:var(--rtl-purple); color:white; }
-    .btn-show-results{ background:var(--rtl-green); color:white; }
-    .card{ padding:16px; background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
-    .host-screen{ display:flex; gap:20px; padding:24px; height:100vh; align-items:stretch; }
-    .host-main{ flex:2; padding:28px; display:flex; flex-direction:column; gap:18px; min-height:0; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
-    .host-side{ flex:1; padding:18px; overflow:auto; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
-    .countdown-badge{ width:110px; height:110px; display:flex; align-items:center; justify-content:center; font-size:2.6rem; font-weight:800; color:var(--tile); border:3px solid rgba(255,255,255,0.06); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); flex-shrink:0; border-radius:14px; }
-    .countdown-badge.warning{ border-color:var(--rtl-orange); color:var(--rtl-orange); }
-    .countdown-badge.danger{ border-color:var(--rtl-red); color:var(--rtl-red); box-shadow:0 6px 30px rgba(227,31,35,0.09); transform-origin:center; animation:pulse 1s infinite; }
-    @keyframes pulse { 0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)} }
-    .answers-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; margin-top:18px; }
-    .answer-btn{ background: #ffffff; color:#0b0b0b; padding:20px; font-size:1.05rem; font-weight:700; min-height:110px; display:flex; align-items:center; gap:12px; border-radius:10px; }
-    .item-bar{ display:flex; gap:8px; align-items:center; }
-    .item-btn{ padding:8px 12px; font-weight:800; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); cursor:pointer; color:var(--tile); display:flex; gap:8px; align-items:center; min-width:72px; justify-content:center; border-radius:8px; }
-    .item-btn.item-disabled{ opacity:0.35; cursor:not-allowed; }
-    .item-btn.active { background: linear-gradient(90deg, #fff3cc, #ffd580); color: #000; }
-    .item-btn.shield-active { background: linear-gradient(90deg, #dbeeff, #8ec5ff); color: #000; }
-    .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; padding:16px; }
-    .modal-card{ width:95%; max-width:520px; background:linear-gradient(180deg,#0f0f0f,#0b0b0b); border:1px solid rgba(255,255,255,0.06); padding:18px; color:var(--tile); box-shadow: 0 10px 40px rgba(0,0,0,0.6); border-radius:12px; }
-    .host-main.fullwidth{ width:100%; }
-    @media (max-width:600px){ 
-      .answers-grid{ grid-template-columns:1fr; } 
-      .countdown-badge{ width:86px;height:86px;font-size:1.8rem; } 
-      .host-screen{ flex-direction:column; padding:12px; }
-      .host-side{ order:2; }
-      .host-main{ order:1; }
-    }
-    @media (max-width:420px){
-      .modal-card{ max-width:380px; padding:18px; border-radius:14px; }
-      .btn{ padding:12px 14px; border-radius:12px; font-size:15px; }
-    }
-
- * { border-radius: 0 !important; }   
-
-/* TV scaling */
-@media (min-width: 1400px) {
-  .host-main, .host-side {
-    font-size: 1.4rem !important;
-  }
-  .answers-grid .answer-btn {
-    font-size: 1.4rem !important;
-    padding: 28px !important;
-    min-height: 150px !important;
-  }
-  .countdown-badge {
-    width: 150px !important;
-    height: 150px !important;
-    font-size: 3.4rem !important;
-  }
+   :root{
+  --rtl-orange:#FF6600;
+  --rtl-red:#E31F23;
+  --rtl-purple:#7B2CBF;
+  --rtl-green:#22C55E;
+  --bg:#0b0b0b;
+  --panel:#0f0f0f;
+  --tile:#ffffff;
+  --muted:rgba(255,255,255,0.65);
 }
 
-   .host-main h2, 
-.host-main h3,
+html,body,#root{
+  height:100%;
+  margin:0;
+  font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+}
+
+body{
+  background:linear-gradient(180deg,var(--bg), #090909);
+  color:var(--tile);
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* ------------------------------------------------------
+   NICHT-TV-BEREICHE BLEIBEN UNVERÄNDERT
+--------------------------------------------------------*/
+input, textarea, select{
+  background:white !important;
+  color:#0b0b0b !important;
+  border:1px solid rgba(0,0,0,0.1);
+  padding:10px;
+  border-radius:6px;
+}
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  font-weight:800;
+  padding:10px 14px;
+  cursor:pointer;
+  border:none;
+  border-radius:10px;
+  background:rgba(255,255,255,0.03);
+  color:var(--tile);
+}
+
+.btn-host{ background:var(--rtl-orange); color:white; }
+.btn-join{ background:var(--rtl-purple); color:white; }
+.btn-show-results{ background:var(--rtl-green); color:white; }
+
+.card{
+  padding:16px;
+  background: rgba(255,255,255,0.01);
+  border:1px solid rgba(255,255,255,0.03);
+  border-radius:12px;
+}
+
+/* ------------------------------------------------------
+   AB HIER: **TV-Optimiert NUR für Host-Screen**
+--------------------------------------------------------*/
+
+.host-screen{
+  display:flex;
+  gap:32px;                       /* größer */
+  padding:40px;                   /* viel mehr Abstand */
+  height:100vh;
+}
+
+/* Main Host Bereich */
+.host-main{
+  flex:2;
+  padding:40px;
+  display:flex;
+  flex-direction:column;
+  gap:32px;
+  font-size:26px;                 /* deutlich größer */
+  background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:16px;
+}
+
 .host-main h1,
-.answers-grid .answer-btn {
-  line-height: 1.4 !important;
+.host-main h2,
+.host-main h3{
+  font-size:2.4rem !important;     /* sehr deutlich sichtbar */
+  font-weight:900;
 }
 
-  .countdown-badge {
-  text-shadow: 0 4px 12px rgba(0,0,0,0.8);
-}  
+/* Host Sidebar – auch TV optimiert, aber kleiner als main */
+.host-side{
+  flex:1;
+  padding:32px;
+  font-size:23px;                 /* leicht vergrößert */
+  overflow:auto;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:16px;
+}
+
+/* Countdown Badge */
+.countdown-badge{
+  width:160px;
+  height:160px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:4rem;
+  font-weight:900;
+  border:4px solid rgba(255,255,255,0.1);
+  background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border-radius:16px;
+  text-shadow:0 4px 16px rgba(0,0,0,0.8);
+}
+
+.countdown-badge.warning{
+  border-color:var(--rtl-orange);
+  color:var(--rtl-orange);
+}
+
+.countdown-badge.danger{
+  border-color:var(--rtl-red);
+  color:var(--rtl-red);
+  animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.06)}
+  100%{transform:scale(1)}
+}
+
+/* Antwortbereich Host */
+.answers-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:32px;                       /* mehr Abstand */
+}
+
+.answer-btn{
+  background:white;
+  color:#0b0b0b;
+  padding:36px;                   /* riesige Buttons */
+  font-size:1.6rem;
+  font-weight:900;
+  min-height:170px;
+  display:flex;
+  align-items:center;
+  gap:20px;
+  border-radius:14px;
+}
+
+/* Ergebnis Panels TV-safe */
+.host-main .results-panel,
+.host-main .round-summary{
+  font-size:26px;
+}
+
+.host-main .results-panel strong{
+  font-size:30px;
+}
+
+/* QR-Bereich in der Host-Side leicht vergrößert */
+.host-side img{
+  width:100%;
+  max-width:380px;
+  margin:auto;
+  display:block;
+}
+
+/* Mobile bleibt klein */
+@media (max-width:600px){
+  .host-main{ font-size:18px; padding:20px; }
+  .host-side{ font-size:16px; padding:20px; }
+  .answers-grid{ grid-template-columns:1fr; }
+  .countdown-badge{
+    width:120px; height:120px; font-size:3rem;
+  }
+}
     
     
   </style>
@@ -1190,6 +1297,7 @@
   </script>
 </body>
 </html>
+
 
 
 
