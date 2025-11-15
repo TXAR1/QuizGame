@@ -645,24 +645,79 @@
           )}
 
           {meta.phase === 'finished' && (
-            <div style={{textAlign:'center'}}>
-              <h2 style={{fontSize:28, fontWeight:900}}>🎉 Spiel beendet!</h2>
-              <p style={{color:'var(--muted)'}}>Das Quiz ist vorbei - hier sind die finalen Ergebnisse</p>
+  <div style={{textAlign:'center', padding:'20px'}}>
+    <h2 style={{fontSize:44, fontWeight:900, marginBottom:10}}>🎉 Spiel beendet!</h2>
+    <p style={{color:'var(--muted)', fontSize:20}}>Hier sind eure finalen Platzierungen</p>
 
-              <div style={{marginTop:20}}>
-                {playersArr.slice(0,3).map((p,i)=>(
-                  <div key={p.pid} style={{marginBottom:12}}>
-                    <div style={{fontWeight:900}}>{i===0?'🥇':i===1?'🥈':'🥉'} {p.name}</div>
-                    <div style={{fontWeight:900}}>{p.score || 0} pts</div>
-                  </div>
-                ))}
-              </div>
+    {/* Sieger-Panel */}
+    {playersArr[0] && (
+      <div style={{
+        marginTop:30,
+        padding:'30px 20px',
+        background:'rgba(255,255,255,0.04)',
+        border:'1px solid rgba(255,255,255,0.1)',
+        borderRadius:14
+      }}>
+        <div style={{fontSize:60}}>🥇</div>
+        <div style={{fontSize:32, fontWeight:900, marginTop:6}}>{playersArr[0].name}</div>
+        <div style={{fontSize:24, color:'var(--rtl-green)', fontWeight:800}}>
+          {playersArr[0].score} Punkte
+        </div>
+      </div>
+    )}
 
-              <div style={{marginTop:20}}>
-                <button className="btn btn-host" onClick={backToLobby}>🔄 Zurück zur Lobby</button>
-              </div>
+    {/* Big Ranking */}
+    <div style={{
+      marginTop:40,
+      maxWidth:600,
+      marginInline:'auto',
+      textAlign:'left'
+    }}>
+      {playersArr.map((p,i)=>(
+        <div key={p.pid} style={{
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'space-between',
+          padding:'14px 18px',
+          background:i < 3 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)',
+          borderLeft: i===0 ? '4px solid gold' :
+                     i===1 ? '4px solid silver' :
+                     i===2 ? '4px solid #cd7f32' : 
+                             '4px solid rgba(255,255,255,0.05)',
+          marginBottom:8
+        }}>
+          <div style={{display:'flex', alignItems:'center', gap:14}}>
+            <div style={{
+              width:48,
+              height:48,
+              borderRadius:'50%',
+              background:'rgba(255,255,255,0.1)',
+              display:'flex',
+              justifyContent:'center',
+              alignItems:'center',
+              fontWeight:900,
+              fontSize:20
+            }}>
+              {p.name.charAt(0).toUpperCase()}
             </div>
-          )}
+            <div style={{fontWeight:900, fontSize:20}}>
+              {i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`} {p.name}
+            </div>
+          </div>
+          <div style={{fontSize:22, fontWeight:900, color:'var(--rtl-green)'}}>
+            {p.score}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div style={{marginTop:30}}>
+      <button className="btn btn-host" style={{padding:'14px 24px', fontSize:20}} onClick={backToLobby}>
+        🔄 Zurück zur Lobby
+      </button>
+    </div>
+  </div>
+)}
         </div>
 
         {showSidebar && (
@@ -1135,6 +1190,7 @@
   </script>
 </body>
 </html>
+
 
 
 
