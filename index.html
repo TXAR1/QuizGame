@@ -414,7 +414,7 @@
 
         <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
           {(meta.phase === 'lobby' || !meta.phase) && <button className="btn btn-host" onClick={startGame}>Spiel starten</button>}
-          {meta.phase === 'question' && <button className="btn btn-show-results" onClick={showResultsNow}>Weiter</button>}
+          {meta.phase === 'question' && <button className="btn btn-show-results" onClick={showResultsNow}> Auflösen </button>}
           {meta.phase === 'results' && <button className="btn btn-host" onClick={startNextRound}>Weiter →</button>}
           {meta.phase === 'roundSummary' && <button className="btn btn-host" onClick={startNextRound}>Nächste Runde →</button>}
           {meta.phase === 'finished' && <button className="btn" onClick={()=>window.location.reload()}>🔄 Zurück zur Lobby</button>}
@@ -730,9 +730,9 @@
                 <div style={{display:'flex', alignItems:'center', gap:12}}>
                   <div className={`countdown-badge ${countdownClass}`}>{timeLeft}</div>
                   <div>
-                    <div style={{fontSize:14, color:'var(--muted)'}}>Runde {meta.round}/{TOTAL_ROUNDS}</div>
-                    <div style={{fontSize:14, color:'var(--muted)'}}>Frage {qIndex + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</div>
-                    <div style={{fontSize:12, color:'var(--muted)'}}>Kategorie: <strong style={{color:'var(--rtl-orange)'}}>{meta.currentCategory || question.category || '—'}</strong></div>
+                    <div style={{fontSize:20, color:'var(--muted)'}}>Runde {meta.round}/{TOTAL_ROUNDS}</div>
+                    <div style={{fontSize:20, color:'var(--muted)'}}>Frage {qIndex + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</div>
+                    <div style={{fontSize:20, color:'var(--muted)'}}>Kategorie: <strong style={{color:'var(--rtl-orange)'}}>{meta.currentCategory || question.category || '—'}</strong></div>
                   </div>
                 </div>
                 <div style={{display:'flex', gap:8}}>
@@ -1619,6 +1619,7 @@
   </script>
 </body>
 </html>
+
 
 
 
