@@ -113,8 +113,8 @@
 
   /************ CONFIG ************/
   const TOTAL_ROUNDS = 4; // Geändert von 5 auf 4
-  const QUESTIONS_PER_ROUND = 1;
-  const QUESTION_TIME = 40;
+  const QUESTIONS_PER_ROUND = 10;
+  const QUESTION_TIME = 60;
   const BASE_POINTS = 100;
 
   const firebaseConfig = {
@@ -132,21 +132,169 @@
   /************ Kategorien & Fragen ************/
   const CATEGORY_LIST = ["Fernsehen","Musik","Sport","Politik","Games","Geografie"];
   const QUESTION_POOL = [
-    { question: "Was ist die Hauptstadt von Österreich?", answers: ["Wien","Graz","Salzburg","Innsbruck"], correct: 0, category: "Geografie" },
-    { question: "Welcher Planet ist der größte?", answers: ["Mars","Saturn","Jupiter","Neptun"], correct: 2, category: "Wissenschaft" },
-    { question: "Wer malte die Mona Lisa?", answers: ["Picasso","Van Gogh","Da Vinci","Monet"], correct: 2, category: "Kultur" },
-    { question: "In welchem Jahr fiel die Berliner Mauer?", answers: ["1987","1989","1991","1993"], correct: 1, category: "Politik" },
-    { question: "Was ist die chemische Formel für Wasser?", answers: ["CO2","H2O","O2","NaCl"], correct: 1, category: "Wissenschaft" },
-    { question: "Wie viele Kontinente gibt es?", answers: ["5","6","7","8"], correct: 2, category: "Geografie" },
-    { question: "Welches ist das größte Säugetier?", answers: ["Elefant","Blauwal","Giraffe","Nashorn"], correct: 1, category: "Wissenschaft" },
-    { question: "Wer schrieb 'Romeo und Julia'?", answers: ["Goethe","Shakespeare","Schiller","Molière"], correct: 1, category: "Kultur" },
-    { question: "Welches Land hat die meisten Einwohner?", answers: ["Indien","China","USA","Indonesien"], correct: 1, category: "Geografie" },
-    { question: "Was ist die Hauptstadt von Frankreich?", answers: ["Lyon","Marseille","Paris","Nizza"], correct: 2, category: "Geografie" },
-    { question: "Welcher Sender zeigt oft Serien?", answers:["Sender A","Sender B","Sender C","Sender D"], correct:0, category:"Fernsehen" },
-    { question: "Welcher Sänger war jahrelang erfolgreich?", answers:["Sänger A","Sänger B","Sänger C","Sänger D"], correct:1, category:"Musik" },
-    { question: "Welche Sportart wird mit einem Ball gespielt?", answers:["Tennis","Basketball","Fußball","Golf"], correct:2, category:"Sport" },
-    { question: "Welches Spiel ist ein Jump'n'Run?", answers:["Shooter","RPG","Jump'n'Run","Strategy"], correct:2, category:"Games" },
-  ];
+ // --- GEOGRAFIE (25) ---
+{ question: "Welches Land hat die längste Küstenlinie der Welt?", answers: ["USA","Kanada","Australien","Indonesien"], correct: 1, category: "Geografie" },
+{ question: "Welche Stadt liegt am Bosporus?", answers: ["Belgrad","Istanbul","Athen","Sofia"], correct: 1, category: "Geografie" },
+{ question: "Welcher Fluss ist der längste der Erde?", answers: ["Nil","Amazonas","Jangtse","Mississippi"], correct: 1, category: "Geografie" },
+{ question: "Welches Gebirge trennt Europa von Asien?", answers: ["Anden","Ural","Alpen","Himalaya"], correct: 1, category: "Geografie" },
+{ question: "In welchem Land liegt Machu Picchu?", answers: ["Chile","Peru","Bolivien","Kolumbien"], correct: 1, category: "Geografie" },
+{ question: "Was ist die Hauptstadt von Kanada?", answers: ["Toronto","Vancouver","Ottawa","Montreal"], correct: 2, category: "Geografie" },
+{ question: "Welches Meer liegt zwischen Europa und Afrika?", answers: ["Schwarzes Meer","Nordsee","Mittelmeer","Rotes Meer"], correct: 2, category: "Geografie" },
+{ question: "Welche Insel ist die größte der Welt?", answers: ["Madagaskar","Grönland","Borneo","Neuguinea"], correct: 1, category: "Geografie" },
+{ question: "Wo befindet sich der Grand Canyon?", answers: ["Nevada","Utah","Arizona","Texas"], correct: 2, category: "Geografie" },
+{ question: "Welches Land ist flächenmäßig das größte?", answers: ["China","Russland","Brasilien","Kanada"], correct: 1, category: "Geografie" },
+{ question: "Welche Wüste ist die größte der Erde?", answers: ["Sahara","Gobi","Atacama","Arabische Wüste"], correct: 0, category: "Geografie" },
+{ question: "Welche Stadt ist die nördlichste Hauptstadt der Welt?", answers: ["Helsinki","Reykjavík","Oslo","Stockholm"], correct: 1, category: "Geografie" },
+{ question: "Durch welches Land fließt der Tiber?", answers: ["Frankreich","Spanien","Italien","Griechenland"], correct: 2, category: "Geografie" },
+{ question: "Welches Land hat die meisten Inseln?", answers: ["Norwegen","Indonesien","Schweden","Japan"], correct: 2, category: "Geografie" },
+{ question: "Welche Stadt wird 'Die Ewige Stadt' genannt?", answers: ["Athen","Paris","Rom","Alexandria"], correct: 2, category: "Geografie" },
+{ question: "Welcher Kontinent hat die geringste Bevölkerung?", answers: ["Europa","Australien","Antarktika","Südamerika"], correct: 2, category: "Geografie" },
+{ question: "Welche Hauptstadt liegt am Tafelberg?", answers: ["Kapstadt","Pretoria","Durban","Johannesburg"], correct: 0, category: "Geografie" },
+{ question: "Welche der folgenden Städte liegt NICHT in Südamerika?", answers: ["Quito","Bogotá","Lima","San José"], correct: 3, category: "Geografie" },
+{ question: "Welcher See ist der tiefste der Erde?", answers: ["Viktoriasee","Baikalsee","Ontariosee","Tanganjikasee"], correct: 1, category: "Geografie" },
+{ question: "Welche Region gehört zu Spanien?", answers: ["Korsika","Madeira","Baskenland","Sizilien"], correct: 2, category: "Geografie" },
+{ question: "Welches Land hat keine Küste?", answers: ["Portugal","Bolivien","Thailand","Frankreich"], correct: 1, category: "Geografie" },
+{ question: "Welche Halbinsel gehört NICHT zu Europa?", answers: ["Balkan","Jütland","Iberische Halbinsel","Somali-Halbinsel"], correct: 3, category: "Geografie" },
+{ question: "Welche Stadt war früher die Hauptstadt Deutschlands?", answers: ["Hamburg","München","Bonn","Dresden"], correct: 2, category: "Geografie" },
+{ question: "Welches Land liegt zwischen Frankreich und Spanien?", answers: ["Andorra","Belgien","Luxemburg","Monaco"], correct: 0, category: "Geografie" },
+{ question: "Welcher Fluss fließt durch Paris?", answers: ["Donau","Themse","Seine","Loire"], correct: 2, category: "Geografie" },
+
+// --- WISSENSCHAFT (25) ---
+{ question: "Wie viele Chromosomen hat der Mensch normalerweise?", answers: ["42","44","46","48"], correct: 2, category: "Wissenschaft" },
+{ question: "Welches Gas atmen wir hauptsächlich ein?", answers: ["Sauerstoff","Stickstoff","Kohlendioxid","Helium"], correct: 1, category: "Wissenschaft" },
+{ question: "Welche Einheit misst elektrische Stromstärke?", answers: ["Volt","Ampere","Ohm","Watt"], correct: 1, category: "Wissenschaft" },
+{ question: "Welches Element hat das chemische Symbol 'Fe'?", answers: ["Fluor","Eisen","Fermium","Francium"], correct: 1, category: "Wissenschaft" },
+{ question: "Was befindet sich im Zentrum eines Atoms?", answers: ["Proton","Neutron","Atomkern","Elektron"], correct: 2, category: "Wissenschaft" },
+{ question: "Wie nennt man die Lehre von den Pflanzen?", answers: ["Zoologie","Botanik","Ökologie","Genetik"], correct: 1, category: "Wissenschaft" },
+{ question: "Welche Blutgruppe ist die seltenste?", answers: ["AB-","0-","A-","B-"], correct: 0, category: "Wissenschaft" },
+{ question: "Was ist die größte innere Struktur der Erde?", answers: ["Erdkruste","Mantel","Äußerer Kern","Innerer Kern"], correct: 1, category: "Wissenschaft" },
+{ question: "Welcher Planet ist der heißeste im Sonnensystem?", answers: ["Merkur","Venus","Mars","Jupiter"], correct: 1, category: "Wissenschaft" },
+{ question: "Wie nennt man die Geschwindigkeit des Lichts?", answers: ["Schallgeschwindigkeit","C","Gamma","Lambda"], correct: 1, category: "Wissenschaft" },
+{ question: "Welcher Stoff ist für die rote Farbe des Blutes verantwortlich?", answers: ["Hämoglobin","Myoglobin","Chlorophyll","Keratin"], correct: 0, category: "Wissenschaft" },
+{ question: "Was misst ein Seismograf?", answers: ["Temperatur","Windstärke","Erdbeben","Luftfeuchtigkeit"], correct: 2, category: "Wissenschaft" },
+{ question: "Wie viele Planeten hat unser Sonnensystem?", answers: ["7","8","9","10"], correct: 1, category: "Wissenschaft" },
+{ question: "Welcher Wissenschaftler formulierte die Relativitätstheorie?", answers: ["Newton","Einstein","Bohr","Planck"], correct: 1, category: "Wissenschaft" },
+{ question: "Welcher Teil des Auges regelt den Lichteinfall?", answers: ["Linse","Iris","Netzhaut","Hornhaut"], correct: 1, category: "Wissenschaft" },
+{ question: "Was ist das härteste natürliche Material?", answers: ["Diamant","Quarz","Graphit","Topas"], correct: 0, category: "Wissenschaft" },
+{ question: "Welche Form hat die DNA?", answers: ["Doppelhelix","Kugel","Stab","Ring"], correct: 0, category: "Wissenschaft" },
+{ question: "Wie nennt man die Wissenschaft der Karten?", answers: ["Kartografie","Geologie","Topografie","Astrometrie"], correct: 0, category: "Wissenschaft" },
+{ question: "Welches Organ produziert Insulin?", answers: ["Leber","Milz","Bauchspeicheldrüse","Niere"], correct: 2, category: "Wissenschaft" },
+{ question: "Welche Strahlung verursacht Sonnenbrand?", answers: ["Gamma","UV","Infrarot","Radio"], correct: 1, category: "Wissenschaft" },
+{ question: "Was ist ein Photon?", answers: ["Lichtteilchen","Schallwelle","Atomkern","Elektronenwolke"], correct: 0, category: "Wissenschaft" },
+{ question: "Welche Art von Energie speichert ein Akku?", answers: ["Thermische Energie","Chemische Energie","Kinetische Energie","Nukleare Energie"], correct: 1, category: "Wissenschaft" },
+{ question: "Wie nennt man den Übergang von flüssig zu gasförmig?", answers: ["Kondensation","Sublimation","Verdampfung","Erstarren"], correct: 2, category: "Wissenschaft" },
+{ question: "Welche Farbe hat Natriumflamme?", answers: ["Rot","Gelb","Grün","Blau"], correct: 1, category: "Wissenschaft" },
+{ question: "Welche Zellen transportieren Sauerstoff im Blut?", answers: ["Leukozyten","Thrombozyten","Erythrozyten","Plasmazellen"], correct: 2, category: "Wissenschaft" },
+
+// --- GESCHICHTE (25) ---
+{ question: "Wer war der erste Kanzler der Bundesrepublik Deutschland?", answers: ["Brandt","Schmidt","Adenauer","Kohl"], correct: 2, category: "Geschichte" },
+{ question: "In welchem Jahr begann der Zweite Weltkrieg?", answers: ["1938","1939","1940","1941"], correct: 1, category: "Geschichte" },
+{ question: "Welcher Pharao ist für sein junges Grab bekannt?", answers: ["Ramses II","Tutanchamun","Echnaton","Cheops"], correct: 1, category: "Geschichte" },
+{ question: "Welches Reich baute das Kolosseum?", answers: ["Griechen","Ägypter","Römer","Perser"], correct: 2, category: "Geschichte" },
+{ question: "Wer entdeckte Amerika offiziell 1492?", answers: ["Magellan","Vespucci","Columbus","da Gama"], correct: 2, category: "Geschichte" },
+{ question: "Welche Mauer fiel 1989?", answers: ["Chinesische Mauer","Berliner Mauer","Hadrianswall","Klagemauer"], correct: 1, category: "Geschichte" },
+{ question: "Welches Land war Teil der Sowjetunion?", answers: ["Polen","Ungarn","Litauen","Finnland"], correct: 2, category: "Geschichte" },
+{ question: "Wer war der erste Mensch im All?", answers: ["Armstrong","Gagarin","Glenn","Aldrin"], correct: 1, category: "Geschichte" },
+{ question: "Welche Stadt wurde 79 n. Chr. von einem Vulkan zerstört?", answers: ["Athen","Pompeji","Karthago","Troja"], correct: 1, category: "Geschichte" },
+{ question: "Wer schrieb 'Der Kommunistische Manifest'?", answers: ["Marx & Engels","Hegel","Lenin","Stalin"], correct: 0, category: "Geschichte" },
+{ question: "Wer war die erste Frau, die den Nobelpreis erhielt?", answers: ["Curie","Einstein","Meitner","Hopper"], correct: 0, category: "Geschichte" },
+{ question: "Welche historische Epoche folgte auf das Mittelalter?", answers: ["Barock","Renaissance","Antike","Romantik"], correct: 1, category: "Geschichte" },
+{ question: "Wer war der Führer des Mongolischen Reiches?", answers: ["Kublai Khan","Attila","Dschingis Khan","Tamerlan"], correct: 2, category: "Geschichte" },
+{ question: "In welchem Land begann die Industrielle Revolution?", answers: ["Frankreich","Deutschland","England","USA"], correct: 2, category: "Geschichte" },
+{ question: "Welcher US-Präsident wurde 1963 ermordet?", answers: ["Reagan","Lincoln","JFK","Nixon"], correct: 2, category: "Geschichte" },
+{ question: "Welche Stadt war Zentrum des antiken Griechenlands?", answers: ["Rom","Sparta","Athen","Korinth"], correct: 2, category: "Geschichte" },
+{ question: "Welche Organisation wurde 1945 gegründet?", answers: ["EU","UNO","NATO","OECD"], correct: 1, category: "Geschichte" },
+{ question: "Wer war der letzte Zar Russlands?", answers: ["Nikolaus I","Alexander II","Nikolaus II","Peter der Große"], correct: 2, category: "Geschichte" },
+{ question: "Welcher Vertrag beendete den Ersten Weltkrieg?", answers: ["Versailles","Paris","Genf","Wien"], correct: 0, category: "Geschichte" },
+{ question: "Wer führte die Reformation an?", answers: ["Calvin","Luther","Zwingli","Melanchthon"], correct: 1, category: "Geschichte" },
+{ question: "Welcher Krieg dauerte von 1950–1953?", answers: ["Vietnamkrieg","Koreakrieg","Golfkrieg","Zweiter Weltkrieg"], correct: 1, category: "Geschichte" },
+{ question: "Was war die Hauptstadt des Oströmischen Reiches?", answers: ["Rom","Konstantinopel","Athen","Damaskus"], correct: 1, category: "Geschichte" },
+{ question: "Welches Land kolonialisierte Indien?", answers: ["Spanien","Portugal","England","Frankreich"], correct: 2, category: "Geschichte" },
+{ question: "Welches Volk baute Stonehenge?", answers: ["Wikinger","Kelten","Römer","Sumerer"], correct: 1, category: "Geschichte" },
+{ question: "Wer entdeckte die Evolutionstheorie?", answers: ["Darwin","Lamarck","Pasteur","Wallace"], correct: 0, category: "Geschichte" },
+
+// --- KULTUR & KUNST (25) ---
+{ question: "Wer komponierte die 9. Sinfonie?", answers: ["Beethoven","Mozart","Bach","Haydn"], correct: 0, category: "Kultur & Kunst" },
+{ question: "Welcher Künstler schuf die 'Sternennacht'?", answers: ["Monet","Van Gogh","Gauguin","Da Vinci"], correct: 1, category: "Kultur & Kunst" },
+{ question: "Welche Oper stammt von Mozart?", answers: ["Carmen","Zauberflöte","La Traviata","Tosca"], correct: 1, category: "Kultur & Kunst" },
+{ question: "Wer schrieb 'Die Verwandlung'?", answers: ["Kafka","Hesse","Goethe","Mann"], correct: 0, category: "Kultur & Kunst" },
+{ question: "Welcher Stil folgt auf die Gotik?", answers: ["Rokoko","Barock","Renaissance","Romantik"], correct: 2, category: "Kultur & Kunst" },
+{ question: "Wer malte das Deckenfresko der Sixtinischen Kapelle?", answers: ["Raphael","Michelangelo","Botticelli","Da Vinci"], correct: 1, category: "Kultur & Kunst" },
+{ question: "Welcher Schriftsteller verfasste 'Faust'?", answers: ["Schiller","Lessing","Goethe","Brecht"], correct: 2, category: "Kultur & Kunst" },
+{ question: "Welcher Komponist war taub?", answers: ["Mozart","Chopin","Beethoven","Schubert"], correct: 2, category: "Kultur & Kunst" },
+{ question: "Welcher Film gewann den Oscar 1997?", answers: ["Titanic","Braveheart","Forrest Gump","Matrix"], correct: 0, category: "Kultur & Kunst" },
+{ question: "Welche Tanzart stammt aus Argentinien?", answers: ["Samba","Tango","Flamenco","Salsa"], correct: 1, category: "Kultur & Kunst" },
+{ question: "Welcher Autor erschuf Sherlock Holmes?", answers: ["Poe","Conan Doyle","Agatha Christie","Dickens"], correct: 1, category: "Kultur & Kunst" },
+{ question: "Wer schrieb 'Krieg und Frieden'?", answers: ["Tolstoi","Dostojewski","Puschkin","Gorki"], correct: 0, category: "Kultur & Kunst" },
+{ question: "Welche Kunstrichtung prägte Picasso?", answers: ["Kubismus","Expressionismus","Surrealismus","Impressionismus"], correct: 0, category: "Kultur & Kunst" },
+{ question: "Welches Instrument ist typisch für Jazz?", answers: ["Cello","Saxophon","Harfe","Oboe"], correct: 1, category: "Kultur & Kunst" },
+{ question: "Welcher Filmregisseur drehte 'Inception'?", answers: ["Spielberg","Nolan","Tarantino","Cameron"], correct: 1, category: "Kultur & Kunst" },
+{ question: "Welche Oper wurde 1875 uraufgeführt?", answers: ["Carmen","Nabucco","Figaros Hochzeit","Tosca"], correct: 0, category: "Kultur & Kunst" },
+{ question: "Wer ist der Autor von 'Der kleine Prinz'?", answers: ["Saint-Exupéry","Ende","Tolkien","Rowling"], correct: 0, category: "Kultur & Kunst" },
+{ question: "Welche Kunstform benutzt einen Meißel?", answers: ["Malerei","Bildhauerei","Fotografie","Grafik"], correct: 1, category: "Kultur & Kunst" },
+{ question: "Welcher Film gehört zur Marvel-Reihe?", answers: ["Avatar","Iron Man","Matrix","Shrek"], correct: 1, category: "Kultur & Kunst" },
+{ question: "Wer schrieb 'Der Name der Rose'?", answers: ["Eco","King","Kafka","Orwell"], correct: 0, category: "Kultur & Kunst" },
+{ question: "Welches Museum steht in Paris?", answers: ["Uffizien","Louvre","Prado","Tate"], correct: 1, category: "Kultur & Kunst" },
+{ question: "Woraus besteht Aquarellfarbe hauptsächlich?", answers: ["Wachs","Öl","Wasser","Harz"], correct: 2, category: "Kultur & Kunst" },
+{ question: "Wer sang 'Thriller'?", answers: ["Prince","Mercury","Jackson","Wonder"], correct: 2, category: "Kultur & Kunst" },
+{ question: "Welche Serie spielt in Westeros?", answers: ["Vikings","The Witcher","Game of Thrones","The Crown"], correct: 2, category: "Kultur & Kunst" },
+{ question: "Welche Figur stammt aus der griechischen Mythologie?", answers: ["Thor","Odin","Herkules","Loki"], correct: 2, category: "Kultur & Kunst" },
+
+// --- SPORT (25) ---
+{ question: "Wie viele Spieler hat eine Fußballmannschaft auf dem Feld?", answers: ["9","10","11","12"], correct: 2, category: "Sport" },
+{ question: "Wer gewann die Fußball-WM 2014?", answers: ["Brasilien","Deutschland","Spanien","Argentinien"], correct: 1, category: "Sport" },
+{ question: "Welche Sportart ist eine olympische Disziplin?", answers: ["Bowling","Taekwondo","Darts","Billard"], correct: 1, category: "Sport" },
+{ question: "Wie viele Ringe hat das olympische Symbol?", answers: ["4","5","6","7"], correct: 1, category: "Sport" },
+{ question: "Wer gewann den ersten Formel-1-Titel?", answers: ["Lauda","Fangio","Schumacher","Senna"], correct: 1, category: "Sport" },
+{ question: "Welche Farbe hat die Tour-de-France-Führungsweste?", answers: ["Blau","Grün","Gelb","Weiß"], correct: 2, category: "Sport" },
+{ question: "Welche Sportart nutzt ein Shuttlecock?", answers: ["Tennis","Badminton","Squash","Baseball"], correct: 1, category: "Sport" },
+{ question: "Wie viele Minuten dauert ein Rugby-Spiel?", answers: ["60","70","80","90"], correct: 2, category: "Sport" },
+{ question: "Welche Stadt war 2008 Gastgeber der Olympischen Spiele?", answers: ["Sydney","London","Athen","Peking"], correct: 3, category: "Sport" },
+{ question: "Welche Distanz hat ein Marathon?", answers: ["36 km","42,195 km","50 km","25 km"], correct: 1, category: "Sport" },
+{ question: "Welche Sportart wird auf Eis gespielt?", answers: ["Curling","Volleyball","Handball","Cricket"], correct: 0, category: "Sport" },
+{ question: "Wer gilt als der 'GOAT' im Basketball?", answers: ["Kobe Bryant","LeBron James","Michael Jordan","Shaquille O’Neal"], correct: 2, category: "Sport" },
+{ question: "Welches Land gewann die erste Fußball-WM 1930?", answers: ["Brasilien","Italien","Uruguay","Deutschland"], correct: 2, category: "Sport" },
+{ question: "Wie heißt der höchste Fußballpreis Europas?", answers: ["Champions League","Europa League","Super Cup","Conference League"], correct: 0, category: "Sport" },
+{ question: "Wer hält den 100m-Weltrekord (Männer)?", answers: ["Bolt","Lewis","Powell","Gatlin"], correct: 0, category: "Sport" },
+{ question: "Wie viele Perioden hat ein Eishockeyspiel?", answers: ["2","3","4","5"], correct: 1, category: "Sport" },
+{ question: "Welche Sportart betreibt Novak Djokovic?", answers: ["Tennis","Golf","Ringen","Judo"], correct: 0, category: "Sport" },
+{ question: "Wie nennt man drei Treffer beim Darts?", answers: ["Triple","180","Bull","Finish"], correct: 1, category: "Sport" },
+{ question: "Welche Mannschaft gewann die NBA 2020?", answers: ["Warriors","Lakers","Heat","Celtics"], correct: 1, category: "Sport" },
+{ question: "Welche Sportart wird mit einem Puck gespielt?", answers: ["Hockey","Eishockey","Lacrosse","Cricket"], correct: 1, category: "Sport" },
+{ question: "Wie heißt das Stadion von Bayern München?", answers: ["Signal Iduna Park","Allianz Arena","Olympiastadion","Camp Nou"], correct: 1, category: "Sport" },
+{ question: "Wer hat die meisten Formel-1 Weltmeistertitel?", answers: ["Senna","Hamilton","Schumacher","Vettel"], correct: 1, category: "Sport" },
+{ question: "Welche Sportart umfasst Balken und Stufenbarren?", answers: ["Gerätturnen","Gymnastik","Kunstturnen","Athletik"], correct: 0, category: "Sport" },
+{ question: "Wie viele Löcher hat ein reguläres Golfturnier?", answers: ["9","18","27","36"], correct: 1, category: "Sport" },
+{ question: "Welche Nation dominiert traditionell im Biathlon?", answers: ["Norwegen","USA","Japan","Spanien"], correct: 0, category: "Sport" },
+
+// --- TECHNIK & DIGITALISIERUNG (25) ---
+{ question: "Was bedeutet die Abkürzung 'CPU'?", answers: ["Central Performance Unit","Central Processing Unit","Computer Personal Unit","Control Processing Unit"], correct: 1, category: "Technik & Digitalisierung" },
+{ question: "Welche Firma entwickelte das erste iPhone?", answers: ["Samsung","Apple","Nokia","Motorola"], correct: 1, category: "Technik & Digitalisierung" },
+{ question: "Welche Einheit misst Datenmenge?", answers: ["Watt","Bit","Ampere","Hertz"], correct: 1, category: "Technik & Digitalisierung" },
+{ question: "Welcher Browser gehört zu Google?", answers: ["Safari","Firefox","Chrome","Edge"], correct: 2, category: "Technik & Digitalisierung" },
+{ question: "Was ist ein Betriebssystem?", answers: ["Hardware","Software","Router","Datenbank"], correct: 1, category: "Technik & Digitalisierung" },
+{ question: "Welcher Kabeltyp überträgt digitale Videos?", answers: ["HDMI","LAN","USB-A","Klinke"], correct: 0, category: "Technik & Digitalisierung" },
+{ question: "Welche Programmiersprache wird für Webseiten verwendet?", answers: ["HTML","C++","Python","Java"], correct: 0, category: "Technik & Digitalisierung" },
+{ question: "Wie nennt man die künstliche Intelligenz, die aus Daten lernt?", answers: ["Statistik","Machine Learning","Big Data","Hochrechnung"], correct: 1, category: "Technik & Digitalisierung" },
+{ question: "Welcher Speicher ist flüchtig?", answers: ["ROM","SSD","RAM","Festplatte"], correct: 2, category: "Technik & Digitalisierung" },
+{ question: "Was bezeichnet '5G'?", answers: ["Fünftes Gigabit","Mobilfunkstandard","Internetsignal","WLAN-Format"], correct: 1, category: "Technik & Digitalisierung" },
+{ question: "Welche Firma entwickelte Windows?", answers: ["Apple","Google","Microsoft","IBM"], correct: 2, category: "Technik & Digitalisierung" },
+{ question: "Was ist eine Cloud?", answers: ["Nebelformation","Online-Speicher","Stromnetz","Sicherheitssoftware"], correct: 1, category: "Technik & Digitalisierung" },
+{ question: "Was bedeutet 'URL'?", answers: ["Universal Resource Locator","Unified Routing Line","User Response Link","Ultimate Routing Log"], correct: 0, category: "Technik & Digitalisierung" },
+{ question: "Welche Datei-Endung steht für Bilder?", answers: ["PDF","JPG","EXE","DOCX"], correct: 1, category: "Technik & Digitalisierung" },
+{ question: "Was ist ein Algorithmus?", answers: ["Zufallsprozess","Musikformat","Schrittfolge","Gerät"], correct: 2, category: "Technik & Digitalisierung" },
+{ question: "Was ist ein Motherboard?", answers: ["Netzteil","Hauptplatine","Grafikkarte","Laufwerk"], correct: 1, category: "Technik & Digitalisierung" },
+{ question: "Welche Social-Media-Plattform gehört zu Meta?", answers: ["Snapchat","TikTok","Instagram","X"], correct: 2, category: "Technik & Digitalisierung" },
+{ question: "Was misst Hertz?", answers: ["Datenrate","Frequenz","Leistung","Spannung"], correct: 1, category: "Technik & Digitalisierung" },
+{ question: "Welche App dient zur Videotelefonie?", answers: ["Excel","Zoom","Photoshop","Dropbox"], correct: 1, category: "Technik & Digitalisierung" },
+{ question: "Wofür steht 'AI'?", answers: ["Active Interface","Artificial Intelligence","Adobe Integration","Advanced Internet"], correct: 1, category: "Technik & Digitalisierung" },
+{ question: "Welche Datei-Endung ist für Programme typisch?", answers: ["EXE","TXT","MP3","PNG"], correct: 0, category: "Technik & Digitalisierung" },
+{ question: "Was ist ein Trojaner?", answers: ["PC-Bauteil","Virusart","Passwortsystem","Server"], correct: 1, category: "Technik & Digitalisierung" },
+{ question: "Was nutzt ein QR-Code?", answers: ["Laser","Streifenmuster","Matrixpunkte","Fingerabdruck"], correct: 2, category: "Technik & Digitalisierung" },
+{ question: "Welche Plattform ist eine Suchmaschine?", answers: ["Google","Instagram","WhatsApp","Amazon"], correct: 0, category: "Technik & Digitalisierung" },
+{ question: "Was ist ein Pixel?", answers: ["Datensatz","Bildpunkt","Farbfilter","Speichereinheit"], correct: 1, category: "Technik & Digitalisierung" }
+];
+
 
   function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
   function randomGameID(){ return Math.random().toString(36).substr(2,6).toUpperCase(); }
@@ -1212,6 +1360,7 @@
   </script>
 </body>
 </html>
+
 
 
 
