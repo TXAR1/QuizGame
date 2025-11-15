@@ -337,21 +337,18 @@
 
   const DEFAULT_ITEMS = { boost: 5, poison: 5, shield: 3 };
 
-  function RTLLogo({size='md'}){ 
-    const sizeMap={sm:40,md:60,lg:100}; 
-    const h = sizeMap[size]||60; 
-    const w = (h/300)*1520; 
-    return (
-      <svg viewBox="0 0 1520 300" height={h} width={w} xmlns="http://www.w3.org/2000/svg">
-        <rect x="0" y="0" width="490" height="300" fill="#FF6600"/>
-        <text x="245" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">R</text>
-        <rect x="515" y="0" width="490" height="300" fill="#E31F23"/>
-        <text x="760" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">T</text>
-        <rect x="1030" y="0" width="490" height="300" fill="#7B2CBF"/>
-        <text x="1275" y="220" fontSize="200" fontWeight="900" fill="white" textAnchor="middle" fontFamily="Arial, sans-serif">L</text>
-      </svg>
-    );
-  }
+function RTLLogo({ size = "md" }) {
+  const sizeMap = { sm: 40, md: 60, lg: 100 };
+  const height = sizeMap[size] || 60;
+
+  return (
+    <img 
+      src="Logo.png"   // --> hier dein PNG einfügen
+      alt="Logo"
+      style={{ height, width: "auto" }}
+    />
+  );
+}
 
   function qrUrlForGame(gameId){
     const url = `${window.location.origin}${window.location.pathname}?join=${gameId}`;
@@ -1619,6 +1616,7 @@
   </script>
 </body>
 </html>
+
 
 
 
