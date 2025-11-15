@@ -47,7 +47,7 @@
     @keyframes pulse { 0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)} }
     .answers-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; margin-top:18px; }
     .answer-btn{ background: #ffffff; color:#0b0b0b; padding:20px; font-size:1.05rem; font-weight:700; min-height:110px; display:flex; align-items:center; gap:12px; border-radius:10px; }
-    .item-bar{ display:flex; gap:8px; align-items:center; }
+    .item-bar{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     .item-btn{ padding:8px 12px; font-weight:800; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); cursor:pointer; color:var(--tile); display:flex; gap:8px; align-items:center; min-width:72px; justify-content:center; border-radius:8px; }
     .item-btn.item-disabled{ opacity:0.35; cursor:not-allowed; }
     .item-btn.active { background: linear-gradient(90deg, #fff3cc, #ffd580); color: #000; }
@@ -67,37 +67,42 @@
       .btn{ padding:12px 14px; border-radius:12px; font-size:15px; }
     }
 
- * { border-radius: 0 !important; }   
+    * { border-radius: 0 !important; }   
 
-/* TV scaling */
-@media (min-width: 1400px) {
-  .host-main, .host-side {
-    font-size: 1.4rem !important;
-  }
-  .answers-grid .answer-btn {
-    font-size: 1.4rem !important;
-    padding: 28px !important;
-    min-height: 150px !important;
-  }
-  .countdown-badge {
-    width: 150px !important;
-    height: 150px !important;
-    font-size: 3.4rem !important;
-  }
-}
+    /* TV scaling - Verbessert für bessere Lesbarkeit */
+    @media (min-width: 1400px) {
+      .host-main, .host-side {
+        font-size: 1.5rem !important;
+      }
+      .host-main h2, .host-main h3 {
+        font-size: 2.8rem !important;
+      }
+      .answers-grid .answer-btn {
+        font-size: 1.6rem !important;
+        padding: 32px !important;
+        min-height: 160px !important;
+      }
+      .countdown-badge {
+        width: 170px !important;
+        height: 170px !important;
+        font-size: 4rem !important;
+      }
+      .btn {
+        font-size: 1.3rem !important;
+        padding: 16px 24px !important;
+      }
+    }
 
-   .host-main h2, 
-.host-main h3,
-.host-main h1,
-.answers-grid .answer-btn {
-  line-height: 1.4 !important;
-}
+    .host-main h2, 
+    .host-main h3,
+    .host-main h1,
+    .answers-grid .answer-btn {
+      line-height: 1.4 !important;
+    }
 
-  .countdown-badge {
-  text-shadow: 0 4px 12px rgba(0,0,0,0.8);
-}  
-    
-    
+    .countdown-badge {
+      text-shadow: 0 4px 12px rgba(0,0,0,0.8);
+    }  
   </style>
 </head>
 <body>
@@ -107,7 +112,7 @@
   const { useState, useEffect, useRef } = React;
 
   /************ CONFIG ************/
-  const TOTAL_ROUNDS = 5;
+  const TOTAL_ROUNDS = 4; // Geändert von 5 auf 4
   const QUESTIONS_PER_ROUND = 1;
   const QUESTION_TIME = 40;
   const BASE_POINTS = 100;
@@ -147,17 +152,26 @@
   function randomGameID(){ return Math.random().toString(36).substr(2,6).toUpperCase(); }
   function makePlayerId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2,4); }
 
+  // Verbessert: Vermeidet Wiederholung von bereits verwendeten Fragen
   function getQuestionsForCategory(category, count, usedQuestions = []) {
-    let pool = QUESTION_POOL.filter(q => q.category === category);
+    let pool = QUESTION_POOL.filter(q => q.category === category && !usedQuestions.includes(q.question));
+    
     if (pool.length < count) {
-      if (pool.length === 0) {
-        pool = QUESTION_POOL.filter(q => true);
+      // Fallback: Verwende andere Kategorien oder bereits verwendete Fragen
+      const fallbackPool = QUESTION_POOL.filter(q => !usedQuestions.includes(q.question));
+      if (fallbackPool.length > 0) {
+        pool = fallbackPool;
       } else {
-        while (pool.length < count) pool = pool.concat(pool);
+        // Letzter Fallback: Alle Fragen der Kategorie
+        pool = QUESTION_POOL.filter(q => q.category === category);
       }
     }
+    
     pool = shuffle(pool).slice(0, count);
-    return pool.map((q, idx) => ({ id: `${category}-${Date.now()}-${Math.random().toString(36).substr(2,5)}-${idx}`, ...q }));
+    return pool.map((q, idx) => ({ 
+      id: `${category}-${Date.now()}-${Math.random().toString(36).substr(2,5)}-${idx}`, 
+      ...q 
+    }));
   }
 
   const DEFAULT_ITEMS = { boost: 5, poison: 5, shield: 3 };
@@ -337,7 +351,7 @@
         if (questionInRound === 0) {
           const finishedRound = Math.floor((qIndex + 1) / QUESTIONS_PER_ROUND);
           const nextRoundMeta = finishedRound + 1;
-          if (nextRoundMeta >= TOTAL_ROUNDS) {
+          if (nextRoundMeta > TOTAL_ROUNDS) {
             await db.ref(`games/${gameId}/meta`).update({
               phase: 'finished'
             });
@@ -645,79 +659,77 @@
           )}
 
           {meta.phase === 'finished' && (
-  <div style={{textAlign:'center', padding:'20px'}}>
-    <h2 style={{fontSize:44, fontWeight:900, marginBottom:10}}>🎉 Spiel beendet!</h2>
-    <p style={{color:'var(--muted)', fontSize:20}}>Hier sind eure finalen Platzierungen</p>
+            <div style={{textAlign:'center', padding:'20px'}}>
+              <h2 style={{fontSize:44, fontWeight:900, marginBottom:10}}>🎉 Spiel beendet!</h2>
+              <p style={{color:'var(--muted)', fontSize:20}}>Hier sind eure finalen Platzierungen</p>
 
-    {/* Sieger-Panel */}
-    {playersArr[0] && (
-      <div style={{
-        marginTop:30,
-        padding:'30px 20px',
-        background:'rgba(255,255,255,0.04)',
-        border:'1px solid rgba(255,255,255,0.1)',
-        borderRadius:14
-      }}>
-        <div style={{fontSize:60}}>🥇</div>
-        <div style={{fontSize:32, fontWeight:900, marginTop:6}}>{playersArr[0].name}</div>
-        <div style={{fontSize:24, color:'var(--rtl-green)', fontWeight:800}}>
-          {playersArr[0].score} Punkte
-        </div>
-      </div>
-    )}
+              {playersArr[0] && (
+                <div style={{
+                  marginTop:30,
+                  padding:'30px 20px',
+                  background:'rgba(255,255,255,0.04)',
+                  border:'1px solid rgba(255,255,255,0.1)',
+                  borderRadius:14
+                }}>
+                  <div style={{fontSize:60}}>🥇</div>
+                  <div style={{fontSize:32, fontWeight:900, marginTop:6}}>{playersArr[0].name}</div>
+                  <div style={{fontSize:24, color:'var(--rtl-green)', fontWeight:800}}>
+                    {playersArr[0].score} Punkte
+                  </div>
+                </div>
+              )}
 
-    {/* Big Ranking */}
-    <div style={{
-      marginTop:40,
-      maxWidth:600,
-      marginInline:'auto',
-      textAlign:'left'
-    }}>
-      {playersArr.map((p,i)=>(
-        <div key={p.pid} style={{
-          display:'flex',
-          alignItems:'center',
-          justifyContent:'space-between',
-          padding:'14px 18px',
-          background:i < 3 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)',
-          borderLeft: i===0 ? '4px solid gold' :
-                     i===1 ? '4px solid silver' :
-                     i===2 ? '4px solid #cd7f32' : 
-                             '4px solid rgba(255,255,255,0.05)',
-          marginBottom:8
-        }}>
-          <div style={{display:'flex', alignItems:'center', gap:14}}>
-            <div style={{
-              width:48,
-              height:48,
-              borderRadius:'50%',
-              background:'rgba(255,255,255,0.1)',
-              display:'flex',
-              justifyContent:'center',
-              alignItems:'center',
-              fontWeight:900,
-              fontSize:20
-            }}>
-              {p.name.charAt(0).toUpperCase()}
+              <div style={{
+                marginTop:40,
+                maxWidth:600,
+                marginInline:'auto',
+                textAlign:'left'
+              }}>
+                {playersArr.map((p,i)=>(
+                  <div key={p.pid} style={{
+                    display:'flex',
+                    alignItems:'center',
+                    justifyContent:'space-between',
+                    padding:'14px 18px',
+                    background:i < 3 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)',
+                    borderLeft: i===0 ? '4px solid gold' :
+                               i===1 ? '4px solid silver' :
+                               i===2 ? '4px solid #cd7f32' : 
+                                       '4px solid rgba(255,255,255,0.05)',
+                    marginBottom:8
+                  }}>
+                    <div style={{display:'flex', alignItems:'center', gap:14}}>
+                      <div style={{
+                        width:48,
+                        height:48,
+                        borderRadius:'50%',
+                        background:'rgba(255,255,255,0.1)',
+                        display:'flex',
+                        justifyContent:'center',
+                        alignItems:'center',
+                        fontWeight:900,
+                        fontSize:20
+                      }}>
+                        {p.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div style={{fontWeight:900, fontSize:20}}>
+                        {i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`} {p.name}
+                      </div>
+                    </div>
+                    <div style={{fontSize:22, fontWeight:900, color:'var(--rtl-green)'}}>
+                      {p.score}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{marginTop:30}}>
+                <button className="btn btn-host" style={{padding:'14px 24px', fontSize:20}} onClick={backToLobby}>
+                  🔄 Zurück zur Lobby
+                </button>
+              </div>
             </div>
-            <div style={{fontWeight:900, fontSize:20}}>
-              {i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`} {p.name}
-            </div>
-          </div>
-          <div style={{fontSize:22, fontWeight:900, color:'var(--rtl-green)'}}>
-            {p.score}
-          </div>
-        </div>
-      ))}
-    </div>
-
-    <div style={{marginTop:30}}>
-      <button className="btn btn-host" style={{padding:'14px 24px', fontSize:20}} onClick={backToLobby}>
-        🔄 Zurück zur Lobby
-      </button>
-    </div>
-  </div>
-)}
+          )}
         </div>
 
         {showSidebar && (
@@ -915,24 +927,24 @@
               })}
             </div>
 
-            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:14, flexWrap:'wrap'}}>
-              <div style={{color: 'var(--muted)'}}>{player.currentAnswer === null ? "Noch nicht geantwortet" : `Du hast Antwort ${String.fromCharCode(65 + player.currentAnswer)} gewählt`}</div>
-              <div style={{display:'flex', gap:8, alignItems:'center', marginTop:8}}>
-                <div style={{fontWeight:900, color:'var(--rtl-green)', marginRight:8}}>Punkte: {player.score || 0}</div>
+            <div style={{marginTop:14}}>
+              <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10}}>
+                <div style={{color: 'var(--muted)', fontSize:14}}>{player.currentAnswer === null ? "Noch nicht geantwortet" : `Du hast Antwort ${String.fromCharCode(65 + player.currentAnswer)} gewählt`}</div>
+                <div style={{fontWeight:900, color:'var(--rtl-green)'}}>Punkte: {player.score || 0}</div>
+              </div>
 
-                <div className="item-bar" style={{alignItems:'center'}}>
-                  <button className={boostBtnClass} disabled={!boostAvailable || hasAnswered} onClick={activateBoost} title={'Boost: muss vor der Antwort aktiviert werden. Richtige Antwort -> x1.5 (5× pro Spiel)'}>
-                    <span style={{fontSize:18}}>🔥</span><span style={{fontWeight:900, minWidth:28, textAlign:'center'}}>{player.items && player.items.boost ? player.items.boost : 0}</span>
-                  </button>
+              <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8}}>
+                <button className={boostBtnClass} disabled={!boostAvailable || hasAnswered} onClick={activateBoost} title={'Boost: muss vor der Antwort aktiviert werden. Richtige Antwort -> x1.5'}>
+                  <span style={{fontSize:18}}>🔥</span><span style={{fontWeight:900, minWidth:28, textAlign:'center'}}>{player.items && player.items.boost ? player.items.boost : 0}</span>
+                </button>
 
-                  <button className={poisonBtnClass} disabled={!poisonAvailable} onClick={openPoisonModal} title={'Vergiften: wähle ein Ziel (5× pro Spiel)'}>
-                    <span style={{fontSize:18}}>☠️</span><span style={{fontWeight:900, minWidth:28, textAlign:'center'}}>{player.items && player.items.poison ? player.items.poison : 0}</span>
-                  </button>
+                <button className={poisonBtnClass} disabled={!poisonAvailable} onClick={openPoisonModal} title={'Vergiften: wähle ein Ziel'}>
+                  <span style={{fontSize:18}}>☠️</span><span style={{fontWeight:900, minWidth:28, textAlign:'center'}}>{player.items && player.items.poison ? player.items.poison : 0}</span>
+                </button>
 
-                  <button className={shieldBtnClass} disabled={!shieldAvailable} onClick={activateShield} title={'Schild: wird sofort verbraucht, schützt diese Frage (3× pro Spiel). Risiko: verschwindet auch wenn nicht angreift.'}>
-                    <span style={{fontSize:18}}>🛡</span><span style={{fontWeight:900, minWidth:28, textAlign:'center'}}>{player.items && player.items.shield ? player.items.shield : 0}</span>
-                  </button>
-                </div>
+                <button className={shieldBtnClass} disabled={!shieldAvailable} onClick={activateShield} title={'Schild: wird sofort verbraucht, schützt diese Frage'} style={{gridColumn:'1 / -1'}}>
+                  <span style={{fontSize:18}}>🛡</span><span style={{fontWeight:900, minWidth:28, textAlign:'center'}}>{player.items && player.items.shield ? player.items.shield : 0}</span>
+                </button>
               </div>
             </div>
 
@@ -1006,13 +1018,23 @@
         await db.ref().update(updates);
         setBonusItemModalOpen(false);
 
-        let candidates = candidateCatsForThisPlayer;
-        if(candidates.length === 0){
-          const used = catState.used || [];
-          candidates = shuffle(CATEGORY_LIST.filter(c => !used.includes(c))).slice(0,2);
+        // Kategorie-Auswahl: Prüfen ob dieser Spieler der erste Letztplatzierte ist, der wählt
+        const metaSnap = await db.ref(`games/${gameId}/meta`).get();
+        const metaVal = metaSnap.exists() ? metaSnap.val() : {};
+        
+        // Wenn noch keine Kategorie gewählt wurde, darf dieser Spieler wählen
+        if (!metaVal.nextCategory) {
+          let candidates = candidateCatsForThisPlayer;
+          if(candidates.length === 0){
+            const used = catState.used || [];
+            candidates = shuffle(CATEGORY_LIST.filter(c => !used.includes(c))).slice(0,2);
+          }
+          setCandidateCategories(candidates);
+          setBonusCategoryModalOpen(true);
+        } else {
+          // Kategorie wurde bereits von einem anderen Letztplatzierten gewählt
+          setBonusCategoryModalOpen(false);
         }
-        setCandidateCategories(candidates);
-        setBonusCategoryModalOpen(true);
       };
 
       const pickBonusCategory = async (cat) => {
@@ -1190,6 +1212,7 @@
   </script>
 </body>
 </html>
+
 
 
 
