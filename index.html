@@ -368,13 +368,13 @@
             <div style={{fontWeight:900, fontSize:20}}>AdAlliance Quiz</div>
           </div>
 
-          <h1 style={{fontSize:28, fontWeight:900, marginTop:12, color:'var(--rtl-orange)'}}>🎯 Quiz Master</h1>
+          <h1 style={{fontSize:28, fontWeight:900, marginTop:12, color:'var(--rtl-orange)'}}>Quiz Master</h1>
           <p style={{color:'var(--muted)'}}>Host erstellt Spiel oder Spieler treten per Code/QR bei</p>
 
           <div style={{marginTop:12}}>
             <input className="w-full p-3 mb-3" placeholder="Dein Name" value={name} onChange={e=>setName(e.target.value)} />
             <div style={{display:'flex', gap:8}}>
-              <button className="btn btn-host flex-1" onClick={()=>onCreate(name)} disabled={!name}>🎬 Host werden</button>
+              <button className="btn btn-host flex-1" onClick={()=>onCreate(name)} disabled={!name}>Host werden</button>
               <input className="p-2" placeholder="Code" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} style={{width:'120px'}} />
               <button className="btn btn-join" onClick={()=>onJoin(name,code)} disabled={!name || !code}>Beitreten</button>
             </div>
@@ -1615,6 +1615,7 @@
   </script>
 </body>
 </html>
+
 
 
 
