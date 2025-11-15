@@ -18,7 +18,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
   <style>
-    :root{
+    root{
       --rtl-orange:#FF6600;
       --rtl-red:#E31F23;
       --rtl-purple:#7B2CBF;
@@ -68,35 +68,7 @@
     }
 
  * { border-radius: 0 !important; }   
-
-/* TV scaling */
-@media (min-width: 1400px) {
-  .host-main, .host-side {
-    font-size: 1.4rem !important;
-  }
-  .answers-grid .answer-btn {
-    font-size: 1.4rem !important;
-    padding: 28px !important;
-    min-height: 150px !important;
-  }
-  .countdown-badge {
-    width: 150px !important;
-    height: 150px !important;
-    font-size: 3.4rem !important;
-  }
-}
-
-   .host-main h2, 
-.host-main h3,
-.host-main h1,
-.answers-grid .answer-btn {
-  line-height: 1.4 !important;
-}
-
-  .countdown-badge {
-  text-shadow: 0 4px 12px rgba(0,0,0,0.8);
-}  
-    
+        
     
   </style>
 </head>
@@ -148,17 +120,29 @@
   function makePlayerId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2,4); }
 
   function getQuestionsForCategory(category, count, usedQuestions = []) {
-    let pool = QUESTION_POOL.filter(q => q.category === category);
-    if (pool.length < count) {
-      if (pool.length === 0) {
-        pool = QUESTION_POOL.filter(q => true);
-      } else {
-        while (pool.length < count) pool = pool.concat(pool);
-      }
-    }
-    pool = shuffle(pool).slice(0, count);
-    return pool.map((q, idx) => ({ id: `${category}-${Date.now()}-${Math.random().toString(36).substr(2,5)}-${idx}`, ...q }));
+  // 1. Grund-Pool für die Kategorie
+  let pool = QUESTION_POOL.filter(q => q.category === category);
+
+  // 2. Bereits verwendete Fragen rausfiltern
+  pool = pool.filter(q => !usedQuestions.includes(q.question));
+
+  // 3. Falls nicht genug übrig sind → nimm alle übrigen Fragen (egal aus welcher Kategorie),
+  // aber ebenfalls ohne Wiederholungen
+  if (pool.length < count) {
+    const fallback = QUESTION_POOL.filter(q => !usedQuestions.includes(q.question));
+    pool = pool.concat(fallback);
   }
+
+  // 4. Pool mischen & benötigte Anzahl ziehen
+  pool = shuffle(pool).slice(0, count);
+
+  // 5. ID anfügen (wie bei dir)
+  return pool.map((q, idx) => ({
+    id: `${category}-${Date.now()}-${Math.random().toString(36).substr(2,5)}-${idx}`,
+    ...q
+  }));
+}
+
 
   const DEFAULT_ITEMS = { boost: 5, poison: 5, shield: 3 };
 
@@ -1190,6 +1174,7 @@
   </script>
 </body>
 </html>
+
 
 
 
