@@ -97,6 +97,34 @@
   text-shadow: 0 4px 12px rgba(0,0,0,0.8);
 }  
     
+<!-- Patch snippet to upscale host screen fonts on TV -->
+<style>
+/* TV-Optimized Scaling */
+@media (min-width: 1200px) {
+.host-main, .host-side {
+font-size: 1.6rem !important;
+}
+.host-main h1, .host-main h2, .host-main h3 {
+font-size: 2.4rem !important;
+}
+.answers-grid .answer-btn {
+font-size: 1.8rem !important;
+padding: 36px !important;
+min-height: 180px !important;
+}
+.countdown-badge {
+width: 180px !important;
+height: 180px !important;
+font-size: 4rem !important;
+}
+/* Category + round info */
+.host-main .muted,
+.host-main div[style*="font-size:14px"] {
+font-size: 1.4rem !important;
+}
+}
+</style>
+    
     
   </style>
 </head>
@@ -1190,6 +1218,7 @@
   </script>
 </body>
 </html>
+
 
 
 
