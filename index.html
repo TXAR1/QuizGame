@@ -730,22 +730,22 @@
                 <div style={{display:'flex', alignItems:'center', gap:12}}>
                   <div className={`countdown-badge ${countdownClass}`}>{timeLeft}</div>
                   <div>
-                    <div style={{fontSize:20, color:'var(--muted)'}}>Runde {meta.round}/{TOTAL_ROUNDS}</div>
-                    <div style={{fontSize:20, color:'var(--muted)'}}>Frage {qIndex + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</div>
-                    <div style={{fontSize:20, color:'var(--muted)'}}>Kategorie: <strong style={{color:'var(--rtl-orange)'}}>{meta.currentCategory || question.category || '—'}</strong></div>
+                    <div style={{fontSize:22, color:'var(--muted)'}}>Runde {meta.round}/{TOTAL_ROUNDS}</div>
+                    <div style={{fontSize:22, color:'var(--muted)'}}>Frage {qIndex + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</div>
+                    <div style={{fontSize:26, color:'var(--muted)'}}>Kategorie: <strong style={{color:'var(--rtl-orange)'}}>{meta.currentCategory || question.category || '—'}</strong></div>
                   </div>
                 </div>
                 <div style={{display:'flex', gap:8}}>
-                  <button className="btn btn-show-results" onClick={showResultsNow}></button>
+                  <button className="btn btn-show-results" onClick={showResultsNow}>Lösung anzeigen</button>
                 </div>
               </div>
 
               <div>
-                <div style={{fontSize:28, fontWeight:900}}>{question.question}</div>
+                <div style={{fontSize:40, fontWeight:900}}>{question.question}</div>
                 <div className="answers-grid" style={{marginTop:18}}>
                   {question.answers.map((a,i)=>(
                     <div key={i} className="answer-btn">
-                      <div style={{fontWeight:900, marginRight:8}}>{String.fromCharCode(65+i)}.</div>
+                      <div style={{fontWeight:900, marginRight:8, fontSize:32}}>{String.fromCharCode(65+i)}.</div>
                       <div>{a}</div>
                     </div>
                   ))}
@@ -1619,6 +1619,7 @@
   </script>
 </body>
 </html>
+
 
 
 
