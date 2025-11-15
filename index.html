@@ -414,7 +414,7 @@
 
         <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
           {(meta.phase === 'lobby' || !meta.phase) && <button className="btn btn-host" onClick={startGame}>Spiel starten</button>}
-          {meta.phase === 'question' && <button className="btn btn-show-results" onClick={showResultsNow}></button>}
+          {meta.phase === 'question' && <button className="btn btn-show-results" onClick={showResultsNow}>Weiter</button>}
           {meta.phase === 'results' && <button className="btn btn-host" onClick={startNextRound}>Weiter →</button>}
           {meta.phase === 'roundSummary' && <button className="btn btn-host" onClick={startNextRound}>Nächste Runde →</button>}
           {meta.phase === 'finished' && <button className="btn" onClick={()=>window.location.reload()}>🔄 Zurück zur Lobby</button>}
@@ -756,7 +756,7 @@
 
           {meta.phase === 'results' && question && (
             <div>
-              <h2 style={{fontSize:22, fontWeight:900, color:'var(--rtl-orange)'}}></h2>
+              <h2 style={{fontSize:22, fontWeight:900, color:'var(--rtl-orange)'}}>Ergebnis</h2>
               <div style={{marginTop:8, padding:12, background:'rgba(255,255,255,0.03)'}}>✓ Richtige Antwort: <strong>{question.answers[question.correct]}</strong></div>
 
               <div style={{display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:12, marginTop:12}}>
@@ -774,7 +774,7 @@
 
               <div style={{marginTop:18}}>
                 <h3 style={{fontWeight:900, color:'var(--rtl-orange)'}}>Aktionen & Effekte Log</h3>
-                <div style={{marginTop:8, maxHeight:400, overflow:'auto'}}>
+                <div style={{marginTop:8, maxHeight:300, overflow:'auto'}}>
                   {(() => {
                     const actionLogRef = game.meta?.actions?.[qIndex] || [];
                     const actions = Array.isArray(actionLogRef) ? actionLogRef : [];
@@ -1619,6 +1619,7 @@
   </script>
 </body>
 </html>
+
 
 
 
