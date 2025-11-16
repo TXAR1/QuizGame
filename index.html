@@ -36,11 +36,11 @@
     .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:800; padding:10px 14px; cursor:pointer; border:none; border-radius:10px; background:rgba(255,255,255,0.03); color:var(--tile); }
     .btn-host{ background:var(--rtl-orange); color:white; }
     .btn-join{ background:var(--rtl-purple); color:white; }
-   .btn-show-results{
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.04);
-  color: var(--tile);
-}
+    .btn-show-results{
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+      color: var(--tile);
+    }
     .card{ padding:16px; background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
     .host-screen{ display:flex; gap:20px; padding:24px; height:100vh; align-items:stretch; }
     .host-main{ flex:2; padding:28px; display:flex; flex-direction:column; gap:18px; min-height:0; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
@@ -132,6 +132,9 @@
   const QUESTION_TIME = 40;
   const BASE_POINTS = 100;
   const CATEGORY_CHOOSER_BONUS = 1.2;
+  const FINAL_QUESTIONS = 5;
+  const FINAL_TIME = 60;
+  const FINAL_POINTS = 200; // Doppelte Punkte
 
   const firebaseConfig = {
     apiKey: "AIzaSyCsxAEsivsJVFVcnerdAWezFpruoCv7Z2I",
@@ -146,171 +149,40 @@
   const db = firebase.database();
 
   /************ Kategorien & Fragen ************/
-  const CATEGORY_LIST = ["Geografie", "Wissenschaft", "Geschichte", "Kultur & Kunst", "Sport" , "Technik & Digitalisierung" ];
+  const CATEGORY_LIST = ["Geografie", "Wissenschaft", "Geschichte", "Kultur & Kunst", "Sport", "Technik & Digitalisierung"];
+  
   const QUESTION_POOL = [
-  // --- GEOGRAFIE (25) ---
-{ question: "Welches Land hat die längste Küstenlinie der Welt?", answers: ["USA","Kanada","Australien","Indonesien"], correct: 1, category: "Geografie" },
-{ question: "Welche Stadt liegt am Bosporus?", answers: ["Belgrad","Istanbul","Athen","Sofia"], correct: 1, category: "Geografie" },
-{ question: "Welcher Fluss ist der längste der Erde?", answers: ["Nil","Amazonas","Jangtse","Mississippi"], correct: 1, category: "Geografie" },
-{ question: "Welches Gebirge trennt Europa von Asien?", answers: ["Anden","Ural","Alpen","Himalaya"], correct: 1, category: "Geografie" },
-{ question: "In welchem Land liegt Machu Picchu?", answers: ["Chile","Peru","Bolivien","Kolumbien"], correct: 1, category: "Geografie" },
-{ question: "Was ist die Hauptstadt von Kanada?", answers: ["Toronto","Vancouver","Ottawa","Montreal"], correct: 2, category: "Geografie" },
-{ question: "Welches Meer liegt zwischen Europa und Afrika?", answers: ["Schwarzes Meer","Nordsee","Mittelmeer","Rotes Meer"], correct: 2, category: "Geografie" },
-{ question: "Welche Insel ist die größte der Welt?", answers: ["Madagaskar","Grönland","Borneo","Neuguinea"], correct: 1, category: "Geografie" },
-{ question: "Wo befindet sich der Grand Canyon?", answers: ["Nevada","Utah","Arizona","Texas"], correct: 2, category: "Geografie" },
-{ question: "Welches Land ist flächenmäßig das größte?", answers: ["China","Russland","Brasilien","Kanada"], correct: 1, category: "Geografie" },
-{ question: "Welche Wüste ist die größte der Erde?", answers: ["Sahara","Gobi","Atacama","Arabische Wüste"], correct: 0, category: "Geografie" },
-{ question: "Welche Stadt ist die nördlichste Hauptstadt der Welt?", answers: ["Helsinki","Reykjavík","Oslo","Stockholm"], correct: 1, category: "Geografie" },
-{ question: "Durch welches Land fließt der Tiber?", answers: ["Frankreich","Spanien","Italien","Griechenland"], correct: 2, category: "Geografie" },
-{ question: "Welches Land hat die meisten Inseln?", answers: ["Norwegen","Indonesien","Schweden","Japan"], correct: 2, category: "Geografie" },
-{ question: "Welche Stadt wird 'Die Ewige Stadt' genannt?", answers: ["Athen","Paris","Rom","Alexandria"], correct: 2, category: "Geografie" },
-{ question: "Welcher Kontinent hat die geringste Bevölkerung?", answers: ["Europa","Australien","Antarktika","Südamerika"], correct: 2, category: "Geografie" },
-{ question: "Welche Hauptstadt liegt am Tafelberg?", answers: ["Kapstadt","Pretoria","Durban","Johannesburg"], correct: 0, category: "Geografie" },
-{ question: "Welche der folgenden Städte liegt NICHT in Südamerika?", answers: ["Quito","Bogotá","Lima","San José"], correct: 3, category: "Geografie" },
-{ question: "Welcher See ist der tiefste der Erde?", answers: ["Viktoriasee","Baikalsee","Ontariosee","Tanganjikasee"], correct: 1, category: "Geografie" },
-{ question: "Welche Region gehört zu Spanien?", answers: ["Korsika","Madeira","Baskenland","Sizilien"], correct: 2, category: "Geografie" },
-{ question: "Welches Land hat keine Küste?", answers: ["Portugal","Bolivien","Thailand","Frankreich"], correct: 1, category: "Geografie" },
-{ question: "Welche Halbinsel gehört NICHT zu Europa?", answers: ["Balkan","Jütland","Iberische Halbinsel","Somali-Halbinsel"], correct: 3, category: "Geografie" },
-{ question: "Welche Stadt war früher die Hauptstadt Deutschlands?", answers: ["Hamburg","München","Bonn","Dresden"], correct: 2, category: "Geografie" },
-{ question: "Welches Land liegt zwischen Frankreich und Spanien?", answers: ["Andorra","Belgien","Luxemburg","Monaco"], correct: 0, category: "Geografie" },
-{ question: "Welcher Fluss fließt durch Paris?", answers: ["Donau","Themse","Seine","Loire"], correct: 2, category: "Geografie" },
+    // GEOGRAFIE
+    { question: "Welches Land hat die längste Küstenlinie der Welt?", answers: ["USA","Kanada","Australien","Indonesien"], correct: 1, category: "Geografie" },
+    { question: "Welche Stadt liegt am Bosporus?", answers: ["Belgrad","Istanbul","Athen","Sofia"], correct: 1, category: "Geografie" },
+    // WISSENSCHAFT
+    { question: "Wie viele Chromosomen hat der Mensch normalerweise?", answers: ["42","44","46","48"], correct: 2, category: "Wissenschaft" },
+    { question: "Welches Gas atmen wir hauptsächlich ein?", answers: ["Sauerstoff","Stickstoff","Kohlendioxid","Helium"], correct: 1, category: "Wissenschaft" },
+    // GESCHICHTE
+    { question: "Wer war der erste Kanzler der Bundesrepublik Deutschland?", answers: ["Brandt","Schmidt","Adenauer","Kohl"], correct: 2, category: "Geschichte" },
+    { question: "In welchem Jahr begann der Zweite Weltkrieg?", answers: ["1938","1939","1940","1941"], correct: 1, category: "Geschichte" },
+    // KULTUR & KUNST
+    { question: "Wer komponierte die 9. Sinfonie?", answers: ["Beethoven","Mozart","Bach","Haydn"], correct: 0, category: "Kultur & Kunst" },
+    { question: "Welcher Künstler schuf die 'Sternennacht'?", answers: ["Monet","Van Gogh","Gauguin","Da Vinci"], correct: 1, category: "Kultur & Kunst" },
+    // SPORT
+    { question: "Wie viele Spieler hat eine Fußballmannschaft auf dem Feld?", answers: ["9","10","11","12"], correct: 2, category: "Sport" },
+    { question: "Wer gewann die Fußball-WM 2014?", answers: ["Brasilien","Deutschland","Spanien","Argentinien"], correct: 1, category: "Sport" },
+    // TECHNIK & DIGITALISIERUNG
+    { question: "Was bedeutet die Abkürzung 'CPU'?", answers: ["Central Performance Unit","Central Processing Unit","Computer Personal Unit","Control Processing Unit"], correct: 1, category: "Technik & Digitalisierung" },
+    { question: "Welche Firma entwickelte das erste iPhone?", answers: ["Samsung","Apple","Nokia","Motorola"], correct: 1, category: "Technik & Digitalisierung" },
+  ];
 
-// --- WISSENSCHAFT (25) ---
-{ question: "Wie viele Chromosomen hat der Mensch normalerweise?", answers: ["42","44","46","48"], correct: 2, category: "Wissenschaft" },
-{ question: "Welches Gas atmen wir hauptsächlich ein?", answers: ["Sauerstoff","Stickstoff","Kohlendioxid","Helium"], correct: 1, category: "Wissenschaft" },
-{ question: "Welche Einheit misst elektrische Stromstärke?", answers: ["Volt","Ampere","Ohm","Watt"], correct: 1, category: "Wissenschaft" },
-{ question: "Welches Element hat das chemische Symbol 'Fe'?", answers: ["Fluor","Eisen","Fermium","Francium"], correct: 1, category: "Wissenschaft" },
-{ question: "Was befindet sich im Zentrum eines Atoms?", answers: ["Proton","Neutron","Atomkern","Elektron"], correct: 2, category: "Wissenschaft" },
-{ question: "Wie nennt man die Lehre von den Pflanzen?", answers: ["Zoologie","Botanik","Ökologie","Genetik"], correct: 1, category: "Wissenschaft" },
-{ question: "Welche Blutgruppe ist die seltenste?", answers: ["AB-","0-","A-","B-"], correct: 0, category: "Wissenschaft" },
-{ question: "Was ist die größte innere Struktur der Erde?", answers: ["Erdkruste","Mantel","Äußerer Kern","Innerer Kern"], correct: 1, category: "Wissenschaft" },
-{ question: "Welcher Planet ist der heißeste im Sonnensystem?", answers: ["Merkur","Venus","Mars","Jupiter"], correct: 1, category: "Wissenschaft" },
-{ question: "Wie nennt man die Geschwindigkeit des Lichts?", answers: ["Schallgeschwindigkeit","C","Gamma","Lambda"], correct: 1, category: "Wissenschaft" },
-{ question: "Welcher Stoff ist für die rote Farbe des Blutes verantwortlich?", answers: ["Hämoglobin","Myoglobin","Chlorophyll","Keratin"], correct: 0, category: "Wissenschaft" },
-{ question: "Was misst ein Seismograf?", answers: ["Temperatur","Windstärke","Erdbeben","Luftfeuchtigkeit"], correct: 2, category: "Wissenschaft" },
-{ question: "Wie viele Planeten hat unser Sonnensystem?", answers: ["7","8","9","10"], correct: 1, category: "Wissenschaft" },
-{ question: "Welcher Wissenschaftler formulierte die Relativitätstheorie?", answers: ["Newton","Einstein","Bohr","Planck"], correct: 1, category: "Wissenschaft" },
-{ question: "Welcher Teil des Auges regelt den Lichteinfall?", answers: ["Linse","Iris","Netzhaut","Hornhaut"], correct: 1, category: "Wissenschaft" },
-{ question: "Was ist das härteste natürliche Material?", answers: ["Diamant","Quarz","Graphit","Topas"], correct: 0, category: "Wissenschaft" },
-{ question: "Welche Form hat die DNA?", answers: ["Doppelhelix","Kugel","Stab","Ring"], correct: 0, category: "Wissenschaft" },
-{ question: "Wie nennt man die Wissenschaft der Karten?", answers: ["Kartografie","Geologie","Topografie","Astrometrie"], correct: 0, category: "Wissenschaft" },
-{ question: "Welches Organ produziert Insulin?", answers: ["Leber","Milz","Bauchspeicheldrüse","Niere"], correct: 2, category: "Wissenschaft" },
-{ question: "Welche Strahlung verursacht Sonnenbrand?", answers: ["Gamma","UV","Infrarot","Radio"], correct: 1, category: "Wissenschaft" },
-{ question: "Was ist ein Photon?", answers: ["Lichtteilchen","Schallwelle","Atomkern","Elektronenwolke"], correct: 0, category: "Wissenschaft" },
-{ question: "Welche Art von Energie speichert ein Akku?", answers: ["Thermische Energie","Chemische Energie","Kinetische Energie","Nukleare Energie"], correct: 1, category: "Wissenschaft" },
-{ question: "Wie nennt man den Übergang von flüssig zu gasförmig?", answers: ["Kondensation","Sublimation","Verdampfung","Erstarren"], correct: 2, category: "Wissenschaft" },
-{ question: "Welche Farbe hat Natriumflamme?", answers: ["Rot","Gelb","Grün","Blau"], correct: 1, category: "Wissenschaft" },
-{ question: "Welche Zellen transportieren Sauerstoff im Blut?", answers: ["Leukozyten","Thrombozyten","Erythrozyten","Plasmazellen"], correct: 2, category: "Wissenschaft" },
-
-// --- GESCHICHTE (25) ---
-{ question: "Wer war der erste Kanzler der Bundesrepublik Deutschland?", answers: ["Brandt","Schmidt","Adenauer","Kohl"], correct: 2, category: "Geschichte" },
-{ question: "In welchem Jahr begann der Zweite Weltkrieg?", answers: ["1938","1939","1940","1941"], correct: 1, category: "Geschichte" },
-{ question: "Welcher Pharao ist für sein junges Grab bekannt?", answers: ["Ramses II","Tutanchamun","Echnaton","Cheops"], correct: 1, category: "Geschichte" },
-{ question: "Welches Reich baute das Kolosseum?", answers: ["Griechen","Ägypter","Römer","Perser"], correct: 2, category: "Geschichte" },
-{ question: "Wer entdeckte Amerika offiziell 1492?", answers: ["Magellan","Vespucci","Columbus","da Gama"], correct: 2, category: "Geschichte" },
-{ question: "Welche Mauer fiel 1989?", answers: ["Chinesische Mauer","Berliner Mauer","Hadrianswall","Klagemauer"], correct: 1, category: "Geschichte" },
-{ question: "Welches Land war Teil der Sowjetunion?", answers: ["Polen","Ungarn","Litauen","Finnland"], correct: 2, category: "Geschichte" },
-{ question: "Wer war der erste Mensch im All?", answers: ["Armstrong","Gagarin","Glenn","Aldrin"], correct: 1, category: "Geschichte" },
-{ question: "Welche Stadt wurde 79 n. Chr. von einem Vulkan zerstört?", answers: ["Athen","Pompeji","Karthago","Troja"], correct: 1, category: "Geschichte" },
-{ question: "Wer schrieb 'Der Kommunistische Manifest'?", answers: ["Marx & Engels","Hegel","Lenin","Stalin"], correct: 0, category: "Geschichte" },
-{ question: "Wer war die erste Frau, die den Nobelpreis erhielt?", answers: ["Curie","Einstein","Meitner","Hopper"], correct: 0, category: "Geschichte" },
-{ question: "Welche historische Epoche folgte auf das Mittelalter?", answers: ["Barock","Renaissance","Antike","Romantik"], correct: 1, category: "Geschichte" },
-{ question: "Wer war der Führer des Mongolischen Reiches?", answers: ["Kublai Khan","Attila","Dschingis Khan","Tamerlan"], correct: 2, category: "Geschichte" },
-{ question: "In welchem Land begann die Industrielle Revolution?", answers: ["Frankreich","Deutschland","England","USA"], correct: 2, category: "Geschichte" },
-{ question: "Welcher US-Präsident wurde 1963 ermordet?", answers: ["Reagan","Lincoln","JFK","Nixon"], correct: 2, category: "Geschichte" },
-{ question: "Welche Stadt war Zentrum des antiken Griechenlands?", answers: ["Rom","Sparta","Athen","Korinth"], correct: 2, category: "Geschichte" },
-{ question: "Welche Organisation wurde 1945 gegründet?", answers: ["EU","UNO","NATO","OECD"], correct: 1, category: "Geschichte" },
-{ question: "Wer war der letzte Zar Russlands?", answers: ["Nikolaus I","Alexander II","Nikolaus II","Peter der Große"], correct: 2, category: "Geschichte" },
-{ question: "Welcher Vertrag beendete den Ersten Weltkrieg?", answers: ["Versailles","Paris","Genf","Wien"], correct: 0, category: "Geschichte" },
-{ question: "Wer führte die Reformation an?", answers: ["Calvin","Luther","Zwingli","Melanchthon"], correct: 1, category: "Geschichte" },
-{ question: "Welcher Krieg dauerte von 1950–1953?", answers: ["Vietnamkrieg","Koreakrieg","Golfkrieg","Zweiter Weltkrieg"], correct: 1, category: "Geschichte" },
-{ question: "Was war die Hauptstadt des Oströmischen Reiches?", answers: ["Rom","Konstantinopel","Athen","Damaskus"], correct: 1, category: "Geschichte" },
-{ question: "Welches Land kolonialisierte Indien?", answers: ["Spanien","Portugal","England","Frankreich"], correct: 2, category: "Geschichte" },
-{ question: "Welches Volk baute Stonehenge?", answers: ["Wikinger","Kelten","Römer","Sumerer"], correct: 1, category: "Geschichte" },
-{ question: "Wer entdeckte die Evolutionstheorie?", answers: ["Darwin","Lamarck","Pasteur","Wallace"], correct: 0, category: "Geschichte" },
-
-// --- KULTUR & KUNST (25) ---
-{ question: "Wer komponierte die 9. Sinfonie?", answers: ["Beethoven","Mozart","Bach","Haydn"], correct: 0, category: "Kultur & Kunst" },
-{ question: "Welcher Künstler schuf die 'Sternennacht'?", answers: ["Monet","Van Gogh","Gauguin","Da Vinci"], correct: 1, category: "Kultur & Kunst" },
-{ question: "Welche Oper stammt von Mozart?", answers: ["Carmen","Zauberflöte","La Traviata","Tosca"], correct: 1, category: "Kultur & Kunst" },
-{ question: "Wer schrieb 'Die Verwandlung'?", answers: ["Kafka","Hesse","Goethe","Mann"], correct: 0, category: "Kultur & Kunst" },
-{ question: "Welcher Stil folgt auf die Gotik?", answers: ["Rokoko","Barock","Renaissance","Romantik"], correct: 2, category: "Kultur & Kunst" },
-{ question: "Wer malte das Deckenfresko der Sixtinischen Kapelle?", answers: ["Raphael","Michelangelo","Botticelli","Da Vinci"], correct: 1, category: "Kultur & Kunst" },
-{ question: "Welcher Schriftsteller verfasste 'Faust'?", answers: ["Schiller","Lessing","Goethe","Brecht"], correct: 2, category: "Kultur & Kunst" },
-{ question: "Welcher Komponist war taub?", answers: ["Mozart","Chopin","Beethoven","Schubert"], correct: 2, category: "Kultur & Kunst" },
-{ question: "Welcher Film gewann den Oscar 1997?", answers: ["Titanic","Braveheart","Forrest Gump","Matrix"], correct: 0, category: "Kultur & Kunst" },
-{ question: "Welche Tanzart stammt aus Argentinien?", answers: ["Samba","Tango","Flamenco","Salsa"], correct: 1, category: "Kultur & Kunst" },
-{ question: "Welcher Autor erschuf Sherlock Holmes?", answers: ["Poe","Conan Doyle","Agatha Christie","Dickens"], correct: 1, category: "Kultur & Kunst" },
-{ question: "Wer schrieb 'Krieg und Frieden'?", answers: ["Tolstoi","Dostojewski","Puschkin","Gorki"], correct: 0, category: "Kultur & Kunst" },
-{ question: "Welche Kunstrichtung prägte Picasso?", answers: ["Kubismus","Expressionismus","Surrealismus","Impressionismus"], correct: 0, category: "Kultur & Kunst" },
-{ question: "Welches Instrument ist typisch für Jazz?", answers: ["Cello","Saxophon","Harfe","Oboe"], correct: 1, category: "Kultur & Kunst" },
-{ question: "Welcher Filmregisseur drehte 'Inception'?", answers: ["Spielberg","Nolan","Tarantino","Cameron"], correct: 1, category: "Kultur & Kunst" },
-{ question: "Welche Oper wurde 1875 uraufgeführt?", answers: ["Carmen","Nabucco","Figaros Hochzeit","Tosca"], correct: 0, category: "Kultur & Kunst" },
-{ question: "Wer ist der Autor von 'Der kleine Prinz'?", answers: ["Saint-Exupéry","Ende","Tolkien","Rowling"], correct: 0, category: "Kultur & Kunst" },
-{ question: "Welche Kunstform benutzt einen Meißel?", answers: ["Malerei","Bildhauerei","Fotografie","Grafik"], correct: 1, category: "Kultur & Kunst" },
-{ question: "Welcher Film gehört zur Marvel-Reihe?", answers: ["Avatar","Iron Man","Matrix","Shrek"], correct: 1, category: "Kultur & Kunst" },
-{ question: "Wer schrieb 'Der Name der Rose'?", answers: ["Eco","King","Kafka","Orwell"], correct: 0, category: "Kultur & Kunst" },
-{ question: "Welches Museum steht in Paris?", answers: ["Uffizien","Louvre","Prado","Tate"], correct: 1, category: "Kultur & Kunst" },
-{ question: "Woraus besteht Aquarellfarbe hauptsächlich?", answers: ["Wachs","Öl","Wasser","Harz"], correct: 2, category: "Kultur & Kunst" },
-{ question: "Wer sang 'Thriller'?", answers: ["Prince","Mercury","Jackson","Wonder"], correct: 2, category: "Kultur & Kunst" },
-{ question: "Welche Serie spielt in Westeros?", answers: ["Vikings","The Witcher","Game of Thrones","The Crown"], correct: 2, category: "Kultur & Kunst" },
-{ question: "Welche Figur stammt aus der griechischen Mythologie?", answers: ["Thor","Odin","Herkules","Loki"], correct: 2, category: "Kultur & Kunst" },
-
-// --- SPORT (25) ---
-{ question: "Wie viele Spieler hat eine Fußballmannschaft auf dem Feld?", answers: ["9","10","11","12"], correct: 2, category: "Sport" },
-{ question: "Wer gewann die Fußball-WM 2014?", answers: ["Brasilien","Deutschland","Spanien","Argentinien"], correct: 1, category: "Sport" },
-{ question: "Welche Sportart ist eine olympische Disziplin?", answers: ["Bowling","Taekwondo","Darts","Billard"], correct: 1, category: "Sport" },
-{ question: "Wie viele Ringe hat das olympische Symbol?", answers: ["4","5","6","7"], correct: 1, category: "Sport" },
-{ question: "Wer gewann den ersten Formel-1-Titel?", answers: ["Lauda","Fangio","Schumacher","Senna"], correct: 1, category: "Sport" },
-{ question: "Welche Farbe hat die Tour-de-France-Führungsweste?", answers: ["Blau","Grün","Gelb","Weiß"], correct: 2, category: "Sport" },
-{ question: "Welche Sportart nutzt ein Shuttlecock?", answers: ["Tennis","Badminton","Squash","Baseball"], correct: 1, category: "Sport" },
-{ question: "Wie viele Minuten dauert ein Rugby-Spiel?", answers: ["60","70","80","90"], correct: 2, category: "Sport" },
-{ question: "Welche Stadt war 2008 Gastgeber der Olympischen Spiele?", answers: ["Sydney","London","Athen","Peking"], correct: 3, category: "Sport" },
-{ question: "Welche Distanz hat ein Marathon?", answers: ["36 km","42,195 km","50 km","25 km"], correct: 1, category: "Sport" },
-{ question: "Welche Sportart wird auf Eis gespielt?", answers: ["Curling","Volleyball","Handball","Cricket"], correct: 0, category: "Sport" },
-{ question: "Wer gilt als der 'GOAT' im Basketball?", answers: ["Kobe Bryant","LeBron James","Michael Jordan","Shaquille O’Neal"], correct: 2, category: "Sport" },
-{ question: "Welches Land gewann die erste Fußball-WM 1930?", answers: ["Brasilien","Italien","Uruguay","Deutschland"], correct: 2, category: "Sport" },
-{ question: "Wie heißt der höchste Fußballpreis Europas?", answers: ["Champions League","Europa League","Super Cup","Conference League"], correct: 0, category: "Sport" },
-{ question: "Wer hält den 100m-Weltrekord (Männer)?", answers: ["Bolt","Lewis","Powell","Gatlin"], correct: 0, category: "Sport" },
-{ question: "Wie viele Perioden hat ein Eishockeyspiel?", answers: ["2","3","4","5"], correct: 1, category: "Sport" },
-{ question: "Welche Sportart betreibt Novak Djokovic?", answers: ["Tennis","Golf","Ringen","Judo"], correct: 0, category: "Sport" },
-{ question: "Wie nennt man drei Treffer beim Darts?", answers: ["Triple","180","Bull","Finish"], correct: 1, category: "Sport" },
-{ question: "Welche Mannschaft gewann die NBA 2020?", answers: ["Warriors","Lakers","Heat","Celtics"], correct: 1, category: "Sport" },
-{ question: "Welche Sportart wird mit einem Puck gespielt?", answers: ["Hockey","Eishockey","Lacrosse","Cricket"], correct: 1, category: "Sport" },
-{ question: "Wie heißt das Stadion von Bayern München?", answers: ["Signal Iduna Park","Allianz Arena","Olympiastadion","Camp Nou"], correct: 1, category: "Sport" },
-{ question: "Wer hat die meisten Formel-1 Weltmeistertitel?", answers: ["Senna","Hamilton","Schumacher","Vettel"], correct: 1, category: "Sport" },
-{ question: "Welche Sportart umfasst Balken und Stufenbarren?", answers: ["Gerätturnen","Gymnastik","Kunstturnen","Athletik"], correct: 0, category: "Sport" },
-{ question: "Wie viele Löcher hat ein reguläres Golfturnier?", answers: ["9","18","27","36"], correct: 1, category: "Sport" },
-{ question: "Welche Nation dominiert traditionell im Biathlon?", answers: ["Norwegen","USA","Japan","Spanien"], correct: 0, category: "Sport" },
-
-// --- TECHNIK & DIGITALISIERUNG (25) ---
-{ question: "Was bedeutet die Abkürzung 'CPU'?", answers: ["Central Performance Unit","Central Processing Unit","Computer Personal Unit","Control Processing Unit"], correct: 1, category: "Technik & Digitalisierung" },
-{ question: "Welche Firma entwickelte das erste iPhone?", answers: ["Samsung","Apple","Nokia","Motorola"], correct: 1, category: "Technik & Digitalisierung" },
-{ question: "Welche Einheit misst Datenmenge?", answers: ["Watt","Bit","Ampere","Hertz"], correct: 1, category: "Technik & Digitalisierung" },
-{ question: "Welcher Browser gehört zu Google?", answers: ["Safari","Firefox","Chrome","Edge"], correct: 2, category: "Technik & Digitalisierung" },
-{ question: "Was ist ein Betriebssystem?", answers: ["Hardware","Software","Router","Datenbank"], correct: 1, category: "Technik & Digitalisierung" },
-{ question: "Welcher Kabeltyp überträgt digitale Videos?", answers: ["HDMI","LAN","USB-A","Klinke"], correct: 0, category: "Technik & Digitalisierung" },
-{ question: "Welche Programmiersprache wird für Webseiten verwendet?", answers: ["HTML","C++","Python","Java"], correct: 0, category: "Technik & Digitalisierung" },
-{ question: "Wie nennt man die künstliche Intelligenz, die aus Daten lernt?", answers: ["Statistik","Machine Learning","Big Data","Hochrechnung"], correct: 1, category: "Technik & Digitalisierung" },
-{ question: "Welcher Speicher ist flüchtig?", answers: ["ROM","SSD","RAM","Festplatte"], correct: 2, category: "Technik & Digitalisierung" },
-{ question: "Was bezeichnet '5G'?", answers: ["Fünftes Gigabit","Mobilfunkstandard","Internetsignal","WLAN-Format"], correct: 1, category: "Technik & Digitalisierung" },
-{ question: "Welche Firma entwickelte Windows?", answers: ["Apple","Google","Microsoft","IBM"], correct: 2, category: "Technik & Digitalisierung" },
-{ question: "Was ist eine Cloud?", answers: ["Nebelformation","Online-Speicher","Stromnetz","Sicherheitssoftware"], correct: 1, category: "Technik & Digitalisierung" },
-{ question: "Was bedeutet 'URL'?", answers: ["Universal Resource Locator","Unified Routing Line","User Response Link","Ultimate Routing Log"], correct: 0, category: "Technik & Digitalisierung" },
-{ question: "Welche Datei-Endung steht für Bilder?", answers: ["PDF","JPG","EXE","DOCX"], correct: 1, category: "Technik & Digitalisierung" },
-{ question: "Was ist ein Algorithmus?", answers: ["Zufallsprozess","Musikformat","Schrittfolge","Gerät"], correct: 2, category: "Technik & Digitalisierung" },
-{ question: "Was ist ein Motherboard?", answers: ["Netzteil","Hauptplatine","Grafikkarte","Laufwerk"], correct: 1, category: "Technik & Digitalisierung" },
-{ question: "Welche Social-Media-Plattform gehört zu Meta?", answers: ["Snapchat","TikTok","Instagram","X"], correct: 2, category: "Technik & Digitalisierung" },
-{ question: "Was misst Hertz?", answers: ["Datenrate","Frequenz","Leistung","Spannung"], correct: 1, category: "Technik & Digitalisierung" },
-{ question: "Welche App dient zur Videotelefonie?", answers: ["Excel","Zoom","Photoshop","Dropbox"], correct: 1, category: "Technik & Digitalisierung" },
-{ question: "Wofür steht 'AI'?", answers: ["Active Interface","Artificial Intelligence","Adobe Integration","Advanced Internet"], correct: 1, category: "Technik & Digitalisierung" },
-{ question: "Welche Datei-Endung ist für Programme typisch?", answers: ["EXE","TXT","MP3","PNG"], correct: 0, category: "Technik & Digitalisierung" },
-{ question: "Was ist ein Trojaner?", answers: ["PC-Bauteil","Virusart","Passwortsystem","Server"], correct: 1, category: "Technik & Digitalisierung" },
-{ question: "Was nutzt ein QR-Code?", answers: ["Laser","Streifenmuster","Matrixpunkte","Fingerabdruck"], correct: 2, category: "Technik & Digitalisierung" },
-{ question: "Welche Plattform ist eine Suchmaschine?", answers: ["Google","Instagram","WhatsApp","Amazon"], correct: 0, category: "Technik & Digitalisierung" },
-{ question: "Was ist ein Pixel?", answers: ["Datensatz","Bildpunkt","Farbfilter","Speichereinheit"], correct: 1, category: "Technik & Digitalisierung" }
-];
-
+  // Finale offene Fragen
+  const FINAL_QUESTION_POOL = [
+    { question: "In welchem Jahr wurde die Berliner Mauer errichtet?", answer: "1961" },
+    { question: "Wie heißt der höchste Berg Deutschlands?", answer: "Zugspitze" },
+    { question: "Welches chemische Element hat das Symbol 'Au'?", answer: "Gold" },
+    { question: "Wie viele Bundesländer hat Deutschland?", answer: "16" },
+    { question: "In welcher Stadt steht die Freiheitsstatue?", answer: "New York" },
+    { question: "Welcher Planet ist der Sonne am nächsten?", answer: "Merkur" },
+    { question: "Wie viele Tasten hat ein Standardklavier?", answer: "88" },
+    { question: "Welches Jahr markiert den Beginn des Ersten Weltkriegs?", answer: "1914" },
+  ];
 
   function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
   function randomGameID(){ return Math.random().toString(36).substr(2,6).toUpperCase(); }
@@ -337,18 +209,17 @@
 
   const DEFAULT_ITEMS = { boost: 5, poison: 5, shield: 3 };
 
-function RTLLogo({ size = "md" }) {
-  const sizeMap = { sm: 40, md: 60, lg: 100 };
-  const height = sizeMap[size] || 60;
-
-  return (
-    <img 
-      src="Logo.png"   // --> hier dein PNG einfügen
-      alt="Logo"
-      style={{ height, width: "auto" }}
-    />
-  );
-}
+  function RTLLogo({ size = "md" }) {
+    const sizeMap = { sm: 40, md: 60, lg: 100 };
+    const height = sizeMap[size] || 60;
+    return (
+      <img 
+        src="Logo.png"
+        alt="Logo"
+        style={{ height, width: "auto" }}
+      />
+    );
+  }
 
   function qrUrlForGame(gameId){
     const url = `${window.location.origin}${window.location.pathname}?join=${gameId}`;
@@ -398,13 +269,25 @@ function RTLLogo({ size = "md" }) {
     },[gameId]);
 
     if(!meta) return <div className="card">Lade...</div>;
+    
+    const phaseDisplay = meta.phase === 'finalQuestion' ? 'Finale' : 
+                         meta.phase === 'finalReview' ? 'Finale Auswertung' : 
+                         meta.phase;
+    
     return (
       <div className="card" style={{display:'flex', flexDirection:'column', gap:12}}>
         <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
           <div>
-            <div style={{color:'var(--muted)'}}>Phase: <strong style={{color:'var(--rtl-orange)'}}>{meta.phase}</strong></div>
-            <div style={{color:'var(--muted)'}}>Runde: <strong style={{color:'var(--rtl-orange)'}}>{meta.round || 1}/{TOTAL_ROUNDS}</strong></div>
-            <div style={{color:'var(--muted)'}}>Frage: <strong style={{color:'var(--rtl-orange)'}}>{(meta.questionIndex || 0) + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</strong></div>
+            <div style={{color:'var(--muted)'}}>Phase: <strong style={{color:'var(--rtl-orange)'}}>{phaseDisplay}</strong></div>
+            {meta.phase !== 'finalQuestion' && meta.phase !== 'finalReview' && (
+              <>
+                <div style={{color:'var(--muted)'}}>Runde: <strong style={{color:'var(--rtl-orange)'}}>{meta.round || 1}/{TOTAL_ROUNDS}</strong></div>
+                <div style={{color:'var(--muted)'}}>Frage: <strong style={{color:'var(--rtl-orange)'}}>{(meta.questionIndex || 0) + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</strong></div>
+              </>
+            )}
+            {(meta.phase === 'finalQuestion' || meta.phase === 'finalReview') && (
+              <div style={{color:'var(--muted)'}}>Final-Frage: <strong style={{color:'var(--rtl-orange)'}}>{(meta.finalQuestionIndex || 0) + 1}/{FINAL_QUESTIONS}</strong></div>
+            )}
           </div>
           <div style={{textAlign:'right', color:'var(--muted)'}}>👥 Spieler: {Object.keys(players).length}</div>
         </div>
@@ -452,20 +335,35 @@ function RTLLogo({ size = "md" }) {
     },[gameId]);
 
     useEffect(()=>{
-      if(!meta || meta.phase !== 'question' || !meta.questionStartTime){ setTimeLeft(0); return; }
-      const tick = async ()=>{
-        const elapsed = Math.floor((Date.now() - meta.questionStartTime)/1000);
-        const rem = Math.max(0, QUESTION_TIME - elapsed);
-        setTimeLeft(rem);
-        if(rem === 0) {
-          await showResultsNow();
-        }
-      };
-      tick();
-      clearInterval(timerRef.current);
-      timerRef.current = setInterval(tick, 500);
-      return ()=> clearInterval(timerRef.current);
-    },[meta?.phase, meta?.questionStartTime]);
+      if(!meta) { setTimeLeft(0); return; }
+      
+      if(meta.phase === 'question' && meta.questionStartTime){
+        const tick = async ()=>{
+          const elapsed = Math.floor((Date.now() - meta.questionStartTime)/1000);
+          const rem = Math.max(0, QUESTION_TIME - elapsed);
+          setTimeLeft(rem);
+          if(rem === 0) {
+            await showResultsNow();
+          }
+        };
+        tick();
+        clearInterval(timerRef.current);
+        timerRef.current = setInterval(tick, 500);
+        return ()=> clearInterval(timerRef.current);
+      } else if(meta.phase === 'finalQuestion' && meta.finalQuestionStartTime){
+        const tick = ()=>{
+          const elapsed = Math.floor((Date.now() - meta.finalQuestionStartTime)/1000);
+          const rem = Math.max(0, FINAL_TIME - elapsed);
+          setTimeLeft(rem);
+        };
+        tick();
+        clearInterval(timerRef.current);
+        timerRef.current = setInterval(tick, 500);
+        return ()=> clearInterval(timerRef.current);
+      } else {
+        setTimeLeft(0);
+      }
+    },[meta?.phase, meta?.questionStartTime, meta?.finalQuestionStartTime]);
 
     const showResultsNow = async ()=>{
       try{
@@ -482,7 +380,6 @@ function RTLLogo({ size = "md" }) {
         const actionsSnap = await actionLogRef.get();
         const actions = actionsSnap.exists() ? actionsSnap.val() : [];
 
-        // Kategorie-Wähler Bonus berechnen
         const categoryChooser = g.meta?.categoryChooserForRound || null;
 
         Object.entries(playerObj).forEach(([pid,p])=>{
@@ -495,7 +392,6 @@ function RTLLogo({ size = "md" }) {
             points = Math.round(points * 1.5);
           }
 
-          // Kategorie-Wähler Bonus
           if(correct && categoryChooser === pid){
             points = Math.round(points * CATEGORY_CHOOSER_BONUS);
           }
@@ -512,34 +408,70 @@ function RTLLogo({ size = "md" }) {
 
         await db.ref().update(updates);
         await db.ref(`games/${gameId}/meta`).update({ phase: 'results' });
-
-        const questionInRound = (qIndex + 1) % QUESTIONS_PER_ROUND;
-        if (questionInRound === 0) {
-          const finishedRound = Math.floor((qIndex + 1) / QUESTIONS_PER_ROUND);
-          const nextRoundMeta = finishedRound + 1;
-          if (nextRoundMeta > TOTAL_ROUNDS) {
-            await db.ref(`games/${gameId}/meta`).update({
-              phase: 'finished'
-            });
-          } else {
-            await db.ref(`games/${gameId}/meta`).update({
-              phase: 'roundSummary',
-              round: nextRoundMeta
-            });
-          }
-        }
       }catch(e){ console.error(e); }
     };
 
     const startNextRound = async ()=>{
       if(!meta) return;
 
+      // Nach results: entscheiden ob roundSummary oder nächste Frage
+      if(meta.phase === 'results'){
+        const currentIndex = meta.questionIndex ?? 0;
+        const nextIndex = currentIndex + 1;
+        const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
+        
+        const questionInRound = (currentIndex + 1) % QUESTIONS_PER_ROUND;
+        const finishedRound = Math.floor((currentIndex + 1) / QUESTIONS_PER_ROUND);
+        
+        // Wenn letzte Frage einer Runde
+        if (questionInRound === 0) {
+          if (finishedRound >= TOTAL_ROUNDS) {
+            // Alle 4 Runden durch → Finale vorbereiten
+            await prepareFinale();
+            return;
+          } else {
+            // Zwischenstand
+            await db.ref(`games/${gameId}/meta`).update({
+              phase: 'roundSummary',
+              round: finishedRound + 1
+            });
+            return;
+          }
+        }
+        
+        // Normale nächste Frage
+        if(nextIndex >= totalQuestions){
+          await prepareFinale();
+          return;
+        }
+        
+        const pSnap = await db.ref(`games/${gameId}/players`).get();
+        const pObj = pSnap.val() || {};
+        const updates = {};
+        Object.keys(pObj).forEach(pid => {
+          updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
+          updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost:false, boostTarget:null, shield:false, shieldTarget:null, poisonedBy: [] };
+          updates[`games/${gameId}/players/${pid}/hasTraded`] = false;
+        });
+        await db.ref().update(updates);
+
+        const currentRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
+        await db.ref(`games/${gameId}/meta`).update({
+          questionIndex: nextIndex,
+          phase: 'question',
+          questionStartTime: Date.now(),
+          round: currentRound
+        });
+        return;
+      }
+
+      // Nach roundSummary: neue Runde starten
       if(meta.phase === 'roundSummary'){
         const currentIndex = meta.questionIndex ?? 0;
         const nextIndex = currentIndex + 1;
         const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
         if(nextIndex >= totalQuestions){
-          await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+          await prepareFinale();
           return;
         }
 
@@ -593,41 +525,77 @@ function RTLLogo({ size = "md" }) {
         });
         return;
       }
+    };
 
-      const currentIndex = meta.questionIndex ?? 0;
-      const nextIndex = currentIndex + 1;
-      const totalQuestions = TOTAL_ROUNDS * QUESTIONS_PER_ROUND;
-      if(nextIndex >= totalQuestions){
+    const prepareFinale = async () => {
+      const pSnap = await db.ref(`games/${gameId}/players`).get();
+      const pObj = pSnap.val() || {};
+      const playersArr = Object.entries(pObj).map(([pid,p])=>({pid,...p})).sort((a,b)=>(b.score||0)-(a.score||0));
+      
+      if(playersArr.length < 2){
         await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
         return;
       }
-      const currentRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
-      const nextRound = Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1;
-      if(nextRound > currentRound){
-        if(nextRound > TOTAL_ROUNDS){
-          await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
-          return;
-        }
-        await db.ref(`games/${gameId}/meta`).update({ phase: 'roundSummary', round: nextRound });
-        return;
-      }
 
-      const pSnap = await db.ref(`games/${gameId}/players`).get();
-      const pObj = pSnap.val() || {};
+      const top2 = playersArr.slice(0, 2).map(p => p.pid);
+      
+      // Finale Fragen vorbereiten
+      const finalQuestions = shuffle(FINAL_QUESTION_POOL).slice(0, FINAL_QUESTIONS);
+      await db.ref(`games/${gameId}/finalQuestions`).set(finalQuestions);
+      
+      // Finalists markieren
       const updates = {};
       Object.keys(pObj).forEach(pid => {
-        updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-        updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost:false, boostTarget:null, shield:false, shieldTarget:null, poisonedBy: [] };
-        updates[`games/${gameId}/players/${pid}/hasTraded`] = false;
+        updates[`games/${gameId}/players/${pid}/isFinalist`] = top2.includes(pid);
+        updates[`games/${gameId}/players/${pid}/finalAnswers`] = {};
       });
       await db.ref().update(updates);
 
       await db.ref(`games/${gameId}/meta`).update({
-        questionIndex: nextIndex,
-        phase: 'question',
-        questionStartTime: Date.now(),
-        round: nextRound
+        phase: 'finalQuestion',
+        finalQuestionIndex: 0,
+        finalQuestionStartTime: Date.now(),
+        finalists: top2
       });
+    };
+
+    const startFinalReview = async () => {
+      await db.ref(`games/${gameId}/meta`).update({
+        phase: 'finalReview',
+        finalReviewIndex: 0
+      });
+    };
+
+    const judgeFinalAnswer = async (playerId, correct) => {
+      const snap = await db.ref(`games/${gameId}`).get();
+      const g = snap.val();
+      if(!g) return;
+
+      const reviewIndex = g.meta?.finalReviewIndex || 0;
+      const player = g.players?.[playerId];
+      if(!player) return;
+
+      const points = correct ? FINAL_POINTS : 0;
+      const newScore = (player.score || 0) + points;
+
+      await db.ref(`games/${gameId}/players/${playerId}`).update({
+        score: newScore,
+        [`finalScores/${reviewIndex}`]: points
+      });
+    };
+
+    const nextFinalReview = async () => {
+      const snap = await db.ref(`games/${gameId}`).get();
+      const g = snap.val();
+      if(!g) return;
+
+      const reviewIndex = (g.meta?.finalReviewIndex || 0) + 1;
+      
+      if(reviewIndex >= FINAL_QUESTIONS){
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+      } else {
+        await db.ref(`games/${gameId}/meta`).update({ finalReviewIndex: reviewIndex });
+      }
     };
 
     const startGame = async ()=>{
@@ -668,6 +636,7 @@ function RTLLogo({ size = "md" }) {
     const backToLobby = async ()=>{
       await db.ref(`games/${gameId}/meta`).set({ phase: 'lobby' });
       await db.ref(`games/${gameId}/questions`).remove();
+      await db.ref(`games/${gameId}/finalQuestions`).remove();
       await db.ref(`games/${gameId}/meta/categoryState`).remove();
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const pObj = pSnap.val() || {};
@@ -680,6 +649,8 @@ function RTLLogo({ size = "md" }) {
         updates[`games/${gameId}/players/${pid}/lastPoints`] = 0;
         updates[`games/${gameId}/players/${pid}/lastRoundBonus`] = null;
         updates[`games/${gameId}/players/${pid}/hasTraded`] = false;
+        updates[`games/${gameId}/players/${pid}/isFinalist`] = false;
+        updates[`games/${gameId}/players/${pid}/finalAnswers`] = null;
       });
       await db.ref().update(updates);
     };
@@ -875,9 +846,29 @@ function RTLLogo({ size = "md" }) {
               </div>
 
               <div style={{marginTop:20, textAlign:'center'}}>
-                <button className="btn btn-host" style={{padding:'12px 22px'}} onClick={startNextRound}>Weiter zur nächsten Runde →</button>
+                <button className="btn btn-host" style={{padding:'12px 22px'}} onClick={startNextRound}>
+                  {meta.round > TOTAL_ROUNDS ? 'Zum Finale →' : 'Weiter zur nächsten Runde →'}
+                </button>
               </div>
             </div>
+          )}
+
+          {meta.phase === 'finalQuestion' && (
+            <FinalQuestionHostView 
+              game={game} 
+              meta={meta} 
+              timeLeft={timeLeft}
+              onStartReview={startFinalReview}
+            />
+          )}
+
+          {meta.phase === 'finalReview' && (
+            <FinalReviewHostView 
+              game={game} 
+              meta={meta}
+              onJudge={judgeFinalAnswer}
+              onNext={nextFinalReview}
+            />
           )}
 
           {meta.phase === 'finished' && (
@@ -990,6 +981,169 @@ function RTLLogo({ size = "md" }) {
   }
 
   /****************************************
+   * FINAL QUESTION HOST VIEW
+   ****************************************/
+  function FinalQuestionHostView({ game, meta, timeLeft, onStartReview }){
+    const finalQIndex = meta.finalQuestionIndex || 0;
+    const finalQuestion = (game.finalQuestions || [])[finalQIndex];
+    const finalists = (meta.finalists || []).map(pid => ({
+      pid,
+      ...(game.players?.[pid] || {})
+    }));
+
+    const allAnswered = finalists.every(f => {
+      const answers = f.finalAnswers || {};
+      return answers[finalQIndex] !== undefined && answers[finalQIndex] !== null && answers[finalQIndex] !== '';
+    });
+
+    return (
+      <div style={{display:'flex', flexDirection:'column', gap:18}}>
+        <div style={{display:'flex', alignItems:'center', gap:12}}>
+          <div className={`countdown-badge ${timeLeft <= 10 ? 'danger' : timeLeft <= 20 ? 'warning' : ''}`}>
+            {timeLeft}
+          </div>
+          <div>
+            <h2 style={{fontSize:32, fontWeight:900, color:'var(--rtl-orange)'}}>🏆 Finale</h2>
+            <div style={{fontSize:22, color:'var(--muted)'}}>Frage {finalQIndex + 1} von {FINAL_QUESTIONS}</div>
+          </div>
+        </div>
+
+        <div style={{padding:20, background:'rgba(255,255,255,0.02)'}}>
+          <h3 style={{fontSize:28, fontWeight:900}}>{finalQuestion?.question || 'Lade...'}</h3>
+          <p style={{marginTop:12, color:'var(--muted)', fontSize:18}}>Die Finalisten tippen ihre Antwort ein (60 Sekunden Zeit)</p>
+        </div>
+
+        <div>
+          <h4 style={{fontWeight:900, marginBottom:10}}>Finalisten:</h4>
+          {finalists.map(f => {
+            const hasAnswered = f.finalAnswers && f.finalAnswers[finalQIndex];
+            return (
+              <div key={f.pid} style={{display:'flex', justifyContent:'space-between', padding:12, background:'rgba(255,255,255,0.01)', marginBottom:8}}>
+                <div style={{fontWeight:900}}>{f.name}</div>
+                <div style={{color: hasAnswered ? 'var(--rtl-green)' : 'var(--muted)'}}>
+                  {hasAnswered ? '✓ Abgegeben' : '⏳ Wartet...'}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {(timeLeft === 0 || allAnswered) && (
+          <div style={{marginTop:20}}>
+            <button className="btn btn-host" onClick={onStartReview}>
+              Zur Auswertung →
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  /****************************************
+   * FINAL REVIEW HOST VIEW
+   ****************************************/
+  function FinalReviewHostView({ game, meta, onJudge, onNext }){
+    const reviewIndex = meta.finalReviewIndex || 0;
+    const finalQuestion = (game.finalQuestions || [])[reviewIndex];
+    const finalists = (meta.finalists || []).map(pid => ({
+      pid,
+      ...(game.players?.[pid] || {})
+    }));
+
+    const [judgedPlayers, setJudgedPlayers] = useState({});
+
+    const handleJudge = async (playerId, correct) => {
+      await onJudge(playerId, correct);
+      setJudgedPlayers(prev => ({...prev, [playerId]: correct}));
+    };
+
+    const allJudged = finalists.every(f => judgedPlayers[f.pid] !== undefined);
+
+    return (
+      <div style={{display:'flex', flexDirection:'column', gap:18}}>
+        <div>
+          <h2 style={{fontSize:32, fontWeight:900, color:'var(--rtl-orange)'}}>🏆 Finale - Auswertung</h2>
+          <div style={{fontSize:18, color:'var(--muted)'}}>Frage {reviewIndex + 1} von {FINAL_QUESTIONS}</div>
+        </div>
+
+        <div style={{padding:20, background:'rgba(255,255,255,0.03)'}}>
+          <h3 style={{fontSize:24, fontWeight:900, marginBottom:12}}>Frage:</h3>
+          <div style={{fontSize:20}}>{finalQuestion?.question}</div>
+          <div style={{marginTop:16, padding:12, background:'rgba(34,197,94,0.1)', borderLeft:'3px solid var(--rtl-green)'}}>
+            <strong>Richtige Antwort:</strong> {finalQuestion?.answer}
+          </div>
+        </div>
+
+        <div>
+          <h4 style={{fontWeight:900, fontSize:20, marginBottom:12}}>Antworten der Finalisten:</h4>
+          {finalists.map(f => {
+            const answer = f.finalAnswers?.[reviewIndex] || '(Keine Antwort)';
+            const judged = judgedPlayers[f.pid];
+            
+            return (
+              <div key={f.pid} style={{
+                padding:16, 
+                background:'rgba(255,255,255,0.02)', 
+                marginBottom:12,
+                border: judged !== undefined ? (judged ? '2px solid var(--rtl-green)' : '2px solid #ff6b6b') : '1px solid rgba(255,255,255,0.05)'
+              }}>
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12}}>
+                  <div style={{fontWeight:900, fontSize:18}}>{f.name}</div>
+                  <div style={{color:'var(--muted)'}}>Aktuell: {f.score || 0} Punkte</div>
+                </div>
+                
+                <div style={{padding:12, background:'rgba(255,255,255,0.05)', marginBottom:12}}>
+                  <div style={{fontSize:16, fontWeight:700}}>Antwort: {answer}</div>
+                </div>
+
+                {judged === undefined ? (
+                  <div style={{display:'flex', gap:10}}>
+                    <button 
+                      className="btn btn-host" 
+                      onClick={() => handleJudge(f.pid, true)}
+                      style={{flex:1, background:'var(--rtl-green)', padding:'12px'}}
+                    >
+                      ✓ Richtig (+{FINAL_POINTS} Punkte)
+                    </button>
+                    <button 
+                      className="btn" 
+                      onClick={() => handleJudge(f.pid, false)}
+                      style={{flex:1, background:'#ff6b6b', color:'white', padding:'12px'}}
+                    >
+                      ✗ Falsch (0 Punkte)
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{
+                    padding:10, 
+                    background: judged ? 'rgba(34,197,94,0.2)' : 'rgba(255,107,107,0.2)',
+                    textAlign:'center',
+                    fontWeight:900
+                  }}>
+                    {judged ? `✓ Richtig bewertet (+${FINAL_POINTS} Punkte)` : '✗ Falsch bewertet (0 Punkte)'}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {allJudged && (
+          <div style={{marginTop:20, textAlign:'center'}}>
+            <button 
+              className="btn btn-host" 
+              onClick={() => { setJudgedPlayers({}); onNext(); }}
+              style={{padding:'14px 24px', fontSize:18}}
+            >
+              {reviewIndex + 1 >= FINAL_QUESTIONS ? 'Zum Endergebnis →' : 'Nächste Final-Frage →'}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  /****************************************
    * PLAYER VIEW
    ****************************************/
   function PlayerView({ gameId, playerId }){
@@ -1002,11 +1156,12 @@ function RTLLogo({ size = "md" }) {
     const [boostModalOpen, setBoostModalOpen] = useState(false);
     const [shieldModalOpen, setShieldModalOpen] = useState(false);
     const [tradeModalOpen, setTradeModalOpen] = useState(false);
-    const [tradeStep, setTradeStep] = useState('selectItem'); // 'selectItem' or 'selectPlayer'
+    const [tradeStep, setTradeStep] = useState('selectItem');
     const [selectedTradeItem, setSelectedTradeItem] = useState(null);
     const [bonusItemModalOpen, setBonusItemModalOpen] = useState(false);
     const [bonusCategoryModalOpen, setBonusCategoryModalOpen] = useState(false);
     const [candidateCategories, setCandidateCategories] = useState([]);
+    const [finalAnswer, setFinalAnswer] = useState('');
 
     useEffect(()=>{
       const gRef = db.ref(`games/${gameId}`);
@@ -1019,12 +1174,28 @@ function RTLLogo({ size = "md" }) {
     },[gameId, playerId]);
 
     useEffect(()=>{
-      if(!meta || meta.phase !== 'question' || !meta.questionStartTime){ setTimeLeft(0); return; }
-      const tick = ()=>{ const elapsed = Math.floor((Date.now() - meta.questionStartTime)/1000); setTimeLeft(Math.max(0, QUESTION_TIME - elapsed)); };
-      tick();
-      const t = setInterval(tick, 500);
-      return ()=> clearInterval(t);
-    },[meta?.questionStartTime, meta?.phase]);
+      if(!meta){ setTimeLeft(0); return; }
+      
+      if(meta.phase === 'question' && meta.questionStartTime){
+        const tick = ()=>{ 
+          const elapsed = Math.floor((Date.now() - meta.questionStartTime)/1000); 
+          setTimeLeft(Math.max(0, QUESTION_TIME - elapsed)); 
+        };
+        tick();
+        const t = setInterval(tick, 500);
+        return ()=> clearInterval(t);
+      } else if(meta.phase === 'finalQuestion' && meta.finalQuestionStartTime){
+        const tick = ()=>{ 
+          const elapsed = Math.floor((Date.now() - meta.finalQuestionStartTime)/1000); 
+          setTimeLeft(Math.max(0, FINAL_TIME - elapsed)); 
+        };
+        tick();
+        const t = setInterval(tick, 500);
+        return ()=> clearInterval(t);
+      } else {
+        setTimeLeft(0);
+      }
+    },[meta?.questionStartTime, meta?.finalQuestionStartTime, meta?.phase]);
 
     useEffect(()=>{
       if(!game || !meta || !player) return;
@@ -1047,7 +1218,6 @@ function RTLLogo({ size = "md" }) {
         return;
       }
 
-      // Nur in Runde 2 und 3 dürfen Letztplatzierte Kategorien wählen
       const canChooseCategory = finishedRoundNumber === 1 || finishedRoundNumber === 2;
 
       if(lastPlayers.includes(playerId) && (player.lastRoundBonus !== finishedRoundNumber)){
@@ -1062,7 +1232,6 @@ function RTLLogo({ size = "md" }) {
     const qIndex = meta.questionIndex || 0;
     const question = (game.questions || [])[qIndex];
 
-    // Boost Modal - Ziel auswählen
     const openBoostModal = () => {
       const entries = Object.entries(game.players || {}).map(([pid,p]) => ({ pid, name: p.name }));
       setPoisonTargets(entries);
@@ -1089,7 +1258,6 @@ function RTLLogo({ size = "md" }) {
       await db.ref().update(updates);
     };
 
-    // Shield Modal - Ziel auswählen
     const openShieldModal = () => {
       const entries = Object.entries(game.players || {}).map(([pid,p]) => ({ pid, name: p.name }));
       setPoisonTargets(entries);
@@ -1112,7 +1280,6 @@ function RTLLogo({ size = "md" }) {
       await db.ref().update(updates);
     };
 
-    // Poison Modal
     const openPoisonModal = ()=>{ 
       const entries = Object.entries(game.players || {}).filter(([pid]) => pid !== playerId).map(([pid,p]) => ({ pid, name: p.name })); 
       setPoisonTargets(entries); 
@@ -1147,7 +1314,6 @@ function RTLLogo({ size = "md" }) {
       }
     };
 
-    // Trade Modal
     const openTradeModal = () => {
       if(player.hasTraded) {
         alert('Du hast in dieser Runde bereits gehandelt!');
@@ -1194,6 +1360,18 @@ function RTLLogo({ size = "md" }) {
       await db.ref().update(updates);
     };
 
+    // Finale Frage beantworten
+    const submitFinalAnswer = async () => {
+      if(!finalAnswer.trim()) {
+        alert('Bitte gib eine Antwort ein');
+        return;
+      }
+      const finalQIndex = meta.finalQuestionIndex || 0;
+      await db.ref(`games/${gameId}/players/${playerId}/finalAnswers/${finalQIndex}`).set(finalAnswer.trim());
+      setFinalAnswer('');
+    };
+
+    // Normale Frage
     if(meta.phase === 'question' && question){
       const hasAnswered = player.currentAnswer !== null && player.currentAnswer !== undefined;
       const boostAvailable = (player.items && player.items.boost > 0);
@@ -1271,6 +1449,7 @@ function RTLLogo({ size = "md" }) {
             </div>
           </div>
 
+          {/* Modals */}
           {boostModalOpen && (
             <div className="modal-backdrop">
               <div className="modal-card" style={{maxWidth:420}}>
@@ -1364,6 +1543,124 @@ function RTLLogo({ size = "md" }) {
       );
     }
 
+        // Finale Frage
+    if(meta.phase === 'finalQuestion'){
+      if(!player.isFinalist){
+        return (
+          <div className="min-h-screen flex items-center justify-center" style={{padding:20, background:'var(--bg)'}}>
+            <div className="card" style={{maxWidth:500, textAlign:'center'}}>
+              <h2 style={{fontSize:24, fontWeight:900, color:'var(--rtl-orange)'}}>🏆 Finale läuft</h2>
+              <p style={{marginTop:12, color:'var(--muted)'}}>
+                Du hast es leider nicht ins Finale geschafft. Die Top 2 Spieler kämpfen jetzt um den Sieg!
+              </p>
+              <p style={{marginTop:12, fontWeight:900}}>Dein Endstand: {player.score || 0} Punkte</p>
+            </div>
+          </div>
+        );
+      }
+
+      const finalQIndex = meta.finalQuestionIndex || 0;
+      const finalQuestion = (game.finalQuestions || [])[finalQIndex];
+      const hasAnswered = player.finalAnswers && player.finalAnswers[finalQIndex];
+
+      return (
+        <div className="min-h-screen" style={{padding:20, background:'var(--bg)'}}>
+          <div style={{padding:16, background:'rgba(255,255,255,0.01)'}} className="card">
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+              <div>
+                <div style={{fontSize:20, fontWeight:900, color:'var(--rtl-orange)'}}>🏆 FINALE</div>
+                <div style={{color:'var(--muted)'}}>Frage {finalQIndex + 1} von {FINAL_QUESTIONS}</div>
+              </div>
+              <div style={{fontSize:18, fontWeight:900, color:'var(--rtl-orange)'}}>{timeLeft}s</div>
+            </div>
+
+            <h3 style={{fontSize:20, fontWeight:900, marginTop:16}}>{finalQuestion?.question}</h3>
+            
+            <div style={{marginTop:16, padding:12, background:'rgba(255,102,0,0.1)', borderLeft:'3px solid var(--rtl-orange)'}}>
+              <div style={{fontWeight:700, marginBottom:8}}>⚠️ Finale-Regeln:</div>
+              <ul style={{marginLeft:20, color:'var(--muted)', fontSize:14}}>
+                <li>Offene Frage - tippe deine Antwort ein</li>
+                <li>Jede richtige Antwort = {FINAL_POINTS} Punkte (doppelt!)</li>
+                <li>60 Sekunden Zeit</li>
+                <li>Keine Items verfügbar</li>
+              </ul>
+            </div>
+
+            {hasAnswered ? (
+              <div style={{marginTop:16, padding:16, background:'rgba(34,197,94,0.1)', textAlign:'center', borderLeft:'3px solid var(--rtl-green)'}}>
+                <div style={{fontSize:18, fontWeight:900, color:'var(--rtl-green)'}}>✓ Antwort abgegeben</div>
+                <p style={{marginTop:8, color:'var(--muted)'}}>Warte auf die Auswertung...</p>
+              </div>
+            ) : (
+              <div style={{marginTop:16}}>
+                <input 
+                  className="w-full p-3" 
+                  placeholder="Deine Antwort eingeben..." 
+                  value={finalAnswer}
+                  onChange={e => setFinalAnswer(e.target.value)}
+                  disabled={timeLeft === 0}
+                  style={{fontSize:16}}
+                />
+                <button 
+                  className="btn btn-host w-full mt-3" 
+                  onClick={submitFinalAnswer}
+                  disabled={!finalAnswer.trim() || timeLeft === 0}
+                  style={{padding:'12px', fontSize:16}}
+                >
+                  Antwort abschicken
+                </button>
+              </div>
+            )}
+
+            <div style={{marginTop:16, display:'flex', justifyContent:'space-between', padding:12, background:'rgba(255,255,255,0.02)'}}>
+              <div style={{fontWeight:700}}>Dein aktueller Stand:</div>
+              <div style={{fontWeight:900, color:'var(--rtl-green)', fontSize:18}}>{player.score || 0} Punkte</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Finale Auswertung - Spieler wartet
+    if(meta.phase === 'finalReview'){
+      if(!player.isFinalist){
+        return (
+          <div className="min-h-screen flex items-center justify-center" style={{padding:20, background:'var(--bg)'}}>
+            <div className="card" style={{maxWidth:500, textAlign:'center'}}>
+              <h2 style={{fontSize:24, fontWeight:900, color:'var(--rtl-orange)'}}>🏆 Finale - Auswertung</h2>
+              <p style={{marginTop:12, color:'var(--muted)'}}>
+                Der Host wertet gerade die Antworten aus...
+              </p>
+              <p style={{marginTop:12, fontWeight:900}}>Dein Endstand: {player.score || 0} Punkte</p>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="min-h-screen" style={{padding:20, background:'var(--bg)'}}>
+          <div style={{padding:16, background:'rgba(255,255,255,0.01)'}} className="card">
+            <h2 style={{fontSize:24, fontWeight:900, color:'var(--rtl-orange)', textAlign:'center'}}>🏆 Auswertung läuft...</h2>
+            <p style={{marginTop:12, color:'var(--muted)', textAlign:'center'}}>
+              Der Host bewertet gerade deine Antworten.
+            </p>
+            
+            <div style={{marginTop:24, padding:20, background:'rgba(255,255,255,0.02)', textAlign:'center'}}>
+              <div style={{fontSize:16, color:'var(--muted)', marginBottom:8}}>Dein Live-Stand:</div>
+              <div style={{fontSize:36, fontWeight:900, color:'var(--rtl-green)'}}>{player.score || 0}</div>
+              <div style={{fontSize:14, color:'var(--muted)', marginTop:4}}>Punkte</div>
+            </div>
+
+            <div style={{marginTop:16, padding:12, background:'rgba(255,102,0,0.05)', textAlign:'center'}}>
+              <div style={{color:'var(--muted)', fontSize:14}}>
+                ⏳ Bitte warten während der Host die Antworten prüft...
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if(meta.phase === 'results' && question){
       const wasCorrect = player.currentAnswer === question.correct;
       const poisonedBy = (player.activeEffects && player.activeEffects.poisonedBy) ? player.activeEffects.poisonedBy : [];
@@ -1413,7 +1710,6 @@ function RTLLogo({ size = "md" }) {
         await db.ref().update(updates);
         setBonusItemModalOpen(false);
 
-        // Nur in Runde 2 und 3 darf Kategorie gewählt werden
         const canChooseCategory = finishedRound === 1 || finishedRound === 2;
         if(!canChooseCategory) return;
 
@@ -1450,15 +1746,23 @@ function RTLLogo({ size = "md" }) {
                 <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.03)'}}>
                   <div style={{fontWeight:900}}>{i<3? (i===0?'🥇':i===1?'🥈':'🥉') : `#${i+1}`} {p.name}</div>
                   <div style={{display:'flex', gap:12, alignItems:'center'}}>
-                    <div>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</div>
-                    <div>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</div>
-                    <div>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
+                    {meta.phase !== 'finished' && (
+                      <>
+                        <div>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</div>
+                        <div>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</div>
+                        <div>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
+                      </>
+                    )}
                     <div style={{fontWeight:900}}>{p.score || 0}</div>
                   </div>
                 </div>
               ))}
             </div>
-            <p style={{marginTop:12, color:'var(--muted)', textAlign:'center'}}>{meta.phase === 'finished' ? 'Warte auf den Host...' : 'Host startet die nächste Runde, sobald er bereit ist.'}</p>
+            <p style={{marginTop:12, color:'var(--muted)', textAlign:'center'}}>
+              {meta.phase === 'finished' ? 'Warte auf den Host...' : 
+               meta.round > TOTAL_ROUNDS ? 'Bereite dich auf das Finale vor!' : 
+               'Host startet die nächste Runde, sobald er bereit ist.'}
+            </p>
           </div>
 
           {bonusItemModalOpen && (
@@ -1616,8 +1920,6 @@ function RTLLogo({ size = "md" }) {
   </script>
 </body>
 </html>
-
-
 
 
 
