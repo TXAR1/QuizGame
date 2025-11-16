@@ -128,7 +128,7 @@
 
   /************ CONFIG ************/
   const TOTAL_ROUNDS = 4;
-  const QUESTIONS_PER_ROUND = 2;
+  const QUESTIONS_PER_ROUND = 7;
   const QUESTION_TIME = 40;
   const BASE_POINTS = 100;
   const CATEGORY_CHOOSER_BONUS = 1.2;
@@ -351,10 +351,13 @@
         timerRef.current = setInterval(tick, 500);
         return ()=> clearInterval(timerRef.current);
       } else if(meta.phase === 'finalQuestion' && meta.finalQuestionStartTime){
-        const tick = ()=>{
+        const tick = async ()=>{
           const elapsed = Math.floor((Date.now() - meta.finalQuestionStartTime)/1000);
           const rem = Math.max(0, FINAL_TIME - elapsed);
           setTimeLeft(rem);
+          if(rem === 0) {
+            await nextFinalQuestion();
+          }
         };
         tick();
         clearInterval(timerRef.current);
@@ -548,15 +551,42 @@
       Object.keys(pObj).forEach(pid => {
         updates[`games/${gameId}/players/${pid}/isFinalist`] = top2.includes(pid);
         updates[`games/${gameId}/players/${pid}/finalAnswers`] = {};
+        updates[`games/${gameId}/players/${pid}/finalistReady`] = false;
       });
       await db.ref().update(updates);
 
       await db.ref(`games/${gameId}/meta`).update({
-        phase: 'finalQuestion',
-        finalQuestionIndex: 0,
-        finalQuestionStartTime: Date.now(),
+        phase: 'finalIntro',
         finalists: top2
       });
+    };
+
+    const startFinalQuestion = async () => {
+      await db.ref(`games/${gameId}/meta`).update({
+        phase: 'finalQuestion',
+        finalQuestionIndex: 0,
+        finalQuestionStartTime: Date.now()
+      });
+    };
+
+    const nextFinalQuestion = async () => {
+      const snap = await db.ref(`games/${gameId}`).get();
+      const g = snap.val();
+      if(!g) return;
+
+      const currentIndex = (g.meta?.finalQuestionIndex || 0) + 1;
+      
+      if(currentIndex >= FINAL_QUESTIONS){
+        await db.ref(`games/${gameId}/meta`).update({ 
+          phase: 'finalReview',
+          finalReviewIndex: 0
+        });
+      } else {
+        await db.ref(`games/${gameId}/meta`).update({
+          finalQuestionIndex: currentIndex,
+          finalQuestionStartTime: Date.now()
+        });
+      }
     };
 
     const startFinalReview = async () => {
@@ -853,12 +883,20 @@
             </div>
           )}
 
+          {meta.phase === 'finalIntro' && (
+            <FinalIntroHostView 
+              game={game} 
+              meta={meta}
+              onStart={startFinalQuestion}
+            />
+          )}
+
           {meta.phase === 'finalQuestion' && (
             <FinalQuestionHostView 
               game={game} 
               meta={meta} 
               timeLeft={timeLeft}
-              onStartReview={startFinalReview}
+              onNext={nextFinalQuestion}
             />
           )}
 
@@ -872,72 +910,74 @@
           )}
 
           {meta.phase === 'finished' && (
-            <div style={{textAlign:'center', padding:'20px'}}>
-              <h2 style={{fontSize:44, fontWeight:900, marginBottom:10}}>🎉 Spiel beendet!</h2>
-              <p style={{color:'var(--muted)', fontSize:20}}>Hier sind eure finalen Platzierungen</p>
+            <div style={{textAlign:'center', padding:'20px', maxHeight:'85vh', overflow:'auto'}}>
+              <h2 style={{fontSize:36, fontWeight:900, marginBottom:10}}>🎉 Spiel beendet!</h2>
+              <p style={{color:'var(--muted)', fontSize:18}}>Hier sind eure finalen Platzierungen</p>
 
               {playersArr[0] && (
                 <div style={{
-                  marginTop:30,
-                  padding:'30px 20px',
+                  marginTop:20,
+                  padding:'20px',
                   background:'rgba(255,255,255,0.04)',
                   border:'1px solid rgba(255,255,255,0.1)',
                   borderRadius:14
                 }}>
-                  <div style={{fontSize:60}}>🥇</div>
-                  <div style={{fontSize:32, fontWeight:900, marginTop:6}}>{playersArr[0].name}</div>
-                  <div style={{fontSize:24, color:'var(--rtl-green)', fontWeight:800}}>
+                  <div style={{fontSize:48}}>🥇</div>
+                  <div style={{fontSize:28, fontWeight:900, marginTop:6}}>{playersArr[0].name}</div>
+                  <div style={{fontSize:22, color:'var(--rtl-green)', fontWeight:800}}>
                     {playersArr[0].score} Punkte
                   </div>
                 </div>
               )}
 
               <div style={{
-                marginTop:40,
+                marginTop:24,
                 maxWidth:600,
                 marginInline:'auto',
-                textAlign:'left'
+                textAlign:'left',
+                maxHeight:'40vh',
+                overflow:'auto'
               }}>
                 {playersArr.map((p,i)=>(
                   <div key={p.pid} style={{
                     display:'flex',
                     alignItems:'center',
                     justifyContent:'space-between',
-                    padding:'14px 18px',
+                    padding:'10px 14px',
                     background:i < 3 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)',
                     borderLeft: i===0 ? '4px solid gold' :
                                i===1 ? '4px solid silver' :
                                i===2 ? '4px solid #cd7f32' : 
                                        '4px solid rgba(255,255,255,0.05)',
-                    marginBottom:8
+                    marginBottom:6
                   }}>
-                    <div style={{display:'flex', alignItems:'center', gap:14}}>
+                    <div style={{display:'flex', alignItems:'center', gap:10}}>
                       <div style={{
-                        width:48,
-                        height:48,
+                        width:36,
+                        height:36,
                         borderRadius:'50%',
                         background:'rgba(255,255,255,0.1)',
                         display:'flex',
                         justifyContent:'center',
                         alignItems:'center',
                         fontWeight:900,
-                        fontSize:20
+                        fontSize:16
                       }}>
                         {p.name.charAt(0).toUpperCase()}
                       </div>
-                      <div style={{fontWeight:900, fontSize:20}}>
+                      <div style={{fontWeight:900, fontSize:16}}>
                         {i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`} {p.name}
                       </div>
                     </div>
-                    <div style={{fontSize:22, fontWeight:900, color:'var(--rtl-green)'}}>
+                    <div style={{fontSize:18, fontWeight:900, color:'var(--rtl-green)'}}>
                       {p.score}
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div style={{marginTop:30}}>
-                <button className="btn btn-host" style={{padding:'14px 24px', fontSize:20}} onClick={backToLobby}>
+              <div style={{marginTop:20}}>
+                <button className="btn btn-host" style={{padding:'12px 20px', fontSize:18}} onClick={backToLobby}>
                   🔄 Zurück zur Lobby
                 </button>
               </div>
@@ -981,9 +1021,77 @@
   }
 
   /****************************************
+   * FINAL INTRO HOST VIEW
+   ****************************************/
+  function FinalIntroHostView({ game, meta, onStart }){
+    const finalists = (meta.finalists || []).map(pid => ({
+      pid,
+      ...(game.players?.[pid] || {})
+    }));
+
+    const allReady = finalists.every(f => f.finalistReady === true);
+
+    return (
+      <div style={{display:'flex', flexDirection:'column', gap:18, height:'100%', justifyContent:'center'}}>
+        <div style={{textAlign:'center'}}>
+          <h2 style={{fontSize:48, fontWeight:900, color:'var(--rtl-orange)', marginBottom:16}}>🏆 FINALE</h2>
+          <p style={{fontSize:22, color:'var(--muted)', marginBottom:24}}>
+            Die Top 2 Spieler haben sich qualifiziert!
+          </p>
+        </div>
+
+        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, maxWidth:900, margin:'0 auto', width:'100%'}}>
+          {finalists.map((f, idx) => (
+            <div key={f.pid} style={{
+              padding:24, 
+              background:'rgba(255,255,255,0.03)', 
+              border:'2px solid var(--rtl-orange)',
+              textAlign:'center'
+            }}>
+              <div style={{fontSize:48, marginBottom:12}}>{idx === 0 ? '🥇' : '🥈'}</div>
+              <div style={{fontSize:28, fontWeight:900, marginBottom:8}}>{f.name}</div>
+              <div style={{fontSize:20, color:'var(--rtl-green)', fontWeight:700}}>{f.score || 0} Punkte</div>
+              <div style={{marginTop:16, padding:12, background: f.finalistReady ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.05)'}}>
+                {f.finalistReady ? '✓ Bereit' : '⏳ Wartet...'}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{maxWidth:800, margin:'32px auto 0', padding:24, background:'rgba(255,102,0,0.1)', border:'2px solid var(--rtl-orange)'}}>
+          <h3 style={{fontSize:24, fontWeight:900, marginBottom:16, textAlign:'center'}}>⚡ Finale-Regeln</h3>
+          <ul style={{fontSize:18, lineHeight:1.8, listStylePosition:'inside'}}>
+            <li><strong>5 offene Fragen</strong> nacheinander</li>
+            <li><strong>60 Sekunden Zeit</strong> pro Frage</li>
+            <li><strong>Jede richtige Antwort = {FINAL_POINTS} Punkte</strong> (doppelt!)</li>
+            <li><strong>Keine Items</strong> verfügbar</li>
+            <li>Der Host bewertet die Antworten manuell</li>
+          </ul>
+        </div>
+
+        <div style={{textAlign:'center', marginTop:32}}>
+          {allReady ? (
+            <button 
+              className="btn btn-host" 
+              onClick={onStart}
+              style={{padding:'16px 32px', fontSize:22}}
+            >
+              🚀 Finale starten
+            </button>
+          ) : (
+            <div style={{color:'var(--muted)', fontSize:18}}>
+              ⏳ Warte darauf, dass beide Finalisten bereit sind...
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  /****************************************
    * FINAL QUESTION HOST VIEW
    ****************************************/
-  function FinalQuestionHostView({ game, meta, timeLeft, onStartReview }){
+  function FinalQuestionHostView({ game, meta, timeLeft, onNext }){
     const finalQIndex = meta.finalQuestionIndex || 0;
     const finalQuestion = (game.finalQuestions || [])[finalQIndex];
     const finalists = (meta.finalists || []).map(pid => ({
@@ -1030,8 +1138,8 @@
 
         {(timeLeft === 0 || allAnswered) && (
           <div style={{marginTop:20}}>
-            <button className="btn btn-host" onClick={onStartReview}>
-              Zur Auswertung →
+            <button className="btn btn-host" onClick={onNext}>
+              {finalQIndex + 1 >= FINAL_QUESTIONS ? 'Zur Auswertung →' : 'Nächste Final-Frage →'}
             </button>
           </div>
         )}
@@ -1060,7 +1168,7 @@
     const allJudged = finalists.every(f => judgedPlayers[f.pid] !== undefined);
 
     return (
-      <div style={{display:'flex', flexDirection:'column', gap:18}}>
+      <div style={{display:'flex', flexDirection:'column', gap:18, maxHeight:'85vh', overflow:'auto'}}>
         <div>
           <h2 style={{fontSize:32, fontWeight:900, color:'var(--rtl-orange)'}}>🏆 Finale - Auswertung</h2>
           <div style={{fontSize:18, color:'var(--muted)'}}>Frage {reviewIndex + 1} von {FINAL_QUESTIONS}</div>
@@ -1069,7 +1177,7 @@
         <div style={{padding:20, background:'rgba(255,255,255,0.03)'}}>
           <h3 style={{fontSize:24, fontWeight:900, marginBottom:12}}>Frage:</h3>
           <div style={{fontSize:20}}>{finalQuestion?.question}</div>
-          <div style={{marginTop:16, padding:12, background:'rgba(34,197,94,0.1)', borderLeft:'3px solid var(--rtl-green)'}}>
+          <div style={{marginTop:16, padding:12, background:'rgba(255,255,255,0.08)', borderLeft:'3px solid rgba(255,255,255,0.3)'}}>
             <strong>Richtige Antwort:</strong> {finalQuestion?.answer}
           </div>
         </div>
@@ -1085,7 +1193,7 @@
                 padding:16, 
                 background:'rgba(255,255,255,0.02)', 
                 marginBottom:12,
-                border: judged !== undefined ? (judged ? '2px solid var(--rtl-green)' : '2px solid #ff6b6b') : '1px solid rgba(255,255,255,0.05)'
+                border: judged !== undefined ? (judged ? '2px solid rgba(255,255,255,0.4)' : '2px solid rgba(255,255,255,0.1)') : '1px solid rgba(255,255,255,0.05)'
               }}>
                 <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12}}>
                   <div style={{fontWeight:900, fontSize:18}}>{f.name}</div>
@@ -1099,16 +1207,16 @@
                 {judged === undefined ? (
                   <div style={{display:'flex', gap:10}}>
                     <button 
-                      className="btn btn-host" 
+                      className="btn" 
                       onClick={() => handleJudge(f.pid, true)}
-                      style={{flex:1, background:'var(--rtl-green)', padding:'12px'}}
+                      style={{flex:1, background:'rgba(255,255,255,0.9)', color:'#000', padding:'12px', fontWeight:900}}
                     >
                       ✓ Richtig (+{FINAL_POINTS} Punkte)
                     </button>
                     <button 
                       className="btn" 
                       onClick={() => handleJudge(f.pid, false)}
-                      style={{flex:1, background:'#ff6b6b', color:'white', padding:'12px'}}
+                      style={{flex:1, background:'rgba(255,255,255,0.15)', color:'white', padding:'12px', fontWeight:900}}
                     >
                       ✗ Falsch (0 Punkte)
                     </button>
@@ -1116,7 +1224,7 @@
                 ) : (
                   <div style={{
                     padding:10, 
-                    background: judged ? 'rgba(34,197,94,0.2)' : 'rgba(255,107,107,0.2)',
+                    background: judged ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)',
                     textAlign:'center',
                     fontWeight:900
                   }}>
@@ -1162,6 +1270,14 @@
     const [bonusCategoryModalOpen, setBonusCategoryModalOpen] = useState(false);
     const [candidateCategories, setCandidateCategories] = useState([]);
     const [finalAnswer, setFinalAnswer] = useState('');
+
+    // Session Persistence - Player ID speichern
+    useEffect(() => {
+      if(playerId && gameId) {
+        sessionStorage.setItem(`quiz_pid_${gameId}`, playerId);
+        localStorage.setItem(`quiz_pid_${gameId}`, playerId);
+      }
+    }, [playerId, gameId]);
 
     useEffect(()=>{
       const gRef = db.ref(`games/${gameId}`);
@@ -1370,6 +1486,71 @@
       await db.ref(`games/${gameId}/players/${playerId}/finalAnswers/${finalQIndex}`).set(finalAnswer.trim());
       setFinalAnswer('');
     };
+
+    // Finale Intro - Bereitschaft signalisieren
+    if(meta.phase === 'finalIntro'){
+      if(!player.isFinalist){
+        return (
+          <div className="min-h-screen flex items-center justify-center" style={{padding:20, background:'var(--bg)'}}>
+            <div className="card" style={{maxWidth:500, textAlign:'center'}}>
+              <h2 style={{fontSize:24, fontWeight:900, color:'var(--rtl-orange)'}}>🏆 Finale</h2>
+              <p style={{marginTop:12, color:'var(--muted)'}}>
+                Du hast es leider nicht ins Finale geschafft. Die Top 2 Spieler bereiten sich jetzt vor!
+              </p>
+              <p style={{marginTop:12, fontWeight:900}}>Dein Endstand: {player.score || 0} Punkte</p>
+            </div>
+          </div>
+        );
+      }
+
+      const markReady = async () => {
+        await db.ref(`games/${gameId}/players/${playerId}/finalistReady`).set(true);
+      };
+
+      return (
+        <div className="min-h-screen" style={{padding:20, background:'var(--bg)'}}>
+          <div style={{padding:24, background:'rgba(255,255,255,0.01)', maxWidth:700, margin:'0 auto'}} className="card">
+            <div style={{textAlign:'center'}}>
+              <h2 style={{fontSize:32, fontWeight:900, color:'var(--rtl-orange)', marginBottom:12}}>🏆 FINALE</h2>
+              <p style={{fontSize:18, color:'var(--muted)', marginBottom:20}}>
+                Glückwunsch! Du hast dich qualifiziert!
+              </p>
+            </div>
+
+            <div style={{padding:20, background:'rgba(255,102,0,0.1)', borderLeft:'3px solid var(--rtl-orange)', marginBottom:24}}>
+              <h3 style={{fontSize:20, fontWeight:900, marginBottom:12}}>⚡ Finale-Regeln</h3>
+              <ul style={{fontSize:16, lineHeight:1.8, listStylePosition:'inside'}}>
+                <li><strong>5 offene Fragen</strong> nacheinander</li>
+                <li><strong>60 Sekunden Zeit</strong> pro Frage</li>
+                <li><strong>Jede richtige Antwort = {FINAL_POINTS} Punkte</strong> (doppelt!)</li>
+                <li><strong>Keine Items</strong> verfügbar</li>
+                <li>Antworten werden manuell bewertet</li>
+              </ul>
+            </div>
+
+            <div style={{padding:16, background:'rgba(255,255,255,0.02)', textAlign:'center', marginBottom:20}}>
+              <div style={{fontSize:14, color:'var(--muted)', marginBottom:8}}>Dein aktueller Stand:</div>
+              <div style={{fontSize:28, fontWeight:900, color:'var(--rtl-green)'}}>{player.score || 0} Punkte</div>
+            </div>
+
+            {player.finalistReady ? (
+              <div style={{padding:16, background:'rgba(34,197,94,0.1)', textAlign:'center'}}>
+                <div style={{fontSize:18, fontWeight:900, color:'var(--rtl-green)'}}>✓ Du bist bereit!</div>
+                <p style={{marginTop:8, color:'var(--muted)'}}>Warte auf den anderen Finalisten...</p>
+              </div>
+            ) : (
+              <button 
+                className="btn btn-host w-full" 
+                onClick={markReady}
+                style={{padding:'16px', fontSize:18}}
+              >
+                ✓ Ich bin bereit!
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    }
 
     // Normale Frage
     if(meta.phase === 'question' && question){
@@ -1831,8 +2012,8 @@
           hasTraded: false
         };
         await db.ref(`games/${joinGameId}/players/${pid}`).set(playerObj);
-        localStorage.setItem(`quiz_player_${joinGameId}`, pid);
-        localStorage.setItem(`quiz_name_${joinGameId}`, name);
+        sessionStorage.setItem(`quiz_pid_${joinGameId}`, pid);
+        localStorage.setItem(`quiz_pid_${joinGameId}`, pid);
         onJoined(joinGameId, pid, name);
       }catch(e){ console.error(e); setError('Fehler beim Beitreten'); }
     };
@@ -1867,7 +2048,27 @@
     useEffect(()=>{
       const params = new URLSearchParams(window.location.search);
       const joinCode = params.get('join');
-      if(joinCode){ setMode('playerJoin'); setGameId(joinCode); }
+      if(joinCode){ 
+        // Versuche gespeicherte Player ID zu laden
+        const savedPid = sessionStorage.getItem(`quiz_pid_${joinCode}`) || localStorage.getItem(`quiz_pid_${joinCode}`);
+        if(savedPid) {
+          // Prüfe ob Spieler noch im Spiel ist
+          db.ref(`games/${joinCode}/players/${savedPid}`).once('value', snap => {
+            if(snap.exists()) {
+              setGameId(joinCode);
+              setPlayerId(savedPid);
+              setPlayerName(snap.val().name || 'Spieler');
+              setMode('playerGame');
+            } else {
+              setMode('playerJoin'); 
+              setGameId(joinCode);
+            }
+          });
+        } else {
+          setMode('playerJoin'); 
+          setGameId(joinCode);
+        }
+      }
     },[]);
 
     const handleCreate = async (name)=>{
@@ -1895,11 +2096,15 @@
           hasTraded: false
         };
         await db.ref(`games/${code}/players/${pid}`).set(playerObj);
+        sessionStorage.setItem(`quiz_pid_${code}`, pid);
+        localStorage.setItem(`quiz_pid_${code}`, pid);
         setGameId(code); setPlayerId(pid); setPlayerName(name); setMode('playerGame');
       }catch(e){ console.error(e); alert('Fehler'); }
     };
 
     const handlePlayerJoined = (code,pid,name) => { 
+      sessionStorage.setItem(`quiz_pid_${code}`, pid);
+      localStorage.setItem(`quiz_pid_${code}`, pid);
       setGameId(code); 
       setPlayerId(pid); 
       setPlayerName(name); 
@@ -1920,8 +2125,6 @@
   </script>
 </body>
 </html>
-
-
 
 
 
