@@ -42,16 +42,29 @@
       border: 1px solid rgba(255,255,255,0.04);
       color: var(--tile);
     }
-    .card{ padding:20px; background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
-    .host-screen{ display:flex; gap:20px; padding:20px; height:100vh; align-items:stretch; overflow:hidden; }
-    .host-main{ flex:2; padding:24px; display:flex; flex-direction:column; gap:16px; min-height:0; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); border-radius:12px; overflow:auto; }
-    .host-side{ flex:1; padding:20px; overflow:auto; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); border-radius:12px; max-height:100%; }
-    .countdown-badge{ width:110px; height:110px; display:flex; align-items:center; justify-content:center; font-size:2.6rem; font-weight:800; color:var(--tile); border:3px solid rgba(255,255,255,0.06); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); flex-shrink:0; border-radius:14px; }
+    .card{ padding:18px; background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
+    .host-screen{ display:flex; gap:18px; padding:18px; height:100vh; align-items:stretch; overflow:hidden; }
+    .host-main{ 
+      flex:2.5; 
+      padding:28px; 
+      display:flex; 
+      flex-direction:column; 
+      gap:20px; 
+      min-height:0; 
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); 
+      border:1px solid rgba(255,255,255,0.03); 
+      border-radius:12px; 
+      overflow-y:auto;
+      position: relative;
+    }
+    .host-side{ flex:1; padding:18px; overflow-y:auto; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); border-radius:12px; max-height:100%; }
+    .countdown-badge{ width:120px; height:120px; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800; color:var(--tile); border:3px solid rgba(255,255,255,0.06); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); flex-shrink:0; border-radius:14px; }
     .countdown-badge.warning{ border-color:var(--rtl-orange); color:var(--rtl-orange); }
     .countdown-badge.danger{ border-color:var(--rtl-red); color:var(--rtl-red); box-shadow:0 6px 30px rgba(227,31,35,0.09); transform-origin:center; animation:pulse 1s infinite; }
-    @keyframes pulse { 0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)} }
-    .answers-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:16px; margin-top:16px; }
-    .answer-btn{ background: #ffffff; color:#0b0b0b; padding:20px; font-size:1.1rem; font-weight:700; min-height:100px; display:flex; align-items:center; gap:12px; border-radius:10px; }
+    @keyframes pulse { 0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)} }
+    .answers-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; margin-top:18px; }
+    .answer-btn{ background: #ffffff; color:#0b0b0b; padding:24px; font-size:1.2rem; font-weight:700; min-height:110px; display:flex; align-items:center; gap:14px; border-radius:10px; transition: transform 0.2s; }
+    .answer-btn:hover{ transform: scale(1.02); }
     .item-bar{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
     .item-btn{ padding:6px 10px; font-weight:800; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); cursor:pointer; color:var(--tile); display:flex; gap:6px; align-items:center; min-width:60px; justify-content:center; border-radius:8px; font-size:13px; }
     .item-btn.item-disabled{ opacity:0.35; cursor:not-allowed; }
@@ -84,27 +97,34 @@
     /* TV scaling */
     @media (min-width: 1400px) {
       .host-main, .host-side {
-        font-size: 1.4rem !important;
+        font-size: 1.5rem !important;
       }
       .host-main h2 {
-        font-size: 2.6rem !important;
+        font-size: 3rem !important;
       }
       .host-main h3 {
-        font-size: 2rem !important;
+        font-size: 2.2rem !important;
+      }
+      .host-main h4 {
+        font-size: 1.8rem !important;
       }
       .answers-grid .answer-btn {
-        font-size: 1.5rem !important;
-        padding: 28px !important;
-        min-height: 140px !important;
+        font-size: 1.7rem !important;
+        padding: 32px !important;
+        min-height: 150px !important;
       }
       .countdown-badge {
-        width: 150px !important;
-        height: 150px !important;
-        font-size: 3.5rem !important;
+        width: 160px !important;
+        height: 160px !important;
+        font-size: 4rem !important;
       }
       .btn {
-        font-size: 1.2rem !important;
-        padding: 14px 22px !important;
+        font-size: 1.3rem !important;
+        padding: 16px 26px !important;
+      }
+      .btn-pause {
+        font-size: 1.5rem !important;
+        padding: 18px 30px !important;
       }
     }
 
@@ -132,13 +152,35 @@
     .action-log-item.trade { border-left-color: #22C55E; }
 
     .scrollable-section {
-      max-height: 200px;
+      max-height: 250px;
       overflow-y: auto;
+      padding-right: 8px;
+    }
+    
+    .scrollable-section::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .scrollable-section::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+    }
+    
+    .scrollable-section::-webkit-scrollbar-thumb {
+      background: var(--rtl-orange);
+      border-radius: 4px;
     }
 
     .compact-grid {
       display: grid;
-      gap: 6px;
+      gap: 8px;
+    }
+    
+    .pause-button-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
     }
   </style>
 </head>
@@ -764,6 +806,15 @@
 
     return (
       <div className="min-h-screen host-screen">
+        {/* PAUSE BUTTON - Fixed position, always visible */}
+        {(meta.phase !== 'lobby' && meta.phase) && (
+          <div className="pause-button-container">
+            <button className="btn btn-pause" onClick={onPause}>
+              ⏸️ PAUSE
+            </button>
+          </div>
+        )}
+
         <div className={`host-main ${!showSidebar ? 'fullwidth' : ''}`}>
           {meta.phase === 'lobby' && (
             <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:10}}>
@@ -792,25 +843,25 @@
           )}
 
           {meta.phase === 'question' && question && (
-            <div style={{display:'flex', flexDirection:'column', gap:10, minHeight:0}}>
-              <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:10}}>
-                <div style={{display:'flex', alignItems:'center', gap:10}}>
+            <div style={{display:'flex', flexDirection:'column', gap:16, minHeight:0}}>
+              <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:12}}>
+                <div style={{display:'flex', alignItems:'center', gap:14}}>
                   <div className={`countdown-badge ${countdownClass}`}>{timeLeft}</div>
-                  <div style={{fontSize:'16px'}}>
-                    <div style={{color:'var(--muted)'}}>Runde {meta.round}/{TOTAL_ROUNDS}</div>
-                    <div style={{color:'var(--muted)'}}>Frage {qIndex + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</div>
-                    <div style={{color:'var(--muted)'}}>Kategorie: <strong style={{color:'var(--rtl-orange)'}}>{meta.currentCategory || question.category || '—'}</strong></div>
+                  <div style={{fontSize:'18px'}}>
+                    <div style={{color:'var(--muted)', marginBottom:4}}>Runde {meta.round}/{TOTAL_ROUNDS}</div>
+                    <div style={{color:'var(--muted)', marginBottom:4}}>Frage {qIndex + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</div>
+                    <div style={{color:'var(--muted)'}}>Kategorie: <strong style={{color:'var(--rtl-orange)', fontSize:'20px'}}>{meta.currentCategory || question.category || '—'}</strong></div>
                   </div>
                 </div>
                 <button className="btn btn-show-results" onClick={showResultsNow}>Lösung anzeigen</button>
               </div>
 
               <div>
-                <div style={{fontSize:32, fontWeight:900, marginBottom:8}}>{question.question}</div>
+                <div style={{fontSize:38, fontWeight:900, marginBottom:12, lineHeight:1.3}}>{question.question}</div>
                 <div className="answers-grid">
                   {question.answers.map((a,i)=>(
                     <div key={i} className="answer-btn">
-                      <div style={{fontWeight:900, marginRight:8, fontSize:28}}>{String.fromCharCode(65+i)}.</div>
+                      <div style={{fontWeight:900, marginRight:10, fontSize:32}}>{String.fromCharCode(65+i)}.</div>
                       <div>{a}</div>
                     </div>
                   ))}
@@ -821,33 +872,33 @@
 
           {meta.phase === 'results' && question && (
             <div style={{maxHeight:'100%', overflow:'auto'}}>
-              <h2 style={{fontSize:22, fontWeight:900, color:'var(--rtl-orange)', margin:'0 0 8px 0'}}>Ergebnis</h2>
-              <div style={{padding:10, background:'rgba(255,255,255,0.03)', fontSize:'14px', marginBottom:12}}>
-                ✓ Richtige Antwort: <strong>{question.answers[question.correct]}</strong>
+              <h2 style={{fontSize:28, fontWeight:900, color:'var(--rtl-orange)', margin:'0 0 12px 0'}}>✅ Ergebnis</h2>
+              <div style={{padding:12, background:'rgba(255,255,255,0.03)', fontSize:'16px', marginBottom:16}}>
+                ✓ Richtige Antwort: <strong style={{fontSize:'18px'}}>{question.answers[question.correct]}</strong>
               </div>
 
-              <div style={{display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:10, marginBottom:12}}>
+              <div style={{display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:12, marginBottom:16}}>
                 {question.answers.map((a,i)=>{
                   const voters = playersArr.filter(p => p.currentAnswer === i);
                   const isCorrect = i === question.correct;
                   return (
-                    <div key={i} style={{padding:10, border:isCorrect ? '2px solid rgba(255,255,255,0.3)' : '2px solid rgba(0,0,0,0.06)', background:isCorrect ? '#fff' : 'rgba(255,255,255,0.02)', color:isCorrect ? '#000' : 'var(--tile)', fontSize:'13px'}}>
-                      <div style={{fontWeight:900, marginBottom:4}}>{String.fromCharCode(65+i)}. {a}</div>
-                      <div style={{opacity:0.7, fontSize:'12px'}}>{voters.length > 0 ? voters.map(p => p.name).join(', ') : '(Niemand)'}</div>
+                    <div key={i} style={{padding:12, border:isCorrect ? '2px solid rgba(255,255,255,0.3)' : '2px solid rgba(0,0,0,0.06)', background:isCorrect ? '#fff' : 'rgba(255,255,255,0.02)', color:isCorrect ? '#000' : 'var(--tile)', fontSize:'15px'}}>
+                      <div style={{fontWeight:900, marginBottom:6, fontSize:'16px'}}>{String.fromCharCode(65+i)}. {a}</div>
+                      <div style={{opacity:0.7, fontSize:'14px'}}>{voters.length > 0 ? voters.map(p => p.name).join(', ') : '(Niemand)'}</div>
                     </div>
                   );
                 })}
               </div>
 
-              <div style={{marginBottom:12}}>
-                <h3 style={{fontWeight:900, color:'var(--rtl-orange)', fontSize:'16px', marginBottom:6}}>Aktionen & Effekte Log</h3>
+              <div style={{marginBottom:16}}>
+                <h3 style={{fontWeight:900, color:'var(--rtl-orange)', fontSize:'20px', marginBottom:10}}>⚡ Aktionen & Effekte</h3>
                 <div className="scrollable-section">
                   {(() => {
                     const actionLogRef = game.meta?.actions?.[qIndex] || [];
                     const actions = Array.isArray(actionLogRef) ? actionLogRef : [];
                     
                     if(actions.length === 0) {
-                      return <div style={{color:'var(--muted)', padding:8, fontSize:'13px'}}>Keine Aktionen in dieser Runde</div>;
+                      return <div style={{color:'var(--muted)', padding:10, fontSize:'15px'}}>Keine Aktionen in dieser Runde</div>;
                     }
 
                     return actions.map((action, idx) => {
@@ -892,28 +943,28 @@
               </div>
 
               <div>
-                <h3 style={{fontWeight:900, color:'var(--rtl-orange)', fontSize:'16px', marginBottom:6}}>Spieler Punktestand</h3>
+                <h3 style={{fontWeight:900, color:'var(--rtl-orange)', fontSize:'20px', marginBottom:10}}>🏆 Spieler Punktestand</h3>
                 <div className="scrollable-section compact-grid">
                   {playersArr.map((p)=>(
-                    <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:8, background:'rgba(255,255,255,0.01)', fontSize:'13px'}}>
-                      <div style={{display:'flex', gap:8, alignItems:'center'}}>
+                    <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:10, background:'rgba(255,255,255,0.01)', fontSize:'15px'}}>
+                      <div style={{display:'flex', gap:10, alignItems:'center'}}>
                         <div style={{fontWeight:900}}>{p.name}</div>
                         {meta.categoryChooserForRound === p.pid && (
-                          <div style={{fontSize:10, background:'var(--rtl-orange)', color:'white', padding:'2px 6px', fontWeight:900}}>+20%</div>
+                          <div style={{fontSize:11, background:'var(--rtl-orange)', color:'white', padding:'2px 8px', fontWeight:900}}>+20%</div>
                         )}
                       </div>
-                      <div style={{display:'flex', gap:8, alignItems:'center', fontSize:'12px'}}>
+                      <div style={{display:'flex', gap:10, alignItems:'center', fontSize:'14px'}}>
                         <div>🔥{(p.items && p.items.boost) ? p.items.boost : 0}</div>
                         <div>☠️{(p.items && p.items.poison) ? p.items.poison : 0}</div>
                         <div>🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
-                        <div style={{fontWeight:900, minWidth:60, textAlign:'right'}}>{p.lastPoints || 0} pts</div>
+                        <div style={{fontWeight:900, minWidth:70, textAlign:'right'}}>{p.lastPoints || 0} pts</div>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div style={{marginTop:12}}>
+              <div style={{marginTop:16}}>
                 <button className="btn btn-host" onClick={startNextRound}>Nächste Frage →</button>
               </div>
             </div>
