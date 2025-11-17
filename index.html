@@ -317,7 +317,7 @@
   /****************************************
    * HOST CONTROLLER
    ****************************************/
-  function HostController({ gameId, meta, startNextRound, showResultsNow, startGame, onPause }){
+  function HostController({ gameId, meta, startNextRound, showResultsNow, startGame, handlePause }){
     const [players,setPlayers] = useState({});
     const [finaleEnabled, setFinaleEnabled] = useState(true);
 
@@ -806,7 +806,7 @@
         {/* PAUSE BUTTON - Fixed position, always visible */}
         {(meta.phase !== 'lobby' && meta.phase) && (
           <div className="pause-button-container">
-            <button className="btn btn-pause" onClick={onPause}>
+            <button className="btn btn-pause" onClick={handlePause}>
               ⏸️ PAUSE
             </button>
           </div>
@@ -1109,7 +1109,7 @@
               startNextRound={startNextRound} 
               showResultsNow={showResultsNow} 
               startGame={startGame}
-              onPause={handlePause}
+              handlePause={handlePause}
             />
 
             <div style={{marginTop:14}}>
@@ -2259,8 +2259,6 @@
   </script>
 </body>
 </html>
-
-
 
 
 
