@@ -33,25 +33,25 @@
     body{ background:linear-gradient(180deg,var(--bg), #090909); color:var(--tile); }
     * { box-sizing:border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
     input, textarea, select { background: white !important; color: #0b0b0b !important; border: 1px solid rgba(0,0,0,0.1); padding: 8px; border-radius:6px; }
-    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:6px; font-weight:800; padding:8px 12px; cursor:pointer; border:none; border-radius:10px; background:rgba(255,255,255,0.03); color:var(--tile); font-size:14px; }
+    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:800; padding:12px 18px; cursor:pointer; border:none; border-radius:10px; background:rgba(255,255,255,0.03); color:var(--tile); font-size:16px; }
     .btn-host{ background:var(--rtl-orange); color:white; }
     .btn-join{ background:var(--rtl-purple); color:white; }
-    .btn-pause{ background:rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color:var(--tile); }
+    .btn-pause{ background:#FFD700; border: 2px solid #FFA500; color:#000; font-weight:900; }
     .btn-show-results{
       background: rgba(255,255,255,0.02);
       border: 1px solid rgba(255,255,255,0.04);
       color: var(--tile);
     }
-    .card{ padding:14px; background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
-    .host-screen{ display:flex; gap:16px; padding:16px; height:100vh; align-items:stretch; overflow:hidden; }
-    .host-main{ flex:2; padding:20px; display:flex; flex-direction:column; gap:12px; min-height:0; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); border-radius:12px; overflow:auto; }
-    .host-side{ flex:1; padding:14px; overflow:auto; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); border-radius:12px; max-height:100%; }
-    .countdown-badge{ width:90px; height:90px; display:flex; align-items:center; justify-content:center; font-size:2.2rem; font-weight:800; color:var(--tile); border:3px solid rgba(255,255,255,0.06); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); flex-shrink:0; border-radius:14px; }
+    .card{ padding:20px; background: rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); border-radius:12px; }
+    .host-screen{ display:flex; gap:20px; padding:20px; height:100vh; align-items:stretch; overflow:hidden; }
+    .host-main{ flex:2; padding:24px; display:flex; flex-direction:column; gap:16px; min-height:0; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); border-radius:12px; overflow:auto; }
+    .host-side{ flex:1; padding:20px; overflow:auto; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03); border-radius:12px; max-height:100%; }
+    .countdown-badge{ width:110px; height:110px; display:flex; align-items:center; justify-content:center; font-size:2.6rem; font-weight:800; color:var(--tile); border:3px solid rgba(255,255,255,0.06); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); flex-shrink:0; border-radius:14px; }
     .countdown-badge.warning{ border-color:var(--rtl-orange); color:var(--rtl-orange); }
     .countdown-badge.danger{ border-color:var(--rtl-red); color:var(--rtl-red); box-shadow:0 6px 30px rgba(227,31,35,0.09); transform-origin:center; animation:pulse 1s infinite; }
     @keyframes pulse { 0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)} }
-    .answers-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:14px; margin-top:12px; }
-    .answer-btn{ background: #ffffff; color:#0b0b0b; padding:16px; font-size:1rem; font-weight:700; min-height:90px; display:flex; align-items:center; gap:10px; border-radius:10px; }
+    .answers-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:16px; margin-top:16px; }
+    .answer-btn{ background: #ffffff; color:#0b0b0b; padding:20px; font-size:1.1rem; font-weight:700; min-height:100px; display:flex; align-items:center; gap:12px; border-radius:10px; }
     .item-bar{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
     .item-btn{ padding:6px 10px; font-weight:800; border:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02); cursor:pointer; color:var(--tile); display:flex; gap:6px; align-items:center; min-width:60px; justify-content:center; border-radius:8px; font-size:13px; }
     .item-btn.item-disabled{ opacity:0.35; cursor:not-allowed; }
@@ -81,30 +81,30 @@
 
     * { border-radius: 0 !important; }   
 
-    /* TV scaling - reduziert für bessere Übersicht */
+    /* TV scaling */
     @media (min-width: 1400px) {
       .host-main, .host-side {
-        font-size: 1.2rem !important;
+        font-size: 1.4rem !important;
       }
       .host-main h2 {
-        font-size: 2.2rem !important;
+        font-size: 2.6rem !important;
       }
       .host-main h3 {
-        font-size: 1.8rem !important;
+        font-size: 2rem !important;
       }
       .answers-grid .answer-btn {
-        font-size: 1.3rem !important;
-        padding: 24px !important;
-        min-height: 120px !important;
+        font-size: 1.5rem !important;
+        padding: 28px !important;
+        min-height: 140px !important;
       }
       .countdown-badge {
-        width: 130px !important;
-        height: 130px !important;
-        font-size: 3rem !important;
+        width: 150px !important;
+        height: 150px !important;
+        font-size: 3.5rem !important;
       }
       .btn {
-        font-size: 1.1rem !important;
-        padding: 12px 18px !important;
+        font-size: 1.2rem !important;
+        padding: 14px 22px !important;
       }
     }
 
@@ -120,11 +120,11 @@
     }
     
     .action-log-item {
-      padding: 8px 10px;
+      padding: 10px 12px;
       background: rgba(255,255,255,0.02);
       border-left: 3px solid rgba(255,255,255,0.1);
-      margin-bottom: 6px;
-      font-size: 13px;
+      margin-bottom: 8px;
+      font-size: 14px;
     }
     .action-log-item.boost { border-left-color: #ffd580; }
     .action-log-item.poison { border-left-color: #ff6b6b; }
@@ -304,9 +304,9 @@
                          meta.phase;
     
     return (
-      <div className="card" style={{display:'flex', flexDirection:'column', gap:10}}>
-        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-          <div style={{fontSize:'14px'}}>
+      <div className="card" style={{display:'flex', flexDirection:'column', gap:12}}>
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:8}}>
+          <div style={{fontSize:'16px'}}>
             <div style={{color:'var(--muted)'}}>Phase: <strong style={{color:'var(--rtl-orange)'}}>{phaseDisplay}</strong></div>
             {meta.phase !== 'finalQuestion' && meta.phase !== 'finalReview' && (
               <>
@@ -318,20 +318,20 @@
               <div style={{color:'var(--muted)'}}>Final-Frage: <strong style={{color:'var(--rtl-orange)'}}>{(meta.finalQuestionIndex || 0) + 1}/{FINAL_QUESTIONS}</strong></div>
             )}
           </div>
-          <div style={{display:'flex', flexDirection:'column', gap:4, alignItems:'flex-end'}}>
-            <div style={{textAlign:'right', color:'var(--muted)', fontSize:'14px'}}>👥 Spieler: {Object.keys(players).length}</div>
+          <div style={{display:'flex', gap:8, alignItems:'center'}}>
+            <div style={{textAlign:'right', color:'var(--muted)', fontSize:'16px'}}>👥 Spieler: {Object.keys(players).length}</div>
             {(meta.phase !== 'lobby' && meta.phase) && (
-              <button className="btn btn-pause" onClick={onPause} style={{fontSize:'12px', padding:'4px 8px'}}>⏸️ Pause</button>
+              <button className="btn btn-pause" onClick={onPause} style={{fontSize:'16px', padding:'10px 16px'}}>⏸️ PAUSE</button>
             )}
           </div>
         </div>
 
-        <div style={{display:'flex', gap:6, flexWrap:'wrap'}}>
+        <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
           {(meta.phase === 'lobby' || !meta.phase) && (
             <>
               <button className="btn btn-host" onClick={startGame}>Spiel starten</button>
-              <div style={{display:'flex', alignItems:'center', gap:8, padding:'4px 10px', background:'rgba(255,255,255,0.02)', borderRadius:'8px'}}>
-                <span style={{fontSize:'13px'}}>Finale:</span>
+              <div style={{display:'flex', alignItems:'center', gap:10, padding:'6px 12px', background:'rgba(255,255,255,0.02)', borderRadius:'8px'}}>
+                <span style={{fontSize:'15px', fontWeight:700}}>Finale:</span>
                 <label className="toggle-switch">
                   <input type="checkbox" checked={finaleEnabled} onChange={toggleFinale} />
                   <span className="toggle-slider"></span>
@@ -346,14 +346,14 @@
         </div>
 
         {meta && meta.categoryState && (
-          <div style={{fontSize:'13px'}}>
-            <h4 style={{fontWeight:900, marginBottom:6}}>🔖 Kategorien</h4>
-            <div style={{display:'flex', gap:6, flexWrap:'wrap'}}>
+          <div style={{fontSize:'15px'}}>
+            <h4 style={{fontWeight:900, marginBottom:8}}>🔖 Kategorien</h4>
+            <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
               {(meta.categoryState.used || []).map(c=>(
-                <div key={c} style={{padding:'4px 8px', background:'rgba(255,255,255,0.02)', fontSize:'12px'}}>{c} ✅</div>
+                <div key={c} style={{padding:'6px 10px', background:'rgba(255,255,255,0.02)', fontSize:'14px'}}>{c} ✅</div>
               ))}
               {(meta.categoryState.remaining || []).map(c=>(
-                <div key={c} style={{padding:'4px 8px', background:'rgba(255,255,255,0.01)', fontSize:'12px'}}>{c}</div>
+                <div key={c} style={{padding:'6px 10px', background:'rgba(255,255,255,0.01)', fontSize:'14px'}}>{c}</div>
               ))}
             </div>
           </div>
@@ -1064,28 +1064,28 @@
               onPause={handlePause}
             />
 
-            <div style={{marginTop:12}}>
-              <h3 style={{fontWeight:900, color:'var(--rtl-orange)', fontSize:'14px', marginBottom:6}}>🏅 Spieler & Punkte</h3>
+            <div style={{marginTop:14}}>
+              <h3 style={{fontWeight:900, color:'var(--rtl-orange)', fontSize:'16px', marginBottom:8}}>🏅 Spieler & Punkte</h3>
               <div className="scrollable-section">
                 {playersArr.map((p,idx)=>(
-                  <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:8, fontSize:'13px'}}>
-                    <div style={{display:'flex', gap:6, alignItems:'center'}}>
+                  <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:10, fontSize:'15px'}}>
+                    <div style={{display:'flex', gap:8, alignItems:'center'}}>
                       <div style={{fontWeight:900, color:'var(--rtl-purple)'}}>#{idx+1}</div>
                       <div style={{fontWeight:700}}>{p.name}</div>
                     </div>
-                    <div style={{display:'flex', gap:8, alignItems:'center'}}>
+                    <div style={{display:'flex', gap:10, alignItems:'center'}}>
                       <div style={{fontWeight:900, color:'var(--rtl-green)'}}>{p.score || 0}</div>
-                      <div style={{fontSize:11, color:'var(--muted)'}}>🔥{(p.items && p.items.boost) ? p.items.boost : 0} ☠️{(p.items && p.items.poison) ? p.items.poison : 0} 🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
+                      <div style={{fontSize:13, color:'var(--muted)'}}>🔥{(p.items && p.items.boost) ? p.items.boost : 0} ☠️{(p.items && p.items.poison) ? p.items.poison : 0} 🛡{(p.items && p.items.shield) ? p.items.shield : 0}</div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div style={{marginTop:14}}>
-              <h3 style={{fontWeight:900, fontSize:'14px', marginBottom:6}}>ℹ️ Code & QR</h3>
-              <div style={{marginTop:6}}>
-                <div style={{marginBottom:6, fontSize:'13px'}}><span style={{fontFamily:'monospace', background:'#fff', color:'#000', padding:'3px 6px'}}>{gameId}</span></div>
+            <div style={{marginTop:16}}>
+              <h3 style={{fontWeight:900, fontSize:'16px', marginBottom:8}}>ℹ️ Code & QR</h3>
+              <div style={{marginTop:8}}>
+                <div style={{marginBottom:8, fontSize:'15px'}}><span style={{fontFamily:'monospace', background:'#fff', color:'#000', padding:'4px 8px'}}>{gameId}</span></div>
                 <img src={qrUrlForGame(gameId)} alt="QR Code" style={{width:'100%'}} />
               </div>
             </div>
@@ -2211,8 +2211,6 @@
   </script>
 </body>
 </html>
-
-
 
 
 
