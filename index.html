@@ -187,7 +187,7 @@
 <body>
   <div id="root"></div>
 
-  <script type="text/babel">
+  <script type="text/babel" data-type="module">
   const { useState, useEffect, useRef } = React;
 
   /************ CONFIG ************/
@@ -346,13 +346,13 @@
                          meta.phase;
     
     return (
-      <div className="card" style={{display:'flex', flexDirection:'column', gap:12}}>
-        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:8}}>
-          <div style={{fontSize:'16px'}}>
-            <div style={{color:'var(--muted)'}}>Phase: <strong style={{color:'var(--rtl-orange)'}}>{phaseDisplay}</strong></div>
+      <div className="card" style={{display:'flex', flexDirection:'column', gap:14}}>
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexWrap:'wrap', gap:10}}>
+          <div style={{fontSize:'18px'}}>
+            <div style={{color:'var(--muted)', marginBottom:4}}>Phase: <strong style={{color:'var(--rtl-orange)'}}>{phaseDisplay}</strong></div>
             {meta.phase !== 'finalQuestion' && meta.phase !== 'finalReview' && (
               <>
-                <div style={{color:'var(--muted)'}}>Runde: <strong style={{color:'var(--rtl-orange)'}}>{meta.round || 1}/{TOTAL_ROUNDS}</strong></div>
+                <div style={{color:'var(--muted)', marginBottom:4}}>Runde: <strong style={{color:'var(--rtl-orange)'}}>{meta.round || 1}/{TOTAL_ROUNDS}</strong></div>
                 <div style={{color:'var(--muted)'}}>Frage: <strong style={{color:'var(--rtl-orange)'}}>{(meta.questionIndex || 0) + 1}/{TOTAL_ROUNDS * QUESTIONS_PER_ROUND}</strong></div>
               </>
             )}
@@ -360,20 +360,17 @@
               <div style={{color:'var(--muted)'}}>Final-Frage: <strong style={{color:'var(--rtl-orange)'}}>{(meta.finalQuestionIndex || 0) + 1}/{FINAL_QUESTIONS}</strong></div>
             )}
           </div>
-          <div style={{display:'flex', gap:8, alignItems:'center'}}>
-            <div style={{textAlign:'right', color:'var(--muted)', fontSize:'16px'}}>👥 Spieler: {Object.keys(players).length}</div>
-            {(meta.phase !== 'lobby' && meta.phase) && (
-              <button className="btn btn-pause" onClick={onPause} style={{fontSize:'16px', padding:'10px 16px'}}>⏸️ PAUSE</button>
-            )}
+          <div style={{textAlign:'right', color:'var(--muted)', fontSize:'18px'}}>
+            👥 Spieler: <strong>{Object.keys(players).length}</strong>
           </div>
         </div>
 
-        <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
+        <div style={{display:'flex', gap:10, flexWrap:'wrap'}}>
           {(meta.phase === 'lobby' || !meta.phase) && (
             <>
-              <button className="btn btn-host" onClick={startGame}>Spiel starten</button>
-              <div style={{display:'flex', alignItems:'center', gap:10, padding:'6px 12px', background:'rgba(255,255,255,0.02)', borderRadius:'8px'}}>
-                <span style={{fontSize:'15px', fontWeight:700}}>Finale:</span>
+              <button className="btn btn-host" onClick={startGame}>🎮 Spiel starten</button>
+              <div style={{display:'flex', alignItems:'center', gap:12, padding:'8px 14px', background:'rgba(255,255,255,0.02)', borderRadius:'8px'}}>
+                <span style={{fontSize:'16px', fontWeight:700}}>🏆 Finale:</span>
                 <label className="toggle-switch">
                   <input type="checkbox" checked={finaleEnabled} onChange={toggleFinale} />
                   <span className="toggle-slider"></span>
@@ -381,21 +378,21 @@
               </div>
             </>
           )}
-          {meta.phase === 'question' && <button className="btn btn-show-results" onClick={showResultsNow}>Auflösen</button>}
-          {meta.phase === 'results' && <button className="btn btn-host" onClick={startNextRound}>Weiter →</button>}
-          {meta.phase === 'roundSummary' && <button className="btn btn-host" onClick={startNextRound}>Nächste Runde →</button>}
+          {meta.phase === 'question' && <button className="btn btn-show-results" onClick={showResultsNow}>✅ Lösung anzeigen</button>}
+          {meta.phase === 'results' && <button className="btn btn-host" onClick={startNextRound}>➡️ Weiter</button>}
+          {meta.phase === 'roundSummary' && <button className="btn btn-host" onClick={startNextRound}>➡️ Nächste Runde</button>}
           {meta.phase === 'finished' && <button className="btn" onClick={()=>window.location.reload()}>🔄 Zurück zur Lobby</button>}
         </div>
 
         {meta && meta.categoryState && (
-          <div style={{fontSize:'15px'}}>
-            <h4 style={{fontWeight:900, marginBottom:8}}>🔖 Kategorien</h4>
+          <div style={{fontSize:'16px'}}>
+            <h4 style={{fontWeight:900, marginBottom:10}}>🔖 Kategorien</h4>
             <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
               {(meta.categoryState.used || []).map(c=>(
-                <div key={c} style={{padding:'6px 10px', background:'rgba(255,255,255,0.02)', fontSize:'14px'}}>{c} ✅</div>
+                <div key={c} style={{padding:'6px 12px', background:'rgba(255,255,255,0.02)', fontSize:'15px'}}>{c} ✅</div>
               ))}
               {(meta.categoryState.remaining || []).map(c=>(
-                <div key={c} style={{padding:'6px 10px', background:'rgba(255,255,255,0.01)', fontSize:'14px'}}>{c}</div>
+                <div key={c} style={{padding:'6px 12px', background:'rgba(255,255,255,0.01)', fontSize:'15px'}}>{c}</div>
               ))}
             </div>
           </div>
@@ -2258,11 +2255,10 @@
     );
   }
 
-  ReactDOM.render(<App />, document.getElementById('root'));
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
-
 
 
 
