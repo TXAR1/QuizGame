@@ -342,12 +342,12 @@
           {meta.phase === 'question' && <button className="btn btn-show-results" onClick={showResultsNow}>Auflösen</button>}
           {meta.phase === 'results' && <button className="btn btn-host" onClick={startNextRound}>Weiter →</button>}
           {meta.phase === 'roundSummary' && <button className="btn btn-host" onClick={startNextRound}>Nächste Runde →</button>}
-          {meta.phase === 'finished' && <button className="btn" onClick={()=>window.location.reload()}>🔄 Zurück zur Lobby</button>}
+          {meta.phase === 'finished' && <button className="btn" onClick={()=>window.location.reload()}>Zurück zur Lobby</button>}
         </div>
 
         {meta && meta.categoryState && (
           <div style={{fontSize:'15px'}}>
-            <h4 style={{fontWeight:900, marginBottom:8}}>🔖 Kategorien</h4>
+            <h4 style={{fontWeight:900, marginBottom:8}}>Kategorien</h4>
             <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
               {(meta.categoryState.used || []).map(c=>(
                 <div key={c} style={{padding:'6px 10px', background:'rgba(255,255,255,0.02)', fontSize:'14px'}}>{c} ✅</div>
@@ -771,7 +771,7 @@
                 <RTLLogo size="lg" />
                 <div style={{fontWeight:900, fontSize:22}}>AdAlliance Quiz</div>
               </div>
-              <h2 style={{fontSize:32, fontWeight:900, margin:'8px 0'}}>⏳ Warte auf Spieler</h2>
+              <h2 style={{fontSize:32, fontWeight:900, margin:'8px 0'}}>Warte auf Spieler</h2>
               <p style={{color:'var(--muted)', margin:0}}>Spielcode:</p>
               <div style={{fontFamily:'monospace', background:'#fff', color:'#000', padding:'6px 12px', fontSize:22, fontWeight:900}}>{gameId}</div>
 
@@ -980,7 +980,7 @@
 
           {meta.phase === 'finished' && (
             <div style={{textAlign:'center', padding:'16px', maxHeight:'100%', overflow:'auto'}}>
-              <h2 style={{fontSize:30, fontWeight:900, marginBottom:8}}>🎉 Spiel beendet!</h2>
+              <h2 style={{fontSize:30, fontWeight:900, marginBottom:8}}>Spiel beendet!</h2>
               <p style={{color:'var(--muted)', fontSize:16, marginBottom:16}}>Finale Platzierungen</p>
 
               {playersArr[0] && (
@@ -1046,7 +1046,7 @@
 
               <div style={{marginTop:16}}>
                 <button className="btn btn-host" style={{padding:'10px 16px', fontSize:16}} onClick={backToLobby}>
-                  🔄 Zurück zur Lobby
+                  Zurück zur Lobby
                 </button>
               </div>
             </div>
@@ -1065,7 +1065,7 @@
             />
 
             <div style={{marginTop:14}}>
-              <h3 style={{fontWeight:900, color:'var(--rtl-orange)', fontSize:'16px', marginBottom:8}}>🏅 Spieler & Punkte</h3>
+              <h3 style={{fontWeight:900, color:'var(--rtl-orange)', fontSize:'16px', marginBottom:8}}>Spieler & Punkte</h3>
               <div className="scrollable-section">
                 {playersArr.map((p,idx)=>(
                   <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:10, fontSize:'15px'}}>
@@ -1083,7 +1083,7 @@
             </div>
 
             <div style={{marginTop:16}}>
-              <h3 style={{fontWeight:900, fontSize:'16px', marginBottom:8}}>ℹ️ Code & QR</h3>
+              <h3 style={{fontWeight:900, fontSize:'16px', marginBottom:8}}>Code & QR</h3>
               <div style={{marginTop:8}}>
                 <div style={{marginBottom:8, fontSize:'15px'}}><span style={{fontFamily:'monospace', background:'#fff', color:'#000', padding:'4px 8px'}}>{gameId}</span></div>
                 <img src={qrUrlForGame(gameId)} alt="QR Code" style={{width:'100%'}} />
@@ -1095,16 +1095,16 @@
         {pauseModalOpen && (
           <div className="modal-backdrop">
             <div className="modal-card">
-              <h3 style={{fontWeight:900, fontSize:20, marginBottom:12, textAlign:'center'}}>⏸️ Spiel pausiert</h3>
+              <h3 style={{fontWeight:900, fontSize:20, marginBottom:12, textAlign:'center'}}>Spiel pausiert</h3>
               <p style={{color:'var(--muted)', textAlign:'center', marginBottom:20}}>
                 Was möchtest du tun?
               </p>
               <div style={{display:'flex', flexDirection:'column', gap:10}}>
                 <button className="btn btn-host" onClick={resumeGame} style={{width:'100%', padding:'12px', fontSize:16}}>
-                  ▶️ Fortsetzen
+                  Fortsetzen
                 </button>
                 <button className="btn" onClick={backToLobby} style={{width:'100%', padding:'12px', fontSize:16, background:'rgba(255,255,255,0.1)'}}>
-                  🏠 Zurück zur Lobby
+                  Zurück zur Lobby
                 </button>
               </div>
             </div>
@@ -1128,7 +1128,7 @@
     return (
       <div style={{display:'flex', flexDirection:'column', gap:14, height:'100%', justifyContent:'center'}}>
         <div style={{textAlign:'center'}}>
-          <h2 style={{fontSize:38, fontWeight:900, color:'var(--rtl-orange)', marginBottom:12}}>🏆 FINALE</h2>
+          <h2 style={{fontSize:38, fontWeight:900, color:'var(--rtl-orange)', marginBottom:12}}>FINALE</h2>
           <p style={{fontSize:18, color:'var(--muted)', marginBottom:20}}>
             Die Top 2 Spieler haben sich qualifiziert!
           </p>
@@ -1152,8 +1152,8 @@
           ))}
         </div>
 
-        <div style={{maxWidth:700, margin:'24px auto 0', padding:18, background:'rgba(255,102,0,0.1)', border:'2px solid var(--rtl-orange)'}}>
-          <h3 style={{fontSize:20, fontWeight:900, marginBottom:12, textAlign:'center'}}>⚡ Finale-Regeln</h3>
+        <div style={{maxWidth:700, margin:'24px auto 0', padding:18, background:'rgba(255,255,255,0.1)', border:'2px solid var(--rtl-orange)'}}>
+          <h3 style={{fontSize:20, fontWeight:900, marginBottom:12, textAlign:'center'}}>Finale-Regeln</h3>
           <ul style={{fontSize:15, lineHeight:1.6, listStylePosition:'inside', margin:0, padding:0}}>
             <li><strong>5 offene Fragen</strong> nacheinander</li>
             <li><strong>60 Sekunden Zeit</strong> pro Frage</li>
@@ -1170,11 +1170,11 @@
               onClick={onStart}
               style={{padding:'14px 28px', fontSize:18}}
             >
-              🚀 Finale starten
+              Finale starten
             </button>
           ) : (
             <div style={{color:'var(--muted)', fontSize:16}}>
-              ⏳ Warte darauf, dass beide Finalisten bereit sind...
+              Warte darauf, dass beide Finalisten bereit sind...
             </div>
           )}
         </div>
@@ -1205,7 +1205,7 @@
             {timeLeft}
           </div>
           <div>
-            <h2 style={{fontSize:28, fontWeight:900, color:'var(--rtl-orange)', margin:0}}>🏆 Finale</h2>
+            <h2 style={{fontSize:28, fontWeight:900, color:'var(--rtl-orange)', margin:0}}>Finale</h2>
             <div style={{fontSize:18, color:'var(--muted)'}}>Frage {finalQIndex + 1} von {FINAL_QUESTIONS}</div>
           </div>
         </div>
@@ -1223,7 +1223,7 @@
               <div key={f.pid} style={{display:'flex', justifyContent:'space-between', padding:10, background:'rgba(255,255,255,0.01)', marginBottom:6, fontSize:'14px'}}>
                 <div style={{fontWeight:900}}>{f.name}</div>
                 <div style={{color: hasAnswered ? 'var(--rtl-green)' : 'var(--muted)'}}>
-                  {hasAnswered ? '✓ Abgegeben' : '⏳ Wartet...'}
+                  {hasAnswered ? '✓ Abgegeben' : 'Wartet...'}
                 </div>
               </div>
             );
@@ -1264,7 +1264,7 @@
     return (
       <div style={{display:'flex', flexDirection:'column', gap:14, maxHeight:'100%', overflow:'auto'}}>
         <div>
-          <h2 style={{fontSize:28, fontWeight:900, color:'var(--rtl-orange)', margin:'0 0 4px 0'}}>🏆 Finale - Auswertung</h2>
+          <h2 style={{fontSize:28, fontWeight:900, color:'var(--rtl-orange)', margin:'0 0 4px 0'}}>Finale - Auswertung</h2>
           <div style={{fontSize:16, color:'var(--muted)'}}>Frage {reviewIndex + 1} von {FINAL_QUESTIONS}</div>
         </div>
 
@@ -1965,7 +1965,7 @@
 
     if(meta.phase === 'roundSummary' || meta.phase === 'finished'){
       const playersSorted = Object.entries(game.players || {}).map(([pid,p])=>({pid,...p})).sort((a,b)=>(b.score||0)-(a.score||0));
-      const title = meta.phase === 'finished' ? '🎉 Spiel beendet!' : `🏆 Zwischenstand nach Runde ${meta.round - 1}`;
+      const title = meta.phase === 'finished' ? '🎉 Spiel beendet!' : `Zwischenstand nach Runde ${meta.round - 1}`;
       const finishedRound = (meta.round || 1) - 1;
       const catState = meta.categoryState || { used: [], remaining: [] };
       const remaining = catState.remaining || [];
@@ -2211,6 +2211,7 @@ root.render(<App />);
   </script>
 </body>
 </html>
+
 
 
 
