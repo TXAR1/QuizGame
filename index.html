@@ -371,6 +371,7 @@
     const [timeLeft,setTimeLeft] = useState(0);
     const [pauseModalOpen, setPauseModalOpen] = useState(false);
     const timerRef = useRef(null);
+    const handlePause = UserInteractionActionHandler({ socket, setUserCount });
 
     useEffect(()=>{
       const gRef = db.ref(`games/${gameId}`);
@@ -2211,6 +2212,7 @@ root.render(<App />);
   </script>
 </body>
 </html>
+
 
 
 
