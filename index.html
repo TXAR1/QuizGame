@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Final Logic Fix</title>
+  <title>RTL AdAlliance Quiz - Final Fix</title>
 
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
@@ -25,7 +25,7 @@
       --muted:rgba(255,255,255,0.65);
     }
     
-    /* GLOBAL RESET FÜR KANTIGES DESIGN */
+    /* GLOBAL RESET FÜR KANTIGES DESIGN - STRENG */
     * { border-radius: 0 !important; }
 
     html,body,#root{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; overflow: hidden;}
@@ -47,7 +47,6 @@
     
     .btn-join{ background:var(--rtl-purple); color:white; }
     
-    /* Gold Pause Button */
     .btn-pause-gold {
       background: #FFD700;
       color: #000;
@@ -153,7 +152,7 @@
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  /************ Kategorien & Fragen ************/
+  /************ Fragen Pool ************/
   const CATEGORY_LIST = ["Geografie", "Wissenschaft", "Geschichte", "Kultur & Kunst", "Sport", "Technik & Digitalisierung"];
   
   const QUESTION_POOL = [
@@ -204,13 +203,7 @@
   function RTLLogo({ size = "md" }) {
     const sizeMap = { sm: 40, md: 60, lg: 80 };
     const height = sizeMap[size] || 60;
-    return (
-      <img 
-        src="Logo.png"
-        alt="Logo"
-        style={{ height, width: "auto" }}
-      />
-    );
+    return <img src="Logo.png" alt="Logo" style={{ height, width: "auto" }} />;
   }
 
   function qrUrlForGame(gameId){
@@ -270,7 +263,6 @@
 
     useEffect(()=>{
       if(!meta) { setTimeLeft(0); return; }
-      
       if((meta.phase === 'question' && meta.questionStartTime) || (meta.phase === 'finalQuestion' && meta.finalQuestionStartTime)){
         const isFinal = meta.phase === 'finalQuestion';
         const start = isFinal ? meta.finalQuestionStartTime : meta.questionStartTime;
@@ -315,66 +307,70 @@
           const ans = p.currentAnswer;
           const correct = typeof ans === 'number' && ans === q.correct;
           let points = correct ? BASE_POINTS : 0;
-
           if(correct && p.activeEffects?.boost) points = Math.round(points * 1.5);
-          
-          // LOGIK: Kategorie-Wähler Bonus
           if(correct && categoryChooser === pid) points = Math.round(points * CATEGORY_CHOOSER_BONUS);
-
           const poisonCount = Array.isArray(p.activeEffects?.poisonedBy) ? p.activeEffects.poisonedBy.length : 0;
           points -= (poisonCount * 20);
           if(points < 0) points = 0;
-
           updates[`games/${gameId}/players/${pid}/score`] = (p.score || 0) + points;
           updates[`games/${gameId}/players/${pid}/lastPoints`] = points;
         });
-
         await db.ref().update(updates);
         await db.ref(`games/${gameId}/meta`).update({ phase: 'results' });
       }catch(e){ console.error(e); }
     };
 
+    // FIXED: Start Next Round Logic to prevent "stuck" state
     const startNextRound = async ()=>{
       if(!meta) return;
       const gameSnap = await db.ref(`games/${gameId}`).get();
       const g = gameSnap.val();
       if (!g) return;
+      
       const currentIndex = g.meta.questionIndex || 0;
-      const totalQuestions = (g.questions || []).length;
+      const currentQuestions = g.questions || [];
       const nextIndex = currentIndex + 1;
       
       if(meta.phase === 'results'){
-        if (nextIndex >= totalQuestions) {
-            if(meta.finaleEnabled === false) await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
-            else await prepareFinale();
-            return;
-        }
-        // Check start of new round
-        const isNextQuestionStartOfRound = (nextIndex % QUESTIONS_PER_ROUND) === 0;
-        if (isNextQuestionStartOfRound) {
-             // LOGIK: Verlierer bestimmen für Kategorie-Wahl
+        // Check if all questions are done
+        if (nextIndex >= currentQuestions.length) {
+             // If only 1 round (2 questions) were loaded initially, we need to check if we should generate more
+             // but `startGame` now only loads 1st round. 
+             // So if nextIndex == length, it means we finished the current loaded block.
+             // We should go to Round Summary.
+             
+             const finishedRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
+             if (finishedRound >= TOTAL_ROUNDS) {
+                if(meta.finaleEnabled === false) await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+                else await prepareFinale();
+                return;
+             }
+
+             // Trigger Category Selection (Round Summary)
              const pObj = g.players || {};
-             const sorted = Object.entries(pObj).sort(([,a],[,b]) => (a.score||0) - (b.score||0)); // Aufsteigend
-             const minScore = sorted[0][1].score || 0;
+             const sorted = Object.entries(pObj).sort(([,a],[,b]) => (a.score||0) - (b.score||0));
+             const minScore = sorted[0]?.[1].score || 0;
              const losers = sorted.filter(([,p]) => (p.score||0) === minScore).map(([id]) => id);
-             // Random aus den Verlierern
              const pickedLoser = losers[Math.floor(Math.random() * losers.length)];
 
              await db.ref(`games/${gameId}/meta`).update({
                phase: 'roundSummary',
-               round: Math.floor(nextIndex / QUESTIONS_PER_ROUND) + 1,
-               categoryChooserCandidate: pickedLoser // Dieser Spieler darf wählen
+               round: finishedRound + 1,
+               categoryChooserCandidate: pickedLoser
              });
-        } else {
-            await proceedToQuestion(nextIndex, g.meta.currentCategory, g.meta.categoryChooserForRound);
-        }
+             return;
+        } 
+        
+        // Standard case: Next question exists in current block
+        await proceedToQuestion(nextIndex, g.meta.currentCategory, g.meta.categoryChooserForRound);
       }
+      
       else if(meta.phase === 'roundSummary'){
-         // Hier wurde (hoffentlich) eine Kategorie gewählt
+         // Loading new questions for the new round
          const chosenCat = meta.nextCategory || null;
          const chooser = meta.categoryChooserForRound || null;
          
-         // Wenn keine gewählt (sollte nicht passieren, aber fallback), dann random
+         // Fallback: Random category if none chosen
          let finalCat = chosenCat;
          if(!finalCat) {
             const used = meta.categoryState?.used || [];
@@ -382,29 +378,22 @@
             finalCat = avail.length > 0 ? avail[0] : CATEGORY_LIST[0];
          }
 
-         // Neue Fragen holen für diese Kategorie
-         const start = nextIndex;
-         const newBlock = getQuestionsForCategory(finalCat, QUESTIONS_PER_ROUND, (g.questions||[]).map(q=>q.question));
-         
-         // Update Questions array in DB
-         const newQuestions = [...(g.questions || [])];
-         for(let i=0;i<newBlock.length;i++) newQuestions[start + i] = newBlock[i];
-         await db.ref(`games/${gameId}/questions`).set(newQuestions);
+         const start = nextIndex; // Logic fix: we append
+         // Wait! We need to ensure `nextIndex` aligns with array length
+         const safeStartIndex = currentQuestions.length; 
 
-         // Used categories update
+         const newBlock = getQuestionsForCategory(finalCat, QUESTIONS_PER_ROUND, currentQuestions.map(q=>q.question));
+         const newQuestions = [...currentQuestions, ...newBlock];
+         
+         await db.ref(`games/${gameId}/questions`).set(newQuestions);
          const used = [...(meta.categoryState?.used || []), finalCat];
          await db.ref(`games/${gameId}/meta/categoryState/used`).set(used);
          
-         // Clear temp fields
+         // Cleanup
          await db.ref(`games/${gameId}/meta/nextCategory`).remove();
          await db.ref(`games/${gameId}/meta/categoryChooserCandidate`).remove();
 
-         if (nextIndex >= totalQuestions) {
-            if(meta.finaleEnabled === false) await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
-            else await prepareFinale();
-         } else {
-            await proceedToQuestion(nextIndex, finalCat, chooser);
-         }
+         await proceedToQuestion(safeStartIndex, finalCat, chooser);
       }
     };
 
@@ -423,7 +412,7 @@
           phase: 'question',
           questionStartTime: Date.now(),
           currentCategory: category,
-          categoryChooserForRound: chooser, // Speichern wer Bonus kriegt
+          categoryChooserForRound: chooser,
           round: Math.floor(index / QUESTIONS_PER_ROUND) + 1
       });
     };
@@ -433,10 +422,8 @@
       const pObj = pSnap.val() || {};
       const playersArr = Object.entries(pObj).map(([pid,p])=>({pid,...p})).sort((a,b)=>(b.score||0)-(a.score||0));
       if(playersArr.length < 2){ await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' }); return; }
-
       const top2 = playersArr.slice(0, 2).map(p => p.pid);
       await db.ref(`games/${gameId}/finalQuestions`).set(shuffle(FINAL_QUESTION_POOL).slice(0, FINAL_QUESTIONS));
-      
       const updates = {};
       Object.keys(pObj).forEach(pid => {
         updates[`games/${gameId}/players/${pid}/isFinalist`] = top2.includes(pid);
@@ -471,14 +458,10 @@
 
     const startGame = async ()=>{
       const categoriesForGame = shuffle(CATEGORY_LIST).slice(0, TOTAL_ROUNDS);
-      let allQuestions = [];
-      const usedQuestions = [];
-      // Wir laden nur die erste Runde vorab, der Rest kommt dynamisch
       const firstCat = categoriesForGame[0];
-      const block = getQuestionsForCategory(firstCat, QUESTIONS_PER_ROUND, usedQuestions);
-      allQuestions = block;
-
-      await db.ref(`games/${gameId}/questions`).set(allQuestions);
+      const block = getQuestionsForCategory(firstCat, QUESTIONS_PER_ROUND, []);
+      
+      await db.ref(`games/${gameId}/questions`).set(block);
       await db.ref(`games/${gameId}/meta/categoryState`).set({ used: [firstCat], remaining: categoriesForGame.slice(1) });
       await db.ref(`games/${gameId}/meta`).set({ 
         phase: 'question', questionIndex: 0, round: 1, questionStartTime: Date.now(), 
@@ -551,13 +534,11 @@
           </div>
         ) : (
           <div className="host-main">
-            {/* TOP BAR - VERSTECKT im FINAL INTRO */}
+            {/* TOP BAR */}
             {meta.phase !== 'finalIntro' && meta.phase !== 'finished' && (
                 <div className="game-top-bar">
                      <div style={{display:'flex', alignItems:'center', gap:20}}>
-                        <div className={`countdown-badge ${countdownClass}`}>
-                          {timeLeft}
-                        </div>
+                        <div className={`countdown-badge ${countdownClass}`}>{timeLeft}</div>
                         <div>
                           <div style={{color:'var(--muted)', fontSize:'1rem', textTransform:'uppercase'}}>Runde {meta.round || 1} | Frage {(qIndex%QUESTIONS_PER_ROUND)+1}</div>
                           <div style={{fontWeight:900, fontSize:'1.8rem', color:'var(--rtl-orange)'}}>{meta.currentCategory || question?.category || 'Finale'}</div>
@@ -638,8 +619,8 @@
                               {playersArr.map((p,i)=>(
                                 <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:'10px', background:i<3?'rgba(255,255,255,0.05)':'transparent', marginBottom:4}}>
                                   <div style={{display:'flex', gap:8}}>
-                                     <span style={{fontWeight:700, fontSize:16}}>#{i+1} {p.name}</span>
-                                     {meta.categoryChooserForRound === p.pid && <span style={{fontSize:12, background:'var(--rtl-purple)', padding:'2px 5px'}}>WÄHLER (x1.2)</span>}
+                                    <span style={{fontWeight:700, fontSize:16}}>#{i+1} {p.name}</span>
+                                    {meta.categoryChooserForRound === p.pid && <span style={{fontSize:12, background:'var(--rtl-purple)', padding:'2px 5px'}}>WÄHLER (x1.2)</span>}
                                   </div>
                                   <div style={{fontWeight:900, color: p.lastPoints>0 ? 'var(--rtl-green)' : 'var(--tile)', fontSize:16}}>
                                     {p.score} <span style={{fontSize:12, opacity:0.7}}>(+{p.lastPoints})</span>
@@ -655,7 +636,10 @@
                 {meta.phase === 'roundSummary' && (
                    <div style={{width:'100%', height:'100%', display:'flex', flexDirection:'column'}}>
                       <h2 style={{textAlign:'center', fontSize:40, fontWeight:900, color:'var(--rtl-orange)', marginBottom:20}}>Stand nach Runde {meta.round - 1}</h2>
-                      <p style={{textAlign:'center', color:'var(--muted)', marginBottom:20}}>Der Spieler auf dem letzten Platz wählt die nächste Kategorie.</p>
+                      <p style={{textAlign:'center', color:'var(--muted)', marginBottom:20}}>
+                        Der Spieler auf dem letzten Platz wählt die nächste Kategorie.
+                        {meta.categoryChooserCandidate && <span> (Wähler: {game.players[meta.categoryChooserCandidate]?.name})</span>}
+                      </p>
                       <div className="scroll-area" style={{flex:1, background:'rgba(255,255,255,0.02)', padding:40, border:'1px solid rgba(255,255,255,0.05)'}}>
                          {playersArr.map((p,i)=>(
                             <div key={p.pid} style={{
@@ -669,7 +653,7 @@
                                <div style={{display:'flex', alignItems:'center', gap:20}}>
                                   <div style={{fontSize:30, fontWeight:900, width:50}}>{i===0?'1.':i===1?'2.':i===2?'3.':`${i+1}.`}</div>
                                   <div style={{fontSize:24, fontWeight:700}}>{p.name}</div>
-                                  {meta.categoryChooserCandidate === p.pid && <div style={{background:'var(--rtl-red)', padding:'5px 10px', fontWeight:900}}>WÄHLT KATEGORIE!</div>}
+                                  {meta.categoryChooserCandidate === p.pid && <div style={{background:'var(--rtl-red)', padding:'5px 10px', fontWeight:900, fontSize:14}}>WÄHLT!</div>}
                                </div>
                                <div style={{display:'flex', alignItems:'center', gap:30}}>
                                   <div style={{fontSize:18, color:'var(--muted)', display:'flex', gap:15}}>
@@ -845,7 +829,7 @@
       } else { setTimeLeft(0); }
     },[meta?.questionStartTime, meta?.finalQuestionStartTime, meta?.phase]);
 
-    // CHECK FOR CATEGORY CHOICE
+    // Category Selection
     useEffect(() => {
         if(meta && meta.phase === 'roundSummary' && meta.categoryChooserCandidate === playerId) {
             setBonusCategoryModalOpen(true);
@@ -867,7 +851,6 @@
       });
       await db.ref().update(updates);
     };
-
     const openPoisonModal = () => { setPoisonTargets(Object.entries(game.players || {}).filter(([pid]) => pid !== playerId).map(([pid,p]) => ({ pid, name: p.name }))); setPoisonModalOpen(true); };
     const sendPoisonTo = async (targetPid) => { 
         setPoisonModalOpen(false); 
@@ -885,7 +868,6 @@
              db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).set(arr);
         });
     };
-
     const openShieldModal = () => { setPoisonTargets(Object.entries(game.players || {}).map(([pid,p]) => ({ pid, name: p.name }))); setShieldModalOpen(true); };
     const sendShieldTo = async (targetPid) => {
         setShieldModalOpen(false);
@@ -897,7 +879,6 @@
              db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).set(arr);
         });
     };
-
     const pickCategory = async (cat) => {
         await db.ref(`games/${gameId}/meta`).update({ 
             nextCategory: cat, 
@@ -908,7 +889,6 @@
 
     if(!game || !meta || !player) return <div className="min-h-screen flex items-center justify-center">Warte auf Spiel...</div>;
 
-    // FINAL INTRO WITH READY BUTTON
     if(meta.phase === 'finalIntro') {
         if(!player.isFinalist) return <div className="min-h-screen flex items-center justify-center p-4"><div className="card"><h2>Finale</h2><p>Du bist Zuschauer.</p></div></div>;
         return (
@@ -924,6 +904,15 @@
                 </div>
             </div>
         );
+    }
+    if(meta.phase === 'finalQuestion'){
+       const question = (game.finalQuestions||[])[meta.finalQuestionIndex||0];
+       if(!player.isFinalist) return <div className="min-h-screen flex items-center justify-center p-4"><div className="card"><h2>Finale läuft...</h2></div></div>;
+       const hasAnswered = player.finalAnswers && player.finalAnswers[meta.finalQuestionIndex||0];
+       return (
+          <div className="min-h-screen p-4"><div className="card"><h2>Frage {meta.finalQuestionIndex+1}</h2><p>{question?.question}</p>
+          {!hasAnswered ? <><input className="w-full p-3 mt-4" value={finalAnswer} onChange={e=>setFinalAnswer(e.target.value)}/><button className="btn btn-host w-full mt-2" onClick={()=>{db.ref(`games/${gameId}/players/${playerId}/finalAnswers/${meta.finalQuestionIndex}`).set(finalAnswer); setFinalAnswer('');}}>Senden</button></> : <p>Antwort gesendet.</p>}</div></div>
+       );
     }
 
     if(meta.phase === 'question'){
@@ -969,18 +958,14 @@
     if(meta.phase === 'roundSummary' && bonusCategoryModalOpen) {
         const used = meta.categoryState?.used || [];
         const available = CATEGORY_LIST.filter(c => !used.includes(c));
-        // Fallback if all used
         const displayCats = available.length > 0 ? available : CATEGORY_LIST;
-        
         return (
             <div className="modal-backdrop">
                 <div className="modal-card">
                     <h3 style={{textAlign:'center', marginBottom:20, fontSize:20, fontWeight:900}}>DU WÄHLST DIE KATEGORIE!</h3>
                     <p style={{textAlign:'center', marginBottom:20, color:'var(--muted)'}}>Du erhältst in der nächsten Runde <b>x1.2 Punkte</b> auf richtige Antworten.</p>
                     <div style={{display:'flex', flexDirection:'column', gap:10}}>
-                        {displayCats.slice(0, 3).map(c => (
-                            <button key={c} className="btn btn-host" onClick={()=>pickCategory(c)}>{c}</button>
-                        ))}
+                        {displayCats.slice(0, 3).map(c => (<button key={c} className="btn btn-host" onClick={()=>pickCategory(c)}>{c}</button>))}
                         <button className="btn" onClick={()=>pickCategory(displayCats[0])}>ZUFALL</button>
                     </div>
                 </div>
@@ -989,13 +974,7 @@
     }
 
     if(meta.phase === 'results') return <div className="min-h-screen flex items-center justify-center p-4"><div className="card" style={{textAlign:'center'}}><h2>{player.currentAnswer===((game.questions||[])[meta.questionIndex||0]).correct ? 'Richtig!' : 'Falsch'}</h2><p>Punkte: {player.score}</p></div></div>;
-    
-    // DEFAULT / WAITING SCREEN
-    return (
-        <div className="min-h-screen flex items-center justify-center">
-            <div className="card">Warte auf Host...</div>
-        </div>
-    );
+    return <div className="min-h-screen flex items-center justify-center"><div>Warte auf Host...</div></div>;
   }
 
   function PlayerJoin({ joinGameId, onJoined }){
@@ -1035,11 +1014,24 @@
     },[]);
 
     const handleCreate = async (name)=>{ const gid = randomGameID(); setGameId(gid); await db.ref(`games/${gid}/meta`).set({ phase: 'lobby', finaleEnabled: true }); setMode('hostLobby'); };
+    
+    // FIX: Implementierte Join Logik
+    const handleJoin = async (name, code)=>{
+        try {
+            const snap = await db.ref(`games/${code}`).get();
+            if(!snap.exists()) { alert('Spiel nicht gefunden!'); return; }
+            const pid = makePlayerId();
+            await db.ref(`games/${code}/players/${pid}`).set({ name, score: 0, items: DEFAULT_ITEMS });
+            sessionStorage.setItem(`quiz_pid_${code}`, pid);
+            setGameId(code); setPlayerId(pid); setPlayerName(name); setMode('playerGame');
+        } catch(e) { console.error(e); alert('Fehler beim Beitreten'); }
+    };
+    
     const handlePlayerJoined = (code,pid,name) => { sessionStorage.setItem(`quiz_pid_${code}`, pid); setGameId(code); setPlayerId(pid); setPlayerName(name); setMode('playerGame'); };
 
     return (
       <>
-        {mode === 'start' && <StartScreen onCreate={handleCreate} onJoin={(n,c)=>{ setGameId(c); setMode('playerJoin'); }} />}
+        {mode === 'start' && <StartScreen onCreate={handleCreate} onJoin={handleJoin} />}
         {mode === 'hostLobby' && <HostScreen gameId={gameId} hostName={playerName} />}
         {mode === 'playerGame' && <PlayerView gameId={gameId} playerId={playerId} />}
         {mode === 'playerJoin' && <PlayerJoin joinGameId={gameId} onJoined={handlePlayerJoined} />}
