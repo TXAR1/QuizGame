@@ -100,9 +100,8 @@
     .countdown-badge.warning{ border-color:var(--rtl-orange); color:var(--rtl-orange); }
     .countdown-badge.danger{ border-color:var(--rtl-red); color:var(--rtl-red); background: rgba(227,31,35,0.1); }
     
-    /* Question Area Filling Fix */
     .question-area { 
-        flex-grow: 1; /* Nimmt allen verfügbaren Platz ein */
+        flex-grow: 1; 
         display: flex; 
         align-items: center; 
         justify-content: center; 
@@ -110,7 +109,7 @@
         text-align: center;
     }
     .question-text {
-        font-size: 6vh; /* Dynamisch groß */
+        font-size: 6vh; 
         font-weight: 900;
         line-height: 1.2;
         text-shadow: 0 4px 10px rgba(0,0,0,0.8);
@@ -172,7 +171,7 @@
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  /************ Kategorien & Fragen ************/
+  /************ Fragen Pool ************/
   const CATEGORY_LIST = ["Geografie", "Wissenschaft", "Geschichte", "Kultur & Kunst", "Sport", "Technik & Digitalisierung"];
   
   const QUESTION_POOL = [
@@ -353,23 +352,16 @@
       
       // --- PHASE 1: Wir kommen von den Ergebnissen ---
       if(meta.phase === 'results'){
-        
-        // Prüfe, ob wir am Ende einer Runde sind
-        // Wir sind am Ende einer Runde, wenn die nächste Frage ein Vielfaches von QUESTIONS_PER_ROUND ist
         const isRoundEnd = (nextIndex % QUESTIONS_PER_ROUND) === 0;
-
         if (isRoundEnd) {
-             // Wir sind am Ende einer Runde -> Gehe zum Zwischenstand (Round Summary)
              const finishedRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
              
-             // Check: War das die allerletzte Runde?
              if (finishedRound >= TOTAL_ROUNDS) {
                 if(meta.finaleEnabled === false) await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
                 else await prepareFinale();
                 return;
              }
 
-             // Ermittle Verlierer für Kategorie-Wahl
              const pObj = g.players || {};
              const sorted = Object.entries(pObj).sort(([,a],[,b]) => (a.score||0) - (b.score||0));
              const minScore = sorted[0]?.[1].score || 0;
@@ -384,9 +376,8 @@
              return;
 
         } else {
-            // Wir sind noch INNERHALB einer Runde (z.B. von Frage 1 zu Frage 2)
-            // Hier ist der "Stuck Bug" passiert. Wir erzwingen jetzt das Weitermachen.
-            await proceedToQuestion(nextIndex, g.meta.currentCategory, g.meta.categoryChooserForRound);
+            // BUGFIX: Fallback auf NULL statt UNDEFINED bei categoryChooserForRound
+            await proceedToQuestion(nextIndex, g.meta.currentCategory, g.meta.categoryChooserForRound || null);
         }
       }
       
@@ -395,7 +386,6 @@
          const chosenCat = meta.nextCategory || null;
          const chooser = meta.categoryChooserForRound || null;
          
-         // Fallback Kategorie
          let finalCat = chosenCat;
          if(!finalCat) {
             const used = meta.categoryState?.used || [];
@@ -403,7 +393,6 @@
             finalCat = avail.length > 0 ? avail[0] : CATEGORY_LIST[0];
          }
 
-         // Neue Fragen generieren
          const newBlock = getQuestionsForCategory(finalCat, QUESTIONS_PER_ROUND, currentQuestions.map(q=>q.question));
          const newQuestions = [...currentQuestions, ...newBlock];
          
@@ -414,7 +403,6 @@
          await db.ref(`games/${gameId}/meta/nextCategory`).remove();
          await db.ref(`games/${gameId}/meta/categoryChooserCandidate`).remove();
 
-         // Sicherstellen, dass wir den korrekten Index nutzen (Länge der alten Liste)
          const safeStartIndex = currentQuestions.length; 
          await proceedToQuestion(safeStartIndex, finalCat, chooser);
       }
@@ -435,7 +423,7 @@
           phase: 'question',
           questionStartTime: Date.now(),
           currentCategory: category,
-          categoryChooserForRound: chooser,
+          categoryChooserForRound: chooser || null, // BUGFIX: Verhindert 'undefined' Error
           round: Math.floor(index / QUESTIONS_PER_ROUND) + 1
       });
     };
@@ -903,7 +891,10 @@
         });
     };
     const pickCategory = async (cat) => {
-        await db.ref(`games/${gameId}/meta`).update({ nextCategory: cat, categoryChooserForRound: playerId });
+        await db.ref(`games/${gameId}/meta`).update({ 
+            nextCategory: cat, 
+            categoryChooserForRound: playerId 
+        });
         setBonusCategoryModalOpen(false);
     };
 
@@ -1062,8 +1053,6 @@
   </script>
 </body>
 </html>
-
-
 
 
 
