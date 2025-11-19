@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Final Stable</title>
+  <title>RTL AdAlliance Quiz - Stable V3</title>
 
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
@@ -366,12 +366,14 @@
              const sorted = Object.entries(pObj).sort(([,a],[,b]) => (a.score||0) - (b.score||0));
              const minScore = sorted[0]?.[1].score || 0;
              const losers = sorted.filter(([,p]) => (p.score||0) === minScore).map(([id]) => id);
-             const pickedLoser = losers[Math.floor(Math.random() * losers.length)];
+             
+             // BUGFIX: Fallback wenn keine Verlierer gefunden (sollte nicht passieren, aber sicher ist sicher)
+             const pickedLoser = losers.length > 0 ? losers[Math.floor(Math.random() * losers.length)] : null;
 
              await db.ref(`games/${gameId}/meta`).update({
                phase: 'roundSummary',
                round: finishedRound + 1,
-               categoryChooserCandidate: pickedLoser
+               categoryChooserCandidate: pickedLoser || null // Fix: Ensure no undefined
              });
              return;
 
