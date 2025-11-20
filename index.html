@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Stable V4</title>
+  <title>RTL AdAlliance Quiz - Final TV Version</title>
 
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
@@ -76,7 +76,6 @@
     .card{ padding:30px; background: #111; border:1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     
     .host-screen{ display:flex; width: 100%; height:100vh; overflow:hidden; position: relative; background: var(--bg); }
-    .host-side{ flex:0 0 400px; padding:30px; background: #050505; border-left:2px solid rgba(255,255,255,0.05); display: flex; flexDirection: column; gap: 20px; z-index: 10; }
     .host-main{ flex:1; display:flex; flex-direction:column; height: 100%; position: relative; }
     
     .host-main-inner {
@@ -140,6 +139,42 @@
     .item-btn { border: 1px solid rgba(255,255,255,0.2); padding: 10px; background: transparent; color: white; font-weight: 800; font-size: 14px; }
     .item-btn.active { background: var(--rtl-orange); border-color: var(--rtl-orange); color: #000; }
     .item-btn.item-disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* Lobby Grid for TV */
+    .lobby-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
+        padding: 20px;
+    }
+    .lobby-player-chip {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.1);
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 20px;
+        font-weight: 700;
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* Winner Podium */
+    .podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 40px; height: 50vh; margin-top: 50px; }
+    .podium-place { display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
+    .podium-bar { width: 180px; background: rgba(255,255,255,0.1); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20px; font-size: 80px; font-weight: 900; color: rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.2); position: relative; overflow: hidden;}
+    
+    .podium-1 .podium-bar { height: 350px; background: linear-gradient(180deg, #FFD700 0%, #B8860B 100%); border-color: #FFD700; color: rgba(255,255,255,0.5); box-shadow: 0 0 100px rgba(255, 215, 0, 0.4); }
+    .podium-2 .podium-bar { height: 250px; background: linear-gradient(180deg, #C0C0C0 0%, #808080 100%); border-color: #C0C0C0; color: rgba(255,255,255,0.5); }
+    .podium-3 .podium-bar { height: 180px; background: linear-gradient(180deg, #CD7F32 0%, #8B4513 100%); border-color: #CD7F32; color: rgba(255,255,255,0.5); }
+
+    .winner-name { font-size: 32px; fontWeight: 900; margin-bottom: 15px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+    .winner-score { font-size: 24px; color: var(--muted); margin-bottom: 5px; }
+
+    /* Confetti particles (Simple CSS implementation) */
+    .confetti { position: absolute; width: 10px; height: 10px; background: #f00; animation: fall 3s linear infinite; z-index: 0; }
+    @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1;} 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
 
   </style>
 </head>
@@ -227,7 +262,23 @@
 
   function qrUrlForGame(gameId){
     const url = `${window.location.origin}${window.location.pathname}?join=${gameId}`;
-    return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=300&margin=1&dark=000000&light=ffffff`;
+    return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=500&margin=1&dark=000000&light=ffffff`;
+  }
+
+  function ConfettiRain() {
+     // Creates a simple confetti effect
+     const particles = Array.from({length: 50});
+     return (
+        <div style={{position:'fixed', inset:0, pointerEvents:'none', overflow:'hidden', zIndex:0}}>
+           {particles.map((_, i) => (
+              <div key={i} className="confetti" style={{
+                 left: Math.random() * 100 + 'vw',
+                 animationDelay: Math.random() * 3 + 's',
+                 backgroundColor: ['#FF6600', '#FFD700', '#FFF', '#22C55E'][Math.floor(Math.random()*4)]
+              }} />
+           ))}
+        </div>
+     )
   }
 
   /****************************************
@@ -500,38 +551,52 @@
     const question = (game.questions || [])[qIndex];
     const countdownClass = timeLeft <= 10 ? 'danger' : timeLeft <= 20 ? 'warning' : '';
 
+    // FIX: Check if we are in ANY final phase
+    const isFinalPhase = meta.phase.startsWith('final');
+    // FIX: Force "FINALE" title if in final phase
+    const displayCategory = isFinalPhase ? "FINALE" : (meta.currentCategory || question?.category || 'Allgemein');
+    const displayCategoryColor = isFinalPhase ? 'var(--rtl-red)' : 'var(--rtl-orange)';
+
     return (
       <div className="host-screen">
         {isLobby ? (
-          <div style={{display:'flex', width:'100%'}}>
-             <div style={{flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:40}}>
-                <RTLLogo size="lg" />
-                <h2 style={{fontSize:48, fontWeight:900, margin:'20px 0', color:'var(--tile)'}}>Willkommen</h2>
-                <div style={{background:'rgba(255,255,255,0.1)', padding:20, border:'2px solid white', display:'flex', flexDirection:'column', alignItems:'center', gap:10}}>
-                    <div style={{fontSize:16, color:'var(--muted)'}}>CODE ZUM BEITRETEN:</div>
-                    <div style={{fontFamily:'monospace', fontSize:50, fontWeight:900, letterSpacing:4}}>{gameId}</div>
-                </div>
-                <div style={{marginTop:40, display:'flex', gap:20, alignItems:'center'}}>
-                  <button className="btn btn-host" onClick={startGame} style={{fontSize:24, padding:'20px 40px'}}>Spiel starten ▶</button>
-                  <div style={{display:'flex', alignItems:'center', gap:10, padding:'15px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)'}}>
-                    <span style={{fontSize:'16px', fontWeight:700}}>Finale?</span>
-                    <label className="toggle-switch">
-                      <input type="checkbox" checked={finaleEnabled} onChange={toggleFinale} />
-                      <span className="toggle-slider"></span>
-                    </label>
-                  </div>
+          <div style={{display:'flex', flexDirection:'column', width:'100%', height:'100vh', background:'#000'}}>
+             {/* TOP: BIG INFO (TV Optimized) */}
+             <div style={{flex: '0 0 60%', display:'flex', alignItems:'center', justifyContent:'center', borderBottom:'2px solid rgba(255,255,255,0.1)', background:'radial-gradient(circle at center, #111 0%, #000 100%)'}}>
+                <div style={{display:'flex', alignItems:'center', gap:80, transform:'scale(1.1)'}}>
+                    <div style={{padding:20, background:'white'}}>
+                        <img src={qrUrlForGame(gameId)} alt="QR" style={{width:'40vh', height:'40vh'}} />
+                    </div>
+                    <div style={{display:'flex', flexDirection:'column', gap:10}}>
+                        <RTLLogo size="lg" />
+                        <div style={{fontSize:'2rem', color:'var(--muted)', letterSpacing:2, marginTop:20}}>JOIN CODE:</div>
+                        <div style={{fontSize:'8rem', fontWeight:900, lineHeight:1, color:'white', letterSpacing:10}}>{gameId}</div>
+                    </div>
                 </div>
              </div>
-             <div className="host-side">
-                <div style={{textAlign:'center', padding:20, background:'white', height: 300, display:'flex', alignItems:'center', justifyContent:'center'}}>
-                  <img src={qrUrlForGame(gameId)} alt="QR Code" style={{maxWidth:'100%', maxHeight:'100%', objectFit:'contain', aspectRatio:'1/1'}} />
+             
+             {/* BOTTOM: PLAYER GRID */}
+             <div style={{flex:1, background:'#0a0a0a', display:'flex', flexDirection:'column'}}>
+                <div style={{display:'flex', justifyContent:'space-between', padding:'20px 40px', borderBottom:'1px solid rgba(255,255,255,0.1)', background:'#111'}}>
+                    <div style={{fontSize:24, fontWeight:900, color:'var(--rtl-orange)'}}>LOBBY</div>
+                    <div style={{display:'flex', alignItems:'center', gap:30}}>
+                        <div style={{fontSize:24, fontWeight:700}}>Spieler: {playersArr.length}</div>
+                         <div style={{display:'flex', alignItems:'center', gap:10, padding:'5px 15px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)'}}>
+                            <span style={{fontSize:'14px', fontWeight:700}}>Finale?</span>
+                            <label className="toggle-switch" style={{transform:'scale(0.8)'}}>
+                              <input type="checkbox" checked={finaleEnabled} onChange={toggleFinale} />
+                              <span className="toggle-slider"></span>
+                            </label>
+                          </div>
+                        <button className="btn btn-host" onClick={startGame} style={{fontSize:20, padding:'10px 30px'}}>START ▶</button>
+                    </div>
                 </div>
-                <h3 style={{fontSize:24, fontWeight:900, color:'var(--rtl-orange)', borderBottom:'2px solid var(--rtl-orange)', paddingBottom:10}}>Spieler ({playersArr.length})</h3>
-                <div className="scroll-area" style={{flex:1}}>
-                   {playersArr.map((p)=>(
-                     <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:15, background:'rgba(255,255,255,0.05)', marginBottom:4, fontSize:18}}>
-                        <strong>{p.name}</strong><span style={{color:'var(--rtl-green)'}}>✓</span>
-                     </div>
+                <div className="scroll-area lobby-grid">
+                   {playersArr.map(p => (
+                       <div key={p.pid} className="lobby-player-chip">
+                           <span>{p.name}</span>
+                           <span style={{color:'var(--rtl-green)'}}>●</span>
+                       </div>
                    ))}
                 </div>
              </div>
@@ -544,8 +609,10 @@
                      <div style={{display:'flex', alignItems:'center', gap:20}}>
                         <div className={`countdown-badge ${countdownClass}`}>{timeLeft}</div>
                         <div>
-                          <div style={{color:'var(--muted)', fontSize:'1rem', textTransform:'uppercase'}}>Runde {meta.round || 1} | Frage {(qIndex%QUESTIONS_PER_ROUND)+1}</div>
-                          <div style={{fontWeight:900, fontSize:'1.8rem', color:'var(--rtl-orange)'}}>{meta.currentCategory || question?.category || 'Finale'}</div>
+                          <div style={{color:'var(--muted)', fontSize:'1rem', textTransform:'uppercase'}}>
+                              {isFinalPhase ? 'Das Finale' : `Runde ${meta.round || 1} | Frage ${(qIndex%QUESTIONS_PER_ROUND)+1}`}
+                          </div>
+                          <div style={{fontWeight:900, fontSize:'1.8rem', color: displayCategoryColor}}>{displayCategory}</div>
                         </div>
                      </div>
                      <div style={{display:'flex', alignItems:'center', gap:20}}>
@@ -704,11 +771,35 @@
                         {meta.phase === 'finalQuestion' && <FinalQuestionHostView game={game} meta={meta} timeLeft={timeLeft} onNext={nextFinalQuestion} />}
                         {meta.phase === 'finalReview' && <FinalReviewHostView game={game} meta={meta} onJudge={judgeFinalAnswer} onNext={nextFinalReview} />}
                         {meta.phase === 'finished' && (
-                           <div style={{textAlign:'center'}}>
-                              <h1 style={{fontSize:100, fontWeight:900, margin:0, color:'var(--rtl-orange)'}}>ENDE</h1>
-                              <div style={{fontSize:40, marginTop:30}}>Gewinner: {playersArr[0]?.name}</div>
-                              <div style={{fontSize:80, marginTop:10, color:'gold'}}>{playersArr[0]?.score} Pkt</div>
-                              <button className="btn btn-host" style={{marginTop:60, fontSize:24, padding:'20px 50px'}} onClick={backToLobby}>Zurück zur Lobby</button>
+                           <div style={{width:'100%', height:'100%', position:'relative', display:'flex', flexDirection:'column', alignItems:'center'}}>
+                              <ConfettiRain />
+                              <div style={{zIndex:10, textAlign:'center', paddingTop:40}}>
+                                  <h1 style={{fontSize:80, fontWeight:900, margin:0, color:'var(--rtl-orange)', textTransform:'uppercase', letterSpacing:4}}>Siegerehrung</h1>
+                              </div>
+                              <div className="podium-container" style={{zIndex:10}}>
+                                  {playersArr[1] && (
+                                      <div className="podium-place podium-2">
+                                          <div className="winner-score">{playersArr[1].score}</div>
+                                          <div className="winner-name">{playersArr[1].name}</div>
+                                          <div className="podium-bar">2</div>
+                                      </div>
+                                  )}
+                                  {playersArr[0] && (
+                                      <div className="podium-place podium-1">
+                                          <div className="winner-score">{playersArr[0].score}</div>
+                                          <div className="winner-name">👑 {playersArr[0].name}</div>
+                                          <div className="podium-bar">1</div>
+                                      </div>
+                                  )}
+                                  {playersArr[2] && (
+                                      <div className="podium-place podium-3">
+                                          <div className="winner-score">{playersArr[2].score}</div>
+                                          <div className="winner-name">{playersArr[2].name}</div>
+                                          <div className="podium-bar">3</div>
+                                      </div>
+                                  )}
+                              </div>
+                              <button className="btn btn-host" style={{zIndex:10, marginTop:'auto', marginBottom:40, fontSize:24, padding:'20px 50px'}} onClick={backToLobby}>Zurück zur Lobby</button>
                            </div>
                         )}
                     </div>
@@ -806,9 +897,10 @@
                  </div>
                  <div style={{fontSize:28, padding:20, background:'rgba(0,0,0,0.5)', marginBottom:20, fontStyle:'italic'}}>"{f.finalAnswers?.[reviewIndex] || '---'}"</div>
                  {judged[f.pid] === undefined ? (
+                    /* NEUES BUTTON DESIGN: WEISS / DUNKEL */
                     <div style={{display:'flex', gap:20}}>
-                       <button className="btn" style={{flex:1, background:'var(--rtl-green)'}} onClick={()=>handleJudge(f.pid, true)}>✓ KORREKT</button>
-                       <button className="btn" style={{flex:1, background:'var(--rtl-red)'}} onClick={()=>handleJudge(f.pid, false)}>✗ FALSCH</button>
+                       <button className="btn" style={{flex:1, background:'white', color:'black', border:'2px solid white', fontSize:20}} onClick={()=>handleJudge(f.pid, true)}>✓ KORREKT</button>
+                       <button className="btn" style={{flex:1, background:'transparent', border:'2px solid rgba(255,255,255,0.2)', color:'white'}} onClick={()=>handleJudge(f.pid, false)}>✗ FALSCH</button>
                     </div>
                  ) : (
                     <div style={{textAlign:'center', fontWeight:900, color: judged[f.pid] ? 'var(--rtl-green)' : 'var(--rtl-red)', fontSize:20}}>{judged[f.pid] ? 'PUNKTE VERGEBEN' : 'ALS FALSCH GEWERTET'}</div>
