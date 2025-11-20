@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Final V5</title>
+  <title>RTL AdAlliance Quiz - Final V6</title>
 
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
@@ -835,7 +835,14 @@
         {pauseModalOpen && (
           <div className="modal-backdrop">
             <div className="modal-card" style={{textAlign:'center'}}>
-              <h3 style={{fontWeight:900, fontSize:32, marginBottom:30, color:'var(--rtl-orange)'}}>PAUSE</h3>
+              <h3 style={{fontWeight:900, fontSize:32, marginBottom:10, color:'var(--rtl-orange)'}}>PAUSE</h3>
+              
+              {/* New Section for Game ID */}
+              <div style={{marginBottom: 30, padding: 20, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)'}}>
+                  <div style={{fontSize: 16, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 5}}>Game Code</div>
+                  <div style={{fontSize: 60, fontWeight: 900, color: 'white', letterSpacing: 8, fontFamily: 'monospace'}}>{gameId}</div>
+              </div>
+
               <div style={{display:'flex', flexDirection:'column', gap:20}}>
                 <button className="btn btn-host" onClick={resumeGame} style={{fontSize:20, padding:'20px'}}>▶ WEITER</button>
                 <button className="btn" onClick={backToLobby} style={{fontSize:20, padding:'20px', background:'rgba(255,255,255,0.1)'}}>↩ LOBBY / RESET</button>
