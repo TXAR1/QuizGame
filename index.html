@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Stable V3</title>
+  <title>RTL AdAlliance Quiz - Stable V4</title>
 
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
@@ -339,7 +339,6 @@
       }catch(e){ console.error(e); }
     };
 
-    // --- STABILISIERTE NEXT ROUND LOGIK ---
     const startNextRound = async ()=>{
       if(!meta) return;
       const gameSnap = await db.ref(`games/${gameId}`).get();
@@ -350,40 +349,32 @@
       const currentQuestions = g.questions || [];
       const nextIndex = currentIndex + 1;
       
-      // --- PHASE 1: Wir kommen von den Ergebnissen ---
       if(meta.phase === 'results'){
         const isRoundEnd = (nextIndex % QUESTIONS_PER_ROUND) === 0;
         if (isRoundEnd) {
              const finishedRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
-             
              if (finishedRound >= TOTAL_ROUNDS) {
                 if(meta.finaleEnabled === false) await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
                 else await prepareFinale();
                 return;
              }
-
              const pObj = g.players || {};
              const sorted = Object.entries(pObj).sort(([,a],[,b]) => (a.score||0) - (b.score||0));
              const minScore = sorted[0]?.[1].score || 0;
              const losers = sorted.filter(([,p]) => (p.score||0) === minScore).map(([id]) => id);
-             
-             // BUGFIX: Fallback wenn keine Verlierer gefunden (sollte nicht passieren, aber sicher ist sicher)
              const pickedLoser = losers.length > 0 ? losers[Math.floor(Math.random() * losers.length)] : null;
 
              await db.ref(`games/${gameId}/meta`).update({
                phase: 'roundSummary',
                round: finishedRound + 1,
-               categoryChooserCandidate: pickedLoser || null // Fix: Ensure no undefined
+               categoryChooserCandidate: pickedLoser || null
              });
              return;
 
         } else {
-            // BUGFIX: Fallback auf NULL statt UNDEFINED bei categoryChooserForRound
             await proceedToQuestion(nextIndex, g.meta.currentCategory, g.meta.categoryChooserForRound || null);
         }
       }
-      
-      // --- PHASE 2: Wir kommen vom Zwischenstand (Round Summary) ---
       else if(meta.phase === 'roundSummary'){
          const chosenCat = meta.nextCategory || null;
          const chooser = meta.categoryChooserForRound || null;
@@ -425,7 +416,7 @@
           phase: 'question',
           questionStartTime: Date.now(),
           currentCategory: category,
-          categoryChooserForRound: chooser || null, // BUGFIX: Verhindert 'undefined' Error
+          categoryChooserForRound: chooser || null,
           round: Math.floor(index / QUESTIONS_PER_ROUND) + 1
       });
     };
@@ -579,6 +570,31 @@
                           <div style={{fontSize:'2.2rem'}}>{a}</div>
                         </div>
                       ))}
+                    </div>
+                    {/* --- NEU: ANTWORT STATUS LEISTE --- */}
+                    <div style={{marginTop: 'auto', paddingTop: 30, borderTop:'1px solid rgba(255,255,255,0.1)', width:'100%'}}>
+                        <div style={{fontSize:16, color:'var(--muted)', marginBottom:15, textAlign:'center', textTransform:'uppercase', letterSpacing:1, fontWeight:700}}>
+                            Spieler Status ({playersArr.filter(p => p.currentAnswer !== undefined && p.currentAnswer !== null).length} / {playersArr.length})
+                        </div>
+                        <div style={{display:'flex', flexWrap:'wrap', gap:10, justifyContent:'center'}}>
+                            {playersArr.map(p => {
+                                const hasAnswered = p.currentAnswer !== null && p.currentAnswer !== undefined;
+                                return (
+                                    <div key={p.pid} style={{
+                                        padding: '8px 16px',
+                                        background: hasAnswered ? 'var(--rtl-green)' : 'rgba(255,255,255,0.1)',
+                                        color: hasAnswered ? '#000' : 'rgba(255,255,255,0.5)',
+                                        fontWeight: 900,
+                                        fontSize: 14,
+                                        border: hasAnswered ? '1px solid var(--rtl-green)' : '1px solid rgba(255,255,255,0.1)',
+                                        display:'flex', alignItems:'center', gap:6
+                                    }}>
+                                        {p.name}
+                                        {hasAnswered && <span>✓</span>}
+                                    </div>
+                                )
+                            })}
+                        </div>
                     </div>
                   </>
                 )}
@@ -819,6 +835,7 @@
     const [shieldModalOpen, setShieldModalOpen] = useState(false);
     const [bonusCategoryModalOpen, setBonusCategoryModalOpen] = useState(false);
     const [finalAnswer, setFinalAnswer] = useState('');
+    const [hasUsedItem, setHasUsedItem] = useState(false); // NEU: Status Item genutzt
 
     useEffect(() => { if(playerId && gameId) { sessionStorage.setItem(`quiz_pid_${gameId}`, playerId); } }, [playerId, gameId]);
 
@@ -831,6 +848,11 @@
       pRef.on('value', snap => setPlayer(snap.val()));
       return ()=> { gRef.off(); mRef.off(); pRef.off(); };
     },[gameId, playerId]);
+
+    // NEU: Reset Item-Nutzung wenn neue Frage kommt
+    useEffect(() => {
+        setHasUsedItem(false);
+    }, [meta?.questionIndex]);
 
     useEffect(()=>{
       if(!meta){ setTimeLeft(0); return; }
@@ -851,10 +873,16 @@
         }
     }, [meta?.phase, meta?.categoryChooserCandidate, playerId]);
 
-    const openBoostModal = () => { setPoisonTargets(Object.entries(game.players || {}).map(([pid,p]) => ({ pid, name: p.name }))); setBoostModalOpen(true); };
+    const openBoostModal = () => { 
+        if(hasUsedItem) return alert("Du kannst nur 1 Item pro Frage nutzen!"); 
+        setPoisonTargets(Object.entries(game.players || {}).map(([pid,p]) => ({ pid, name: p.name }))); 
+        setBoostModalOpen(true); 
+    };
     const sendBoostTo = async (targetPid) => {
       setBoostModalOpen(false);
+      if(hasUsedItem) return;
       if(!(player.items && player.items.boost > 0)) return;
+      setHasUsedItem(true);
       const updates = {};
       updates[`games/${gameId}/players/${playerId}/items/boost`] = (player.items.boost - 1);
       updates[`games/${gameId}/players/${targetPid}/activeEffects/boost`] = true;
@@ -864,10 +892,17 @@
       });
       await db.ref().update(updates);
     };
-    const openPoisonModal = () => { setPoisonTargets(Object.entries(game.players || {}).filter(([pid]) => pid !== playerId).map(([pid,p]) => ({ pid, name: p.name }))); setPoisonModalOpen(true); };
+
+    const openPoisonModal = () => { 
+        if(hasUsedItem) return alert("Du kannst nur 1 Item pro Frage nutzen!");
+        setPoisonTargets(Object.entries(game.players || {}).filter(([pid]) => pid !== playerId).map(([pid,p]) => ({ pid, name: p.name }))); 
+        setPoisonModalOpen(true); 
+    };
     const sendPoisonTo = async (targetPid) => { 
         setPoisonModalOpen(false); 
+        if(hasUsedItem) return;
         if(!(player.items && player.items.poison > 0)) return;
+        setHasUsedItem(true);
         await db.ref(`games/${gameId}/players/${playerId}/items/poison`).set(player.items.poison-1);
         const tSnap = await db.ref(`games/${gameId}/players/${targetPid}`).get();
         const tData = tSnap.val();
@@ -881,10 +916,17 @@
              db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).set(arr);
         });
     };
-    const openShieldModal = () => { setPoisonTargets(Object.entries(game.players || {}).map(([pid,p]) => ({ pid, name: p.name }))); setShieldModalOpen(true); };
+
+    const openShieldModal = () => { 
+        if(hasUsedItem) return alert("Du kannst nur 1 Item pro Frage nutzen!");
+        setPoisonTargets(Object.entries(game.players || {}).map(([pid,p]) => ({ pid, name: p.name }))); 
+        setShieldModalOpen(true); 
+    };
     const sendShieldTo = async (targetPid) => {
         setShieldModalOpen(false);
+        if(hasUsedItem) return;
         if(!(player.items && player.items.shield > 0)) return;
+        setHasUsedItem(true);
         await db.ref(`games/${gameId}/players/${playerId}/items/shield`).set(player.items.shield-1);
         await db.ref(`games/${gameId}/players/${targetPid}/activeEffects/shield`).set(true);
         await db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).once('value', s => {
@@ -892,6 +934,7 @@
              db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).set(arr);
         });
     };
+
     const pickCategory = async (cat) => {
         await db.ref(`games/${gameId}/meta`).update({ 
             nextCategory: cat, 
@@ -942,9 +985,9 @@
                ))}
              </div>
              <div style={{marginTop:20, display:'grid', gridTemplateColumns:'1fr 1fr', gap:10}}>
-                <button className={`item-btn ${player.items?.boost>0?'':'item-disabled'}`} onClick={openBoostModal}>🔥 {player.items?.boost}</button>
-                <button className={`item-btn ${player.items?.poison>0?'':'item-disabled'}`} onClick={openPoisonModal}>☠️ {player.items?.poison}</button>
-                <button className={`item-btn ${player.items?.shield>0?'':'item-disabled'}`} style={{gridColumn:'span 2'}} onClick={openShieldModal}>🛡 {player.items?.shield}</button>
+                <button className={`item-btn ${player.items?.boost>0 && !hasUsedItem ?'':'item-disabled'}`} onClick={openBoostModal}>🔥 {player.items?.boost}</button>
+                <button className={`item-btn ${player.items?.poison>0 && !hasUsedItem ?'':'item-disabled'}`} onClick={openPoisonModal}>☠️ {player.items?.poison}</button>
+                <button className={`item-btn ${player.items?.shield>0 && !hasUsedItem ?'':'item-disabled'}`} style={{gridColumn:'span 2'}} onClick={openShieldModal}>🛡 {player.items?.shield}</button>
              </div>
            </div>
            {(boostModalOpen||poisonModalOpen||shieldModalOpen) && (
@@ -986,12 +1029,35 @@
         );
     }
 
-    if(meta.phase === 'results') return <div className="min-h-screen flex items-center justify-center p-4"><div className="card" style={{textAlign:'center'}}><h2>{player.currentAnswer===((game.questions||[])[meta.questionIndex||0]).correct ? 'Richtig!' : 'Falsch'}</h2><p>Punkte: {player.score}</p></div></div>;
+    if(meta.phase === 'results') {
+        const pointsEarned = player.lastPoints || 0;
+        const isCorrect = player.currentAnswer===((game.questions||[])[meta.questionIndex||0]).correct;
+        
+        return (
+            <div className="min-h-screen flex items-center justify-center p-4" style={{background:'var(--bg)'}}>
+                <div className="card" style={{textAlign:'center', width:'100%'}}>
+                    <div style={{fontSize:80, marginBottom:10}}>{isCorrect ? '😎' : '🫠'}</div>
+                    <h2 style={{fontSize:32, fontWeight:900, color: isCorrect ? 'var(--rtl-green)' : 'var(--rtl-red)', marginBottom:20}}>
+                        {isCorrect ? 'RICHTIG' : 'FALSCH'}
+                    </h2>
+                    <div style={{background:'rgba(255,255,255,0.05)', padding:30, border:'1px solid rgba(255,255,255,0.1)'}}>
+                        <div style={{fontSize:16, color:'var(--muted)', textTransform:'uppercase', fontWeight:700}}>Punkte diese Runde</div>
+                        <div style={{fontSize:60, fontWeight:900, color:'white', lineHeight:1}}>
+                            {pointsEarned > 0 ? '+' : ''}{pointsEarned}
+                        </div>
+                    </div>
+                    <div style={{marginTop:30, fontSize:14, color:'var(--muted)'}}>Warte auf nächste Frage...</div>
+                </div>
+            </div>
+        );
+    }
+
     return <div className="min-h-screen flex items-center justify-center"><div>Warte auf Host...</div></div>;
   }
 
   function PlayerJoin({ joinGameId, onJoined }){
     const [name,setName] = useState('');
+    
     const handleJoin = async ()=>{
       if(!name) return;
       const snap = await db.ref(`games/${joinGameId}`).get();
@@ -1000,7 +1066,31 @@
       await db.ref(`games/${joinGameId}/players/${pid}`).set({ name, score:0, items:DEFAULT_ITEMS });
       onJoined(joinGameId, pid, name);
     };
-    return <div className="min-h-screen flex items-center justify-center"><div className="card"><input value={name} onChange={e=>setName(e.target.value)} placeholder="Name" className="mb-3 w-full"/><button className="btn btn-host w-full" onClick={handleJoin}>Beitreten</button></div></div>;
+
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6" style={{background:'var(--bg)'}}>
+        <div style={{marginBottom: 40, display:'flex', flexDirection:'column', alignItems:'center'}}>
+            <RTLLogo size="md" />
+            <h1 style={{marginTop:15, fontSize:24, fontWeight:900, color:'var(--tile)', letterSpacing:1}}>AdAlliance Quiz</h1>
+        </div>
+        <div className="card" style={{width:'100%', maxWidth:400, textAlign:'center'}}>
+          <h2 style={{fontSize:20, fontWeight:900, color:'var(--rtl-orange)', marginBottom:20, textTransform:'uppercase'}}>Spieler Login</h2>
+          <div style={{marginBottom:20}}>
+             <label style={{display:'block', textAlign:'left', marginBottom:8, fontSize:14, color:'var(--muted)', fontWeight:700}}>DEIN NAME</label>
+             <input 
+                value={name} 
+                onChange={e=>setName(e.target.value)} 
+                placeholder="z.B. Max Power" 
+                className="w-full"
+                maxLength={12}
+             />
+          </div>
+          <button className="btn btn-host w-full" onClick={handleJoin} disabled={!name} style={{fontSize:20, padding:18}}>
+            BEITRETEN ▶
+          </button>
+        </div>
+      </div>
+    );
   }
 
   /****************************************
