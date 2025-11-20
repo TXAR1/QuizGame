@@ -253,7 +253,7 @@
     { question: "Welches Jahr markiert den Beginn des Ersten Weltkriegs?", answer: "1914" },
   ];
 
-  function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+  function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[i],a[j]];} return a; }
   function randomGameID(){ return Math.random().toString(36).substr(2,6).toUpperCase(); }
   function makePlayerId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2,4); }
 
@@ -275,7 +275,8 @@
   function RTLLogo({ size = "md" }) {
     const sizeMap = { sm: 40, md: 60, lg: 80 };
     const height = sizeMap[size] || 60;
-    return <img src="Logo.png" alt="Logo" style={{ height, width: "auto" }} />;
+    // HINWEIS: Bitte stellen Sie sicher, dass "Logo.png" im selben Verzeichnis liegt oder ersetzen Sie es durch einen Base64-String oder einen öffentlichen Link.
+    return <img src="Logo.png" alt="Logo" style={{ height, width: "auto" }} />; 
   }
 
   function qrUrlForGame(gameId){
@@ -373,8 +374,11 @@
     useEffect(() => {
         if (meta?.phase === 'results') {
             setRevealAnswer(false);
-            const t = setTimeout(() => setRevealAnswer(true), 3000); // 3 seconds delay
+            // 3 seconds delay for visual reveal (answer box highlight + score breakdown)
+            const t = setTimeout(() => setRevealAnswer(true), 3000); 
             return () => clearTimeout(t);
+        } else {
+            setRevealAnswer(false);
         }
     }, [meta?.phase]);
 
@@ -461,6 +465,9 @@
 
           const finalPoints = points - penalty;
           
+          // WICHTIG: Die Punkte werden HIER berechnet und in die DB geschrieben.
+          // Der Gesamtscore des Spielers (p.score) wird an dieser Stelle aktualisiert.
+          // Der PlayerView zeigt den neuen Gesamtscore erst an, wenn er im 'results' Screen ist.
           updates[`games/${gameId}/players/${pid}/score`] = currentTotal + finalPoints;
           updates[`games/${gameId}/players/${pid}/lastPoints`] = finalPoints;
         });
@@ -793,40 +800,45 @@
                          </div>
                       </div>
                       <div className="results-col">
-                         <div style={{flex:1, display:'flex', flexDirection:'column', background:'rgba(255,255,255,0.02)', padding:20, border:'1px solid rgba(255,255,255,0.05)'}}>
-                           <h3 style={{color:'var(--rtl-orange)', fontWeight:900, marginBottom:15, fontSize:22}}>Aktionen</h3>
-                           <div className="scroll-area" style={{flex:1}}>
-                             {(() => {
-                                const actions = (game.meta?.actions?.[qIndex] || []);
-                                if(actions.length === 0) return <div style={{color:'var(--muted)', fontStyle:'italic'}}>Keine Aktionen.</div>;
-                                return actions.map((act, idx) => {
-                                   const from = game.players[act.from]?.name || '???';
-                                   const to = game.players[act.to]?.name || '???';
-                                   if(act.type === 'boost') return <div key={idx} className="action-log-item boost">🔥 <b>{from}</b> boostet {act.target === act.from ? 'sich selbst' : to}</div>;
-                                   if(act.type === 'poison') return <div key={idx} className="action-log-item poison">☠️ <b>{from}</b> vergiftet {to} {act.blocked ? '(🛡 reflektiert!)' : ''}</div>;
-                                   if(act.type === 'shield') return <div key={idx} className="action-log-item shield">🛡 <b>{from}</b> schützt {act.target === act.from ? 'sich selbst' : to}</div>;
-                                });
-                             })()}
-                           </div>
-                         </div>
-                         <div style={{flex:1, display:'flex', flexDirection:'column', background:'rgba(255,255,255,0.02)', padding:20, border:'1px solid rgba(255,255,255,0.05)'}}>
-                            <h3 style={{color:'var(--rtl-orange)', fontWeight:900, marginBottom:15, fontSize:22}}>Score (Frage)</h3>
-                            <div className="scroll-area" style={{flex:1}}>
-                              {/* SORTED BY POINTS EARNED IN THIS QUESTION, DISPLAY ONLY POINTS EARNED */}
-                              {resultsRanking.map((p,i)=>(
-                                <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:'12px', background:i<3?'rgba(255,255,255,0.05)':'transparent', marginBottom:4}}>
-                                  <div style={{display:'flex', gap:8}}>
-                                    <span style={{fontWeight:700, fontSize:18}}>{p.name}</span>
-                                    {/* ENTFERNT: Kategorie-Bonus Anzeige */}
-                                  </div>
-                                  {/* ANPASSUNG: Punkte Farben auf Orange (Positiv/Negativ) und Muted (Neutral) */}
-                                  <div style={{fontWeight:900, color: p.lastPoints>0 ? 'var(--rtl-orange)' : (p.lastPoints<0 ? 'var(--rtl-orange)' : 'var(--muted)'), fontSize:18}}>
-                                     {p.lastPoints > 0 ? '+' : ''}{p.lastPoints}
-                                  </div>
+                         {/* NEU: Anzeigen von Aktionen und Score erst, wenn das Ergebnis enthüllt ist */}
+                         {revealAnswer && (
+                            <>
+                                <div style={{flex:1, display:'flex', flexDirection:'column', background:'rgba(255,255,255,0.02)', padding:20, border:'1px solid rgba(255,255,255,0.05)'}}>
+                                   <h3 style={{color:'var(--rtl-orange)', fontWeight:900, marginBottom:15, fontSize:22}}>Aktionen</h3>
+                                   <div className="scroll-area" style={{flex:1}}>
+                                     {(() => {
+                                        const actions = (game.meta?.actions?.[qIndex] || []);
+                                        if(actions.length === 0) return <div style={{color:'var(--muted)', fontStyle:'italic'}}>Keine Aktionen.</div>;
+                                        return actions.map((act, idx) => {
+                                           const from = game.players[act.from]?.name || '???';
+                                           const to = game.players[act.to]?.name || '???';
+                                           if(act.type === 'boost') return <div key={idx} className="action-log-item boost">🔥 <b>{from}</b> boostet {act.target === act.from ? 'sich selbst' : to}</div>;
+                                           if(act.type === 'poison') return <div key={idx} className="action-log-item poison">☠️ <b>{from}</b> vergiftet {to} {act.blocked ? '(🛡 reflektiert!)' : ''}</div>;
+                                           if(act.type === 'shield') return <div key={idx} className="action-log-item shield">🛡 <b>{from}</b> schützt {act.target === act.from ? 'sich selbst' : to}</div>;
+                                        });
+                                     })()}
+                                   </div>
                                 </div>
-                              ))}
-                            </div>
-                         </div>
+                                <div style={{flex:1, display:'flex', flexDirection:'column', background:'rgba(255,255,255,0.02)', padding:20, border:'1px solid rgba(255,255,255,0.05)'}}>
+                                    <h3 style={{color:'var(--rtl-orange)', fontWeight:900, marginBottom:15, fontSize:22}}>Score (Frage)</h3>
+                                    <div className="scroll-area" style={{flex:1}}>
+                                      {/* SORTED BY POINTS EARNED IN THIS QUESTION, DISPLAY ONLY POINTS EARNED */}
+                                      {resultsRanking.map((p,i)=>(
+                                        <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:'12px', background:i<3?'rgba(255,255,255,0.05)':'transparent', marginBottom:4}}>
+                                          <div style={{display:'flex', gap:8}}>
+                                            <span style={{fontWeight:700, fontSize:18}}>{p.name}</span>
+                                            {/* ENTFERNT: Kategorie-Bonus Anzeige */}
+                                          </div>
+                                          {/* ANPASSUNG: Punkte Farben auf Orange (Positiv/Negativ) und Muted (Neutral) */}
+                                          <div style={{fontWeight:900, color: p.lastPoints>0 ? 'var(--rtl-orange)' : (p.lastPoints<0 ? 'var(--rtl-orange)' : 'var(--muted)'), fontSize:18}}>
+                                             {p.lastPoints > 0 ? '+' : ''}{p.lastPoints}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                </div>
+                            </>
+                         )}
                       </div>
                    </div>
                 )}
@@ -1067,6 +1079,7 @@
     const [bonusCategoryModalOpen, setBonusCategoryModalOpen] = useState(false);
     const [finalAnswer, setFinalAnswer] = useState('');
     const [hasUsedItem, setHasUsedItem] = useState(false); 
+    const [playerReveal, setPlayerReveal] = useState(false); // NEU: Zustand für verzögerte Player-Anzeige
 
     useEffect(() => { if(playerId && gameId) { sessionStorage.setItem(`quiz_pid_${gameId}`, playerId); } }, [playerId, gameId]);
 
@@ -1095,13 +1108,16 @@
       } else { setTimeLeft(0); }
     },[meta?.questionStartTime, meta?.finalQuestionStartTime, meta?.phase]);
 
+    // NEU: Verzögerte Player-Ergebnisanzeige (synchronisiert mit Host)
     useEffect(() => {
-        if(meta && meta.phase === 'roundSummary' && meta.categoryChooserCandidate === playerId) {
-            setBonusCategoryModalOpen(true);
+        if (meta?.phase === 'results') {
+            setPlayerReveal(false);
+            const t = setTimeout(() => setPlayerReveal(true), 3000); 
+            return () => clearTimeout(t);
         } else {
-            setBonusCategoryModalOpen(false);
+            setPlayerReveal(false);
         }
-    }, [meta?.phase, meta?.categoryChooserCandidate, playerId]);
+    }, [meta?.phase, meta?.questionIndex]);
 
     const openBoostModal = () => { 
         if(hasUsedItem) return alert("Du kannst nur 1 Item pro Frage nutzen!"); 
@@ -1224,15 +1240,19 @@
                     onClick={()=>db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i)} 
                     style={{
                         padding:15,
-                        background:player.currentAnswer===i?'var(--rtl-purple)':'rgba(255,255,255,0.05)', 
+                        // NEU: Weiße Boxen für Antworten
+                        background:player.currentAnswer===i?'var(--rtl-orange)':'white', 
+                        color:player.currentAnswer===i?'white':'#0b0b0b', // Textfarbe
+                        border: player.currentAnswer===i ? '1px solid var(--rtl-orange)' : '1px solid #e0e0e0',
                         textAlign:'left', 
                         fontSize:18,
                         display:'flex',
                         alignItems:'center',
-                        gap: '10px'
+                        gap: '10px',
+                        transition: 'all 0.2s'
                     }}>
                     {/* ANPASSUNG: Buchstaben-Präfix hinzugefügt */}
-                    <span style={{fontWeight:900, color: 'var(--rtl-orange)', marginRight: '10px'}}>{String.fromCharCode(65+i)}.</span>
+                    <span style={{fontWeight:900, color: player.currentAnswer===i?'white':'var(--rtl-orange)', marginRight: '10px'}}>{String.fromCharCode(65+i)}.</span>
                     {a}
                  </button>
                ))}
@@ -1286,6 +1306,19 @@
         const pointsEarned = player.lastPoints || 0;
         const isCorrect = player.currentAnswer===((game.questions||[])[meta.questionIndex||0]).correct;
         
+        // NEU: Zeige "Warten" an, solange playerReveal false ist
+        if (!playerReveal) {
+             return (
+                <div className="min-h-screen flex items-center justify-center p-4">
+                    <div className="card" style={{textAlign:'center', width:'100%'}}>
+                        <h2 style={{fontSize:32, fontWeight:900, color: 'var(--rtl-orange)', marginBottom:20}}>ANTWORT ERFASST</h2>
+                        <div style={{fontSize:20, color:'var(--muted)'}}>Warte auf die offizielle Auflösung durch den Host...</div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Ergebnis wird erst nach dem Host-Reveal angezeigt
         return (
             <div className="min-h-screen flex items-center justify-center p-4" style={{background:'var(--bg)'}}>
                 <div className="card" style={{textAlign:'center', width:'100%'}}>
