@@ -3,14 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Monochrome V8</title>
+  <title>RTL AdAlliance Quiz - Item System V9</title>
 
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
   <script src="https://cdn.tailwindcss.com"></script>
-
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -23,14 +21,12 @@
       --muted:rgba(255,255,255,0.65);
     }
     
-    /* RADIKALER RESET FÜR KANTIGES DESIGN */
     * { border-radius: 0px !important; }
     button, div, span, input, img { border-radius: 0px !important; }
 
     html,body,#root{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; overflow: hidden;}
     body{ background:linear-gradient(180deg,var(--bg), #090909); color:var(--tile); }
     
-    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
     ::-webkit-scrollbar-thumb { background: var(--rtl-orange); }
@@ -47,7 +43,6 @@
     
     .btn-join{ background:var(--rtl-purple); color:white; border: 1px solid var(--rtl-purple); }
     
-    /* Gold Pause Button */
     .btn-pause-gold {
       background: #FFD700;
       color: #000;
@@ -91,12 +86,11 @@
         padding: 20px 40px;
         background: #000;
         border-bottom: 2px solid rgba(255,255,255,0.08);
-        height: 130px; /* Fixed height to prevent layout jumps */
+        height: 130px;
     }
 
     .countdown-badge{ width:90px; height:90px; display:flex; align-items:center; justify-content:center; font-size:2.8rem; font-weight:900; color:var(--tile); border:4px solid rgba(255,255,255,0.15); background:#000; }
     .countdown-badge.warning{ border-color:var(--rtl-orange); color:var(--rtl-orange); }
-    /* ANPASSUNG: Roter Danger-Zustand wird Orange */
     .countdown-badge.danger{ border-color:var(--rtl-orange); color:var(--rtl-orange); background: rgba(255,102,0,0.1); }
     
     .question-area { 
@@ -131,18 +125,35 @@
     input:checked + .toggle-slider { background-color: var(--rtl-orange); }
     
     .action-log-item { padding: 12px; background: rgba(255,255,255,0.03); border-left: 5px solid rgba(255,255,255,0.1); margin-bottom: 8px; font-size: 15px; font-weight: 600; }
-    /* ANPASSUNG: Item Farben auf Orange/Violett */
     .action-log-item.boost { border-left-color: var(--rtl-orange); }
     .action-log-item.poison { border-left-color: var(--rtl-orange); }
     .action-log-item.shield { border-left-color: var(--rtl-purple); }
     .action-log-item.trade { border-left-color: var(--rtl-orange); }
     .action-log-item.karma { border-left-color: #ffffff; background: rgba(255,255,255,0.1); }
 
-    .item-btn { border: 1px solid rgba(255,255,255,0.2); padding: 10px; background: transparent; color: white; font-weight: 800; font-size: 14px; }
-    .item-btn.active { background: var(--rtl-orange); border-color: var(--rtl-orange); color: #000; }
-    .item-btn.item-disabled { opacity: 0.3; cursor: not-allowed; }
+    /* NEW: Item Slot Styling */
+    .item-slot {
+      width: 80px;
+      height: 80px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .item-slot:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); }
+    .item-slot.empty { opacity: 0.3; cursor: default; }
+    .item-slot.active { border-color: var(--rtl-orange); box-shadow: 0 0 20px rgba(255,102,0,0.5); }
+    
+    .rarity-common { border-color: #888; }
+    .rarity-uncommon { border-color: #4CAF50; }
+    .rarity-rare { border-color: #2196F3; }
+    .rarity-legendary { border-color: #FFD700; box-shadow: 0 0 30px rgba(255,215,0,0.4); }
 
-    /* Lobby Grid for TV */
     .lobby-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -162,7 +173,6 @@
     }
     @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    /* Winner Podium */
     .podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 40px; height: 50vh; margin-top: 50px; }
     .podium-place { display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
     .podium-bar { width: 180px; background: rgba(255,255,255,0.1); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20px; font-size: 80px; font-weight: 900; color: rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.2); position: relative; overflow: hidden;}
@@ -174,19 +184,30 @@
     .winner-name { font-size: 32px; fontWeight: 900; margin-bottom: 15px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
     .winner-score { font-size: 24px; color: var(--muted); margin-bottom: 5px; }
 
-    /* Confetti particles (Simple CSS implementation) */
     .confetti { position: absolute; width: 10px; height: 10px; background: #f00; animation: fall 3s linear infinite; z-index: 0; }
-    /* ANPASSUNG: Confetti Farben auf Orange/Violett/Weiß */
     @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1;} 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
     
-    /* ANPASSUNG: Entfernung der Puls-Animation (Größenänderung) */
     @keyframes revealPulse { 0% { box-shadow: 0 0 0 rgba(255,255,255,0); } 50% { box-shadow: 0 0 30px rgba(255,255,255,0.3); } 100% { box-shadow: 0 0 0 rgba(255,255,255,0); } }
     .reveal-correct { 
         animation: revealPulse 2s infinite; 
         background: #fff !important; 
         color: #000 !important; 
         border-color: #fff !important; 
-        /* transform: scale(1.02); REMOVED */
+    }
+
+    .frozen-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(100, 150, 255, 0.3);
+      backdrop-filter: blur(3px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      font-weight: 900;
+      color: white;
+      text-shadow: 0 0 20px rgba(0,0,0,0.8);
     }
 
   </style>
@@ -197,21 +218,76 @@
   <script type="text/babel">
   const { useState, useEffect, useRef } = React;
 
-  /************ CONFIG - DESIGNER BALANCING ************/
+  /************ CONFIG ************/
   const TOTAL_ROUNDS = 4;
   const QUESTIONS_PER_ROUND = 2;
-  const QUESTION_TIME = 40;
+  const QUESTION_TIME = 60; // CHANGED: 60 seconds
   
-  // NEW: Escalating Points per Round
   const ROUND_POINTS = { 1: 100, 2: 200, 3: 400, 4: 800 };
   
-  // const CATEGORY_CHOOSER_BONUS = 1.2; // ENTFERNT: Kategorie-Bonus
   const FINAL_QUESTIONS = 5;
   const FINAL_TIME = 60;
-  
-  // NEW: Escalating Finale Points
   const FINAL_ROUND_POINTS = [500, 750, 1000, 1500, 2000];
 
+  /************ NEW: ITEM SYSTEM ************/
+  const ITEM_SLOTS = 2; // Each player has 2 slots
+
+  const ITEM_TYPES = {
+    // OFFENSIVE
+    GIFTPFEIL: { id: 'giftpfeil', name: 'Giftpfeil', icon: '☠️', rarity: 'uncommon', effect: 'poison', needsTarget: true },
+    FREEZE: { id: 'freeze', name: 'Eisschock', icon: '❄️', rarity: 'uncommon', effect: 'freeze', needsTarget: true },
+    ZEITSCHNAPPER: { id: 'zeitschnapper', name: 'Zeitschnapper', icon: '⏱️', rarity: 'rare', effect: 'time_reduce', needsTarget: true },
+    
+    // DEFENSIVE
+    SCHILD: { id: 'schild', name: 'Schild', icon: '🛡️', rarity: 'common', effect: 'shield', needsTarget: false },
+    SPIEGELGLAS: { id: 'spiegelglas', name: 'Spiegelglas', icon: '🔮', rarity: 'rare', effect: 'mirror', needsTarget: false },
+    
+    // BOOST
+    TURBO: { id: 'turbo', name: 'Turbo-Boost', icon: '🔥', rarity: 'common', effect: 'boost', needsTarget: false },
+    MAGNET: { id: 'magnet', name: 'Magnet', icon: '🧲', rarity: 'uncommon', effect: 'magnet', needsTarget: false },
+    ZAPFER: { id: 'zapfer', name: 'Frage-Zapfer', icon: '💡', rarity: 'rare', effect: '5050', needsTarget: false },
+    
+    // CHAOS
+    PLATZTAUSCHER: { id: 'platztauscher', name: 'Platztauscher', icon: '🔄', rarity: 'legendary', effect: 'swap_points', needsTarget: false },
+    SCANNER: { id: 'scanner', name: 'Antwort-Scanner', icon: '👁️', rarity: 'rare', effect: 'scanner', needsTarget: true }
+  };
+
+  // Rarity weights for item distribution (catch-up mechanic)
+  const RARITY_WEIGHTS = {
+    top: { common: 60, uncommon: 30, rare: 8, legendary: 2 },
+    mid: { common: 40, uncommon: 40, rare: 15, legendary: 5 },
+    low: { common: 20, uncommon: 35, rare: 30, legendary: 15 }
+  };
+
+  function getRandomItem(playerPosition) {
+    const weights = RARITY_WEIGHTS[playerPosition] || RARITY_WEIGHTS.mid;
+    const rarityRoll = Math.random() * 100;
+    
+    let rarity = 'common';
+    let cumulative = 0;
+    for (const [r, weight] of Object.entries(weights)) {
+      cumulative += weight;
+      if (rarityRoll <= cumulative) {
+        rarity = r;
+        break;
+      }
+    }
+    
+    const itemsOfRarity = Object.values(ITEM_TYPES).filter(item => item.rarity === rarity);
+    return itemsOfRarity[Math.floor(Math.random() * itemsOfRarity.length)];
+  }
+
+  function getPlayerPosition(playerScore, allScores) {
+    const sorted = allScores.sort((a, b) => b - a);
+    const third = Math.ceil(sorted.length / 3);
+    const playerRank = sorted.indexOf(playerScore);
+    
+    if (playerRank < third) return 'top';
+    if (playerRank < third * 2) return 'mid';
+    return 'low';
+  }
+
+  /************ Firebase Setup ************/
   const firebaseConfig = {
     apiKey: "AIzaSyCsxAEsivsJVFVcnerdAWezFpruoCv7Z2I",
     authDomain: "qiuz-64055.firebaseapp.com",
@@ -224,7 +300,7 @@
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  /************ Fragen Pool ************/
+  /************ Question Pool ************/
   const CATEGORY_LIST = ["Geografie", "Wissenschaft", "Geschichte", "Kultur & Kunst", "Sport", "Technik & Digitalisierung"];
   
   const QUESTION_POOL = [
@@ -270,12 +346,9 @@
     }));
   }
 
-  const DEFAULT_ITEMS = { boost: 5, poison: 5, shield: 3 };
-
   function RTLLogo({ size = "md" }) {
     const sizeMap = { sm: 40, md: 60, lg: 80 };
     const height = sizeMap[size] || 60;
-    // HINWEIS: Bitte stellen Sie sicher, dass "Logo.png" im selben Verzeichnis liegt oder ersetzen Sie es durch einen Base64-String oder einen öffentlichen Link.
     return <img src="Logo.png" alt="Logo" style={{ height, width: "auto" }} />; 
   }
 
@@ -289,7 +362,6 @@
      return (
         <div style={{position:'fixed', inset:0, pointerEvents:'none', overflow:'hidden', zIndex:0}}>
            {particles.map((_, i) => (
-              /* ANPASSUNG: Confetti Farben auf Orange/Violett/Weiß */
               <div key={i} className="confetti" style={{
                  left: Math.random() * 100 + 'vw',
                  animationDelay: Math.random() * 3 + 's',
@@ -336,7 +408,7 @@
     const [timeLeft,setTimeLeft] = useState(0);
     const [pauseModalOpen, setPauseModalOpen] = useState(false);
     const [finaleEnabled, setFinaleEnabled] = useState(true);
-    const [revealAnswer, setRevealAnswer] = useState(false); // NEW: State for delayed reveal
+    const [revealAnswer, setRevealAnswer] = useState(false);
     const timerRef = useRef(null);
 
     useEffect(()=>{
@@ -370,11 +442,9 @@
       } else { setTimeLeft(0); }
     },[meta?.phase, meta?.questionStartTime, meta?.finalQuestionStartTime]);
 
-    // NEW: Delayed Reveal Logic
     useEffect(() => {
         if (meta?.phase === 'results') {
             setRevealAnswer(false);
-            // 3 seconds delay for visual reveal (answer box highlight + score breakdown)
             const t = setTimeout(() => setRevealAnswer(true), 3000); 
             return () => clearTimeout(t);
         } else {
@@ -403,73 +473,66 @@
 
         const playerObj = g.players || {};
         const updates = {};
-        const categoryChooser = g.meta?.categoryChooserForRound || null;
         const currentRound = g.meta.round || 1;
-
-        // --- DESIGNER LOGIC: Escalating Points ---
         const basePoints = ROUND_POINTS[currentRound] || 100;
         
-        // --- DESIGNER LOGIC: Reflection & Shield Pre-Calculation ---
-        const reflectionDamage = {}; // Key: AttackerID, Value: How many reflections they triggered
-
-        // 1. Check Shields first
+        // Calculate who answered what
+        const answerCounts = {};
         Object.entries(playerObj).forEach(([pid, p]) => {
-            if (p.activeEffects?.shield) {
-                // Find everyone who poisoned THIS shielded player
-                const attackers = p.activeEffects?.poisonedBy || [];
-                attackers.forEach(attackerId => {
-                    if (!reflectionDamage[attackerId]) reflectionDamage[attackerId] = 0;
-                    reflectionDamage[attackerId]++; // Count reflections
-                });
-            }
+          const ans = p.currentAnswer;
+          if (typeof ans === 'number') {
+            answerCounts[ans] = (answerCounts[ans] || 0) + 1;
+          }
         });
 
-        // 2. Calculate Points
         Object.entries(playerObj).forEach(([pid,p])=>{
           const ans = p.currentAnswer;
           const correct = typeof ans === 'number' && ans === q.correct;
           
-          // Base Points (Scaled)
           let points = correct ? basePoints : 0;
-          
-          // Boost
-          if(correct && p.activeEffects?.boost) points = Math.round(points * 1.5);
-          
-          // // Kategorie Chooser Bonus Logic ENTFERNT
-          // if(correct && categoryChooser === pid) points = Math.round(points * CATEGORY_CHOOSER_BONUS);
-          
-          // Current Score before penalties
           let currentTotal = p.score || 0;
           let penalty = 0;
-
-          // --- DESIGNER LOGIC: Percentage Poison ---
-          // 10% for first poison, +5% for each additional
-          // BUT: If shielded, you take 0 poison damage.
-          if (!p.activeEffects?.shield) {
-             const poisonCount = Array.isArray(p.activeEffects?.poisonedBy) ? p.activeEffects.poisonedBy.length : 0;
-             if (poisonCount > 0) {
-                 const percentage = 0.10 + ((poisonCount - 1) * 0.05); // 1->10%, 2->15%, 3->20%
-                 penalty += Math.round(currentTotal * percentage);
-             }
+          
+          // Apply active effects
+          const effects = p.activeEffects || {};
+          
+          // Turbo Boost
+          if(correct && effects.turbo) points = Math.round(points * 1.5);
+          
+          // Magnet - bonus if others also answered correctly
+          if(correct && effects.magnet) {
+            const othersCorrect = Object.entries(playerObj).filter(([id, pl]) => 
+              id !== pid && pl.currentAnswer === q.correct
+            ).length;
+            if(othersCorrect > 0) {
+              points = Math.round(points * (1 + othersCorrect * 0.1)); // 10% per other correct answer
+            }
           }
-
-          // --- DESIGNER LOGIC: Apply Reflection Damage to Attackers ---
-          if (reflectionDamage[pid]) {
-              // I attacked someone with a shield! I take 10% damage per blocked attack.
-              const reflections = reflectionDamage[pid];
-              const reflectionPenalty = Math.round(currentTotal * (0.10 * reflections));
-              penalty += reflectionPenalty;
-              
-              // We will handle logging via the normal action stream, but here we just apply math.
+          
+          // Giftpfeil (Poison) - 25% reduction
+          if(correct && effects.poisoned) {
+            points = Math.round(points * 0.75);
+          }
+          
+          // Shield reflects attacks
+          if(effects.shield && effects.attackedBy) {
+            // Attacker will lose points instead
           }
 
           const finalPoints = points - penalty;
           
-          // WICHTIG: Die Punkte werden HIER berechnet und in die DB geschrieben.
-          // Der Gesamtscore des Spielers (p.score) wird an dieser Stelle aktualisiert.
-          // Der PlayerView zeigt den neuen Gesamtscore erst an, wenn er im 'results' Screen ist.
           updates[`games/${gameId}/players/${pid}/score`] = currentTotal + finalPoints;
           updates[`games/${gameId}/players/${pid}/lastPoints`] = finalPoints;
+          
+          // Give item box if slot available
+          const itemSlots = p.itemSlots || [];
+          if(itemSlots.length < ITEM_SLOTS) {
+            const allScores = Object.values(playerObj).map(pl => pl.score || 0);
+            const position = getPlayerPosition(p.score || 0, allScores);
+            const newItem = getRandomItem(position);
+            updates[`games/${gameId}/players/${pid}/itemSlots`] = [...itemSlots, newItem];
+            updates[`games/${gameId}/players/${pid}/hasNewItem`] = true;
+          }
         });
         
         await db.ref().update(updates);
@@ -544,8 +607,8 @@
       const updates = {};
       Object.keys(pSnap.val() || {}).forEach(pid => {
         updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-        updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost:false, boostTarget:null, shield:false, shieldTarget:null, poisonedBy: [] };
-        updates[`games/${gameId}/players/${pid}/hasTraded`] = false;
+        updates[`games/${gameId}/players/${pid}/activeEffects`] = {};
+        updates[`games/${gameId}/players/${pid}/hasNewItem`] = false;
       });
       await db.ref().update(updates);
 
@@ -588,7 +651,6 @@
       const reviewIndex = snap.val()?.meta?.finalReviewIndex || 0;
       const player = snap.val()?.players?.[playerId];
       if(!player) return;
-      // --- DESIGNER LOGIC: Escalating Finale Points ---
       const points = correct ? (FINAL_ROUND_POINTS[reviewIndex] || 2000) : 0;
       await db.ref(`games/${gameId}/players/${playerId}`).update({ score: (player.score || 0) + points, [`finalScores/${reviewIndex}`]: points });
     };
@@ -616,10 +678,9 @@
       Object.keys(pSnap.val() || {}).forEach(pid=>{
         updates[`games/${gameId}/players/${pid}/score`] = 0;
         updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-        updates[`games/${gameId}/players/${pid}/items`] = DEFAULT_ITEMS;
-        updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost:false, boostTarget:null, shield:false, shieldTarget:null, poisonedBy: [] };
+        updates[`games/${gameId}/players/${pid}/itemSlots`] = [];
+        updates[`games/${gameId}/players/${pid}/activeEffects`] = {};
         updates[`games/${gameId}/players/${pid}/lastPoints`] = 0;
-        updates[`games/${gameId}/players/${pid}/hasTraded`] = false;
       });
       await db.ref().update(updates);
       await db.ref(`games/${gameId}/meta/actions`).remove();
@@ -634,7 +695,6 @@
     if(!meta || !game) return <div className="min-h-screen flex items-center justify-center">Lade Spiel...</div>;
 
     const isLobby = meta.phase === 'lobby';
-    /* ANPASSUNG: Bei Confetti die Farbe anpassen (siehe ConfettiRain Komponente) */
     const playersArr = Object.entries(game.players || {}).map(([pid,p])=>({pid,...p})).sort((a,b)=>(b.score||0)-(a.score||0));
     const qIndex = meta.questionIndex || 0;
     const question = (game.questions || [])[qIndex];
@@ -642,16 +702,14 @@
 
     const isFinalPhase = meta.phase.startsWith('final');
     const displayCategory = isFinalPhase ? "FINALE" : (meta.currentCategory || question?.category || 'Allgemein');
-    const displayCategoryColor = isFinalPhase ? 'var(--rtl-orange)' : 'var(--rtl-orange)'; /* ANPASSUNG: Finale Farbe auf Orange */
+    const displayCategoryColor = isFinalPhase ? 'var(--rtl-orange)' : 'var(--rtl-orange)';
 
-    // Special Sorting for Results Phase: Sort by points earned in this round (highest first)
     const resultsRanking = [...playersArr].sort((a,b) => (b.lastPoints||0) - (a.lastPoints||0));
 
     return (
       <div className="host-screen">
         {isLobby ? (
           <div style={{display:'flex', flexDirection:'column', width:'100%', height:'100vh', background:'#000'}}>
-             {/* TOP: BIG INFO (TV Optimized) */}
              <div style={{flex: '0 0 60%', display:'flex', alignItems:'center', justifyContent:'center', borderBottom:'2px solid rgba(255,255,255,0.1)', background:'radial-gradient(circle at center, #111 0%, #000 100%)'}}>
                 <div style={{display:'flex', alignItems:'center', gap:80, transform:'scale(1.1)'}}>
                     <div style={{padding:20, background:'white'}}>
@@ -665,7 +723,6 @@
                 </div>
              </div>
              
-             {/* BOTTOM: PLAYER GRID */}
              <div style={{flex:1, background:'#0a0a0a', display:'flex', flexDirection:'column'}}>
                 <div style={{display:'flex', justifyContent:'space-between', padding:'20px 40px', borderBottom:'1px solid rgba(255,255,255,0.1)', background:'#111'}}>
                     <div style={{fontSize:24, fontWeight:900, color:'var(--rtl-orange)'}}>LOBBY</div>
@@ -685,7 +742,6 @@
                    {playersArr.map(p => (
                        <div key={p.pid} className="lobby-player-chip">
                            <span>{p.name}</span>
-                           {/* ANPASSUNG: Status-Farbe auf Orange */}
                            <span style={{color:'var(--rtl-orange)'}}>●</span>
                        </div>
                    ))}
@@ -694,16 +750,13 @@
           </div>
         ) : (
           <div className="host-main">
-            {/* TOP BAR */}
             {meta.phase !== 'finalIntro' && meta.phase !== 'finished' && (
                 <div className="game-top-bar">
                      {meta.phase === 'roundSummary' ? (
-                        /* CLEAN HEADER FOR ROUND SUMMARY */
                         <div style={{display:'flex', alignItems:'center', width:'100%'}}>
                             <div style={{fontSize:'3rem', fontWeight:900, color:'white', letterSpacing:2}}>ZWISCHENSTAND</div>
                         </div>
                      ) : (
-                        /* STANDARD HEADER */
                         <div style={{display:'flex', alignItems:'center', gap:20}}>
                             <div className={`countdown-badge ${countdownClass}`}>{timeLeft}</div>
                             <div>
@@ -738,7 +791,6 @@
                         </div>
                       ))}
                     </div>
-                    {/* ANTWORT STATUS LEISTE */}
                     <div style={{marginTop: 'auto', paddingTop: 30, borderTop:'1px solid rgba(255,255,255,0.1)', width:'100%'}}>
                         <div style={{fontSize:16, color:'var(--muted)', marginBottom:15, textAlign:'center', textTransform:'uppercase', letterSpacing:1, fontWeight:700}}>
                             Spieler Status ({playersArr.filter(p => p.currentAnswer !== undefined && p.currentAnswer !== null).length} / {playersArr.length})
@@ -749,7 +801,6 @@
                                 return (
                                     <div key={p.pid} style={{
                                         padding: '8px 16px',
-                                        /* ANPASSUNG: Status-Farbe auf Orange */
                                         background: hasAnswered ? 'var(--rtl-orange)' : 'rgba(255,255,255,0.1)',
                                         color: hasAnswered ? '#000' : 'rgba(255,255,255,0.5)',
                                         fontWeight: 900,
@@ -770,13 +821,10 @@
                 {meta.phase === 'results' && question && (
                    <div className="results-split-view">
                       <div className="results-col">
-                         {/* DESIGNER LOGIC: Delayed White Reveal */}
                          <div style={{display:'grid', gap:12, flex:1, overflow:'auto', alignContent:'center', height:'100%'}}>
                             {question.answers.map((a,i)=>{
                               const isCorrect = i === question.correct;
                               const voters = playersArr.filter(p => p.currentAnswer === i);
-                              
-                              // Logic: Show votes always, but highlight correct only if revealed
                               const showHighlight = isCorrect && revealAnswer;
 
                               return (
@@ -785,7 +833,6 @@
                                     border: showHighlight ? '5px solid white' : '1px solid rgba(255,255,255,0.1)', 
                                     background: showHighlight ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.02)',
                                     color: showHighlight ? '#000' : '#fff',
-                                    /* ANPASSUNG: Entfernung der Skalierungs-Transformation */
                                     transition: 'all 0.5s ease'
                                 }}>
                                   <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
@@ -800,7 +847,6 @@
                          </div>
                       </div>
                       <div className="results-col">
-                         {/* NEU: Anzeigen von Aktionen und Score erst, wenn das Ergebnis enthüllt ist */}
                          {revealAnswer && (
                             <>
                                 <div style={{flex:1, display:'flex', flexDirection:'column', background:'rgba(255,255,255,0.02)', padding:20, border:'1px solid rgba(255,255,255,0.05)'}}>
@@ -812,9 +858,8 @@
                                         return actions.map((act, idx) => {
                                            const from = game.players[act.from]?.name || '???';
                                            const to = game.players[act.to]?.name || '???';
-                                           if(act.type === 'boost') return <div key={idx} className="action-log-item boost">🔥 <b>{from}</b> boostet {act.target === act.from ? 'sich selbst' : to}</div>;
-                                           if(act.type === 'poison') return <div key={idx} className="action-log-item poison">☠️ <b>{from}</b> vergiftet {to} {act.blocked ? '(🛡 reflektiert!)' : ''}</div>;
-                                           if(act.type === 'shield') return <div key={idx} className="action-log-item shield">🛡 <b>{from}</b> schützt {act.target === act.from ? 'sich selbst' : to}</div>;
+                                           const itemInfo = ITEM_TYPES[act.itemId];
+                                           return <div key={idx} className={`action-log-item ${act.type}`}>{itemInfo?.icon} <b>{from}</b> → {to}: {itemInfo?.name}</div>;
                                         });
                                      })()}
                                    </div>
@@ -822,14 +867,11 @@
                                 <div style={{flex:1, display:'flex', flexDirection:'column', background:'rgba(255,255,255,0.02)', padding:20, border:'1px solid rgba(255,255,255,0.05)'}}>
                                     <h3 style={{color:'var(--rtl-orange)', fontWeight:900, marginBottom:15, fontSize:22}}>Score (Frage)</h3>
                                     <div className="scroll-area" style={{flex:1}}>
-                                      {/* SORTED BY POINTS EARNED IN THIS QUESTION, DISPLAY ONLY POINTS EARNED */}
                                       {resultsRanking.map((p,i)=>(
                                         <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:'12px', background:i<3?'rgba(255,255,255,0.05)':'transparent', marginBottom:4}}>
                                           <div style={{display:'flex', gap:8}}>
                                             <span style={{fontWeight:700, fontSize:18}}>{p.name}</span>
-                                            {/* ENTFERNT: Kategorie-Bonus Anzeige */}
                                           </div>
-                                          {/* ANPASSUNG: Punkte Farben auf Orange (Positiv/Negativ) und Muted (Neutral) */}
                                           <div style={{fontWeight:900, color: p.lastPoints>0 ? 'var(--rtl-orange)' : (p.lastPoints<0 ? 'var(--rtl-orange)' : 'var(--muted)'), fontSize:18}}>
                                              {p.lastPoints > 0 ? '+' : ''}{p.lastPoints}
                                           </div>
@@ -851,12 +893,9 @@
                          {meta.categoryChooserCandidate && (
                             <div style={{background:'rgba(255,255,255,0.1)', padding:'10px 20px', border:'1px solid rgba(255,255,255,0.2)', display:'flex', gap:15, alignItems:'center'}}>
                                 <span style={{fontWeight:700}}>WÄHLER: {game.players[meta.categoryChooserCandidate]?.name}</span>
-                                {/* SHOW SELECTION STATUS */}
                                 {game.meta?.nextCategory ? (
-                                    /* ANPASSUNG: Status-Farbe auf Orange */
                                     <span style={{color:'var(--rtl-orange)', fontWeight:900}}>HAT GEWÄHLT: {game.meta.nextCategory}</span>
                                 ) : (
-                                     /* ANPASSUNG: Status-Farbe auf Orange */
                                     <span style={{color:'var(--rtl-orange)', fontWeight:900, animation:'pulse 1s infinite'}}>WÄHLT...</span>
                                 )}
                             </div>
@@ -873,15 +912,15 @@
                                borderLeft: i===0 ? '6px solid gold' : i===1 ? '6px solid silver' : i===2 ? '6px solid #cd7f32' : '6px solid transparent'
                             }}>
                                <div style={{display:'flex', alignItems:'center', gap:30}}>
-                                  <div style={{fontSize:36, fontWeight:900, width:60}}>{i===0?'1.':i===1?'2.':i===2?'3.':`${i+1}.`}</div>
+                                  <div style={{fontSize:36, fontWeight:900, width:60}}>{i+1}.</div>
                                   <div style={{fontSize:28, fontWeight:700}}>{p.name}</div>
                                   {meta.categoryChooserCandidate === p.pid && <div style={{background:'var(--rtl-orange)', color: '#000', padding:'6px 12px', fontWeight:900, fontSize:16}}>DARF WÄHLEN!</div>}
                                </div>
                                <div style={{display:'flex', alignItems:'center', gap:40}}>
-                                  <div style={{fontSize:20, color:'var(--muted)', display:'flex', gap:20}}>
-                                    <span>🔥{p.items?.boost||0}</span>
-                                    <span>☠️{p.items?.poison||0}</span>
-                                    <span>🛡{p.items?.shield||0}</span>
+                                  <div style={{fontSize:20, color:'var(--muted)', display:'flex', gap:10}}>
+                                    {(p.itemSlots || []).map((item, idx) => (
+                                      <span key={idx}>{item.icon}</span>
+                                    ))}
                                   </div>
                                   <div style={{fontSize:36, fontWeight:900, color:'var(--tile)'}}>{p.score}</div>
                                </div>
@@ -939,7 +978,6 @@
             <div className="modal-card" style={{textAlign:'center'}}>
               <h3 style={{fontWeight:900, fontSize:32, marginBottom:10, color:'var(--rtl-orange)'}}>PAUSE</h3>
               
-              {/* New Section for Game ID */}
               <div style={{marginBottom: 30, padding: 20, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)'}}>
                   <div style={{fontSize: 16, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 5}}>Game Code</div>
                   <div style={{fontSize: 60, fontWeight: 900, color: 'white', letterSpacing: 8, fontFamily: 'monospace'}}>{gameId}</div>
@@ -968,14 +1006,12 @@
         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:60, width:'100%', maxWidth:1200, margin:'0 auto'}}>
           {finalists.map((f, idx) => (
             <div key={f.pid} style={{padding:50, background:'rgba(255,255,255,0.05)', 
-                 /* ANPASSUNG: Status-Farbe auf Orange */
                  border: f.finalistReady ? '6px solid var(--rtl-orange)' : '6px solid var(--rtl-orange)'
             }}>
               <div style={{fontSize:100}}>{idx === 0 ? '1.' : '2.'}</div>
               <div style={{fontSize:50, fontWeight:900}}>{f.name}</div>
               <div style={{fontSize:40, color:'var(--muted)'}}>{f.score} Pkt</div>
               <div style={{marginTop:40, padding:20, 
-                  /* ANPASSUNG: Status-Farbe auf Orange */
                   background: f.finalistReady ? 'var(--rtl-orange)' : 'rgba(255,255,255,0.1)', 
                   color: f.finalistReady ? '#000' : '#fff',
                   fontWeight:700, fontSize:24}}>
@@ -995,7 +1031,6 @@
     const finalists = (meta.finalists || []).map(pid => ({ pid, ...(game.players?.[pid] || {}) }));
     const allAnswered = finalists.every(f => f.finalAnswers?.[finalQIndex]);
     
-    // **FIX: Ausgelagerter Button-Text zur Vermeidung von Babel SyntaxError**
     const buttonText = finalQIndex + 1 >= FINAL_QUESTIONS ? 'ZUR AUSWERTUNG' : 'NÄCHSTE FRAGE';
 
     return (
@@ -1004,19 +1039,16 @@
         <div style={{display:'flex', gap:40, marginTop:80}}>
           {finalists.map(f => (
              <div key={f.pid} style={{flex:1, padding:40, background:'rgba(255,255,255,0.05)', 
-                 /* ANPASSUNG: Status-Farbe auf Orange */
                  border: f.finalAnswers?.[finalQIndex] ? '5px solid var(--rtl-orange)' : '2px solid rgba(255,255,255,0.1)'
              }}>
                 <div style={{fontWeight:900, fontSize:36}}>{f.name}</div>
                 <div style={{marginTop:20, fontSize:24, 
-                    /* ANPASSUNG: Status-Farbe auf Orange */
                     color: f.finalAnswers?.[finalQIndex] ? 'var(--rtl-orange)' : 'var(--muted)'}}>
                    {f.finalAnswers?.[finalQIndex] ? '✓ ANTWORT DA' : 'Tippt...'}
                 </div>
              </div>
           ))}
         </div>
-        {/* Korrigierte Zeile (jetzt buttonText verwendend) */}
         {(timeLeft === 0 || allAnswered) && <button className="btn btn-host" onClick={onNext} style={{marginTop:60, fontSize:28, padding:'20px 40px'}}>{buttonText}</button>}
       </div>
     );
@@ -1034,7 +1066,6 @@
            <h3 style={{color:'var(--muted)', textTransform:'uppercase', fontWeight:900, fontSize:20}}>Frage {reviewIndex+1}</h3>
            <div style={{fontSize:40, fontWeight:900, marginBottom:40, lineHeight:1.2}}>{question?.question}</div>
            <div style={{padding:40, background:'#fff', color:'#000'}}>
-              {/* ANPASSUNG: Lösungs-Farbe auf Orange */}
               <div style={{fontSize:18, fontWeight:900, color:'var(--rtl-orange)'}}>LÖSUNG</div>
               <div style={{fontSize:36, fontWeight:900}}>{question?.answer}</div>
            </div>
@@ -1053,7 +1084,6 @@
                        <button className="btn" style={{flex:1, background:'transparent', border:'2px solid rgba(255,255,255,0.2)', color:'white'}} onClick={()=>handleJudge(f.pid, false)}>✗ FALSCH</button>
                     </div>
                  ) : (
-                    /* ANPASSUNG: Status-Farbe auf Orange */
                     <div style={{textAlign:'center', fontWeight:900, color: judged[f.pid] ? 'var(--rtl-orange)' : 'var(--rtl-orange)', fontSize:20}}>{judged[f.pid] ? 'PUNKTE VERGEBEN' : 'ALS FALSCH GEWERTET'}</div>
                  )}
               </div>
@@ -1072,14 +1102,16 @@
     const [meta,setMeta] = useState(null);
     const [player,setPlayer] = useState(null);
     const [timeLeft,setTimeLeft] = useState(0);
-    const [poisonModalOpen, setPoisonModalOpen] = useState(false);
-    const [poisonTargets, setPoisonTargets] = useState([]);
-    const [boostModalOpen, setBoostModalOpen] = useState(false);
-    const [shieldModalOpen, setShieldModalOpen] = useState(false);
+    const [itemModalOpen, setItemModalOpen] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [targetModalOpen, setTargetModalOpen] = useState(false);
     const [bonusCategoryModalOpen, setBonusCategoryModalOpen] = useState(false);
     const [finalAnswer, setFinalAnswer] = useState('');
-    const [hasUsedItem, setHasUsedItem] = useState(false); 
-    const [playerReveal, setPlayerReveal] = useState(false); // NEU: Zustand für verzögerte Player-Anzeige
+    const [playerReveal, setPlayerReveal] = useState(false);
+    const [eliminated5050, setEliminated5050] = useState([]);
+    const [scannedAnswers, setScannedAnswers] = useState({});
+    const [isFrozen, setIsFrozen] = useState(false);
+    const [freezeTimeLeft, setFreezeTimeLeft] = useState(0);
 
     useEffect(() => { if(playerId && gameId) { sessionStorage.setItem(`quiz_pid_${gameId}`, playerId); } }, [playerId, gameId]);
 
@@ -1094,7 +1126,8 @@
     },[gameId, playerId]);
 
     useEffect(() => {
-        setHasUsedItem(false);
+        setEliminated5050([]);
+        setScannedAnswers({});
     }, [meta?.questionIndex]);
 
     useEffect(()=>{
@@ -1108,7 +1141,6 @@
       } else { setTimeLeft(0); }
     },[meta?.questionStartTime, meta?.finalQuestionStartTime, meta?.phase]);
 
-    // NEU: Verzögerte Player-Ergebnisanzeige (synchronisiert mit Host)
     useEffect(() => {
         if (meta?.phase === 'results') {
             setPlayerReveal(false);
@@ -1119,66 +1151,90 @@
         }
     }, [meta?.phase, meta?.questionIndex]);
 
-    const openBoostModal = () => { 
-        if(hasUsedItem) return alert("Du kannst nur 1 Item pro Frage nutzen!"); 
-        setPoisonTargets(Object.entries(game.players || {}).map(([pid,p]) => ({ pid, name: p.name }))); 
-        setBoostModalOpen(true); 
+    // Check for freeze effect
+    useEffect(() => {
+      if(player?.activeEffects?.frozen && player?.activeEffects?.frozenUntil) {
+        const checkFreeze = () => {
+          const now = Date.now();
+          if(now < player.activeEffects.frozenUntil) {
+            setIsFrozen(true);
+            setFreezeTimeLeft(Math.ceil((player.activeEffects.frozenUntil - now) / 1000));
+          } else {
+            setIsFrozen(false);
+            setFreezeTimeLeft(0);
+          }
+        };
+        checkFreeze();
+        const interval = setInterval(checkFreeze, 100);
+        return () => clearInterval(interval);
+      } else {
+        setIsFrozen(false);
+        setFreezeTimeLeft(0);
+      }
+    }, [player?.activeEffects]);
+
+    const useItem = (item, slotIndex) => {
+      if(isFrozen) return;
+      setSelectedItem({...item, slotIndex});
+      if(item.needsTarget) {
+        setTargetModalOpen(true);
+      } else {
+        activateItem(item, slotIndex, null);
+      }
     };
-    const sendBoostTo = async (targetPid) => {
-      setBoostModalOpen(false);
-      if(hasUsedItem) return;
-      if(!(player.items && player.items.boost > 0)) return;
-      setHasUsedItem(true);
+
+    const activateItem = async (item, slotIndex, targetId) => {
+      setItemModalOpen(false);
+      setTargetModalOpen(false);
+      
       const updates = {};
-      updates[`games/${gameId}/players/${playerId}/items/boost`] = (player.items.boost - 1);
-      updates[`games/${gameId}/players/${targetPid}/activeEffects/boost`] = true;
-      await db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).once('value', s => {
-         const arr = s.val() || []; arr.push({ type:'boost', from: playerId, to: targetPid, target: targetPid });
-         db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).set(arr);
-      });
-      await db.ref().update(updates);
-    };
+      const currentSlots = player.itemSlots || [];
+      const newSlots = currentSlots.filter((_, idx) => idx !== slotIndex);
+      updates[`games/${gameId}/players/${playerId}/itemSlots`] = newSlots;
 
-    const openPoisonModal = () => { 
-        if(hasUsedItem) return alert("Du kannst nur 1 Item pro Frage nutzen!");
-        setPoisonTargets(Object.entries(game.players || {}).filter(([pid]) => pid !== playerId).map(([pid,p]) => ({ pid, name: p.name }))); 
-        setPoisonModalOpen(true); 
-    };
-    const sendPoisonTo = async (targetPid) => { 
-        setPoisonModalOpen(false); 
-        if(hasUsedItem) return;
-        if(!(player.items && player.items.poison > 0)) return;
-        setHasUsedItem(true);
-        await db.ref(`games/${gameId}/players/${playerId}/items/poison`).set(player.items.poison-1);
-        const tSnap = await db.ref(`games/${gameId}/players/${targetPid}`).get();
-        const tData = tSnap.val();
-        const blocked = tData.activeEffects?.shield;
-        if(!blocked){
-             const prev = tData.activeEffects?.poisonedBy || [];
-             await db.ref(`games/${gameId}/players/${targetPid}/activeEffects/poisonedBy`).set([...prev, playerId]);
+      // Apply item effects
+      if(item.id === 'schild') {
+        updates[`games/${gameId}/players/${playerId}/activeEffects/shield`] = true;
+      } else if(item.id === 'turbo') {
+        updates[`games/${gameId}/players/${playerId}/activeEffects/turbo`] = true;
+      } else if(item.id === 'magnet') {
+        updates[`games/${gameId}/players/${playerId}/activeEffects/magnet`] = true;
+      } else if(item.id === 'spiegelglas') {
+        updates[`games/${gameId}/players/${playerId}/activeEffects/mirror`] = true;
+      } else if(item.id === 'giftpfeil' && targetId) {
+        updates[`games/${gameId}/players/${targetId}/activeEffects/poisoned`] = true;
+      } else if(item.id === 'freeze' && targetId) {
+        const frozenUntil = Date.now() + 8000; // 8 seconds freeze
+        updates[`games/${gameId}/players/${targetId}/activeEffects/frozen`] = true;
+        updates[`games/${gameId}/players/${targetId}/activeEffects/frozenUntil`] = frozenUntil;
+      } else if(item.id === 'zeitschnapper' && targetId) {
+        updates[`games/${gameId}/players/${targetId}/activeEffects/timeReduced`] = true;
+      } else if(item.id === 'zapfer') {
+        const q = (game.questions || [])[meta.questionIndex || 0];
+        if(q) {
+          const wrong = q.answers.map((_, i) => i).filter(i => i !== q.correct);
+          const toEliminate = shuffle(wrong).slice(0, 2);
+          setEliminated5050(toEliminate);
         }
-        await db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).once('value', s => {
-             const arr = s.val() || []; arr.push({ type:'poison', from: playerId, to: targetPid, blocked: !!blocked });
-             db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).set(arr);
-        });
-    };
+      } else if(item.id === 'scanner' && targetId) {
+        const targetPlayer = game.players?.[targetId];
+        if(targetPlayer && targetPlayer.currentAnswer !== null && targetPlayer.currentAnswer !== undefined) {
+          setScannedAnswers(prev => ({...prev, [targetId]: targetPlayer.currentAnswer}));
+        }
+      } else if(item.id === 'platztauscher') {
+        updates[`games/${gameId}/players/${playerId}/activeEffects/swapPoints`] = true;
+      }
 
-    const openShieldModal = () => { 
-        if(hasUsedItem) return alert("Du kannst nur 1 Item pro Frage nutzen!");
-        setPoisonTargets(Object.entries(game.players || {}).map(([pid,p]) => ({ pid, name: p.name }))); 
-        setShieldModalOpen(true); 
-    };
-    const sendShieldTo = async (targetPid) => {
-        setShieldModalOpen(false);
-        if(hasUsedItem) return;
-        if(!(player.items && player.items.shield > 0)) return;
-        setHasUsedItem(true);
-        await db.ref(`games/${gameId}/players/${playerId}/items/shield`).set(player.items.shield-1);
-        await db.ref(`games/${gameId}/players/${targetPid}/activeEffects/shield`).set(true);
+      // Log action
+      if(targetId) {
         await db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).once('value', s => {
-             const arr = s.val() || []; arr.push({ type:'shield', from: playerId, to: targetPid, target: targetPid });
-             db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).set(arr);
+           const arr = s.val() || [];
+           arr.push({ type: item.effect, from: playerId, to: targetId, itemId: item.id.toUpperCase() });
+           db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).set(arr);
         });
+      }
+
+      await db.ref().update(updates);
     };
 
     const pickCategory = async (cat) => {
@@ -1201,7 +1257,6 @@
                     {!player.finalistReady ? (
                         <button className="btn btn-host w-full" style={{padding:30, fontSize:24}} onClick={()=>db.ref(`games/${gameId}/players/${playerId}/finalistReady`).set(true)}>ICH BIN BEREIT</button>
                     ) : (
-                        /* ANPASSUNG: Status-Farbe auf Orange */
                         <div style={{color:'var(--rtl-orange)', fontSize:20, fontWeight:900}}>WARTEN AUF GEGNER...</div>
                     )}
                 </div>
@@ -1221,61 +1276,92 @@
     if(meta.phase === 'question'){
        const question = (game.questions||[])[meta.questionIndex||0];
        const hasAnswered = player.currentAnswer !== null && player.currentAnswer !== undefined;
+       const itemSlots = player.itemSlots || [];
+       
        return (
-         <div className="min-h-screen p-4" style={{overflowY:'auto'}}>
+         <div className="min-h-screen p-4" style={{overflowY:'auto', position:'relative'}}>
+           {isFrozen && (
+              <div className="frozen-overlay">
+                ❄️ EINGEFROREN {freezeTimeLeft}s ❄️
+              </div>
+           )}
            <div className="card">
-             {/* PLAYER HEADER with Total Score */}
              <div style={{display:'flex', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.1)', paddingBottom:10, marginBottom:15}}>
                  <span style={{fontWeight:700, color:'var(--muted)'}}>Runde {meta.round}</span>
                  <span style={{fontWeight:900, color:'var(--tile)'}}>Gesamt: {player.score}</span>
              </div>
              
+             {player.hasNewItem && (
+                <div style={{background:'var(--rtl-orange)', color:'#000', padding:15, marginBottom:15, fontWeight:900, textAlign:'center'}}>
+                  📦 NEUES ITEM ERHALTEN!
+                </div>
+             )}
+
              <div style={{display:'flex',justifyContent:'space-between'}}><span>Zeit:</span><span style={{fontWeight:900,color:'var(--rtl-orange)'}}>{timeLeft}s</span></div>
              <h3 style={{fontSize:20,fontWeight:900,marginTop:12}}>{question?.question}</h3>
-             <div style={{display:'grid', gap:10, marginTop:20}}>
-               {question?.answers.map((a,i)=>(
-                 <button 
-                    key={i} 
-                    disabled={hasAnswered||timeLeft<=0} 
-                    onClick={()=>db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i)} 
-                    style={{
-                        padding:15,
-                        // NEU: Weiße Boxen für Antworten
-                        background:player.currentAnswer===i?'var(--rtl-orange)':'white', 
-                        color:player.currentAnswer===i?'white':'#0b0b0b', // Textfarbe
-                        border: player.currentAnswer===i ? '1px solid var(--rtl-orange)' : '1px solid #e0e0e0',
-                        textAlign:'left', 
-                        fontSize:18,
-                        display:'flex',
-                        alignItems:'center',
-                        gap: '10px',
-                        transition: 'all 0.2s'
-                    }}>
-                    {/* ANPASSUNG: Buchstaben-Präfix hinzugefügt */}
-                    <span style={{fontWeight:900, color: player.currentAnswer===i?'white':'var(--rtl-orange)', marginRight: '10px'}}>{String.fromCharCode(65+i)}.</span>
-                    {a}
-                 </button>
-               ))}
+             
+             {/* Item Slots */}
+             <div style={{display:'flex', gap:10, marginTop:15, justifyContent:'center'}}>
+               {[0, 1].map(slotIdx => {
+                  const item = itemSlots[slotIdx];
+                  return (
+                    <div 
+                      key={slotIdx}
+                      className={`item-slot ${item ? `rarity-${item.rarity}` : 'empty'} ${isFrozen ? '' : ''}`}
+                      onClick={() => item && !isFrozen && useItem(item, slotIdx)}
+                      title={item ? item.name : 'Leer'}
+                    >
+                      {item ? item.icon : '?'}
+                    </div>
+                  );
+               })}
              </div>
-             <div style={{marginTop:20, display:'grid', gridTemplateColumns:'1fr 1fr', gap:10}}>
-                <button className={`item-btn ${player.items?.boost>0 && !hasUsedItem ?'':'item-disabled'}`} onClick={openBoostModal}>🔥 {player.items?.boost}</button>
-                <button className={`item-btn ${player.items?.poison>0 && !hasUsedItem ?'':'item-disabled'}`} onClick={openPoisonModal}>☠️ {player.items?.poison}</button>
-                <button className={`item-btn ${player.items?.shield>0 && !hasUsedItem ?'':'item-disabled'}`} style={{gridColumn:'span 2'}} onClick={openShieldModal}>🛡 {player.items?.shield}</button>
+
+             <div style={{display:'grid', gap:10, marginTop:20}}>
+               {question?.answers.map((a,i)=>{
+                 const is5050Eliminated = eliminated5050.includes(i);
+                 const isScanned = Object.values(scannedAnswers).includes(i);
+                 return (
+                   <button 
+                      key={i} 
+                      disabled={hasAnswered||timeLeft<=0||isFrozen||is5050Eliminated} 
+                      onClick={()=>!isFrozen && db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i)} 
+                      style={{
+                          padding:15,
+                          background:player.currentAnswer===i?'var(--rtl-orange)':(is5050Eliminated ? '#333' : 'white'), 
+                          color:player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : '#0b0b0b'),
+                          border: player.currentAnswer===i ? '1px solid var(--rtl-orange)' : (isScanned ? '3px solid #2196F3' : '1px solid #e0e0e0'),
+                          textAlign:'left', 
+                          fontSize:18,
+                          display:'flex',
+                          alignItems:'center',
+                          gap: '10px',
+                          transition: 'all 0.2s',
+                          opacity: is5050Eliminated ? 0.3 : 1,
+                          position: 'relative'
+                      }}>
+                      <span style={{fontWeight:900, color: player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : 'var(--rtl-orange)'), marginRight: '10px'}}>{String.fromCharCode(65+i)}.</span>
+                      {a}
+                      {isScanned && <span style={{marginLeft:'auto', color:'#2196F3'}}>👁️</span>}
+                   </button>
+                 )
+               })}
              </div>
            </div>
-           {(boostModalOpen||poisonModalOpen||shieldModalOpen) && (
+           
+           {targetModalOpen && selectedItem && (
                <div className="modal-backdrop">
                    <div className="modal-card">
-                       <h3>Ziel wählen</h3>
-                       <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                         {poisonTargets.map(t=>(
-                            <button key={t.pid} className="btn" onClick={()=>{
-                                if(boostModalOpen) sendBoostTo(t.pid);
-                                if(poisonModalOpen) sendPoisonTo(t.pid);
-                                if(shieldModalOpen) sendShieldTo(t.pid);
-                            }}>{t.name}</button>
+                       <h3>{selectedItem.name} - Ziel wählen</h3>
+                       <div style={{display:'flex',flexDirection:'column',gap:10, marginTop:20}}>
+                         {Object.entries(game.players || {})
+                           .filter(([pid]) => pid !== playerId)
+                           .map(([pid, p]) => (
+                            <button key={pid} className="btn btn-host" onClick={()=>activateItem(selectedItem, selectedItem.slotIndex, pid)}>
+                              {p.name}
+                            </button>
                          ))}
-                         <button className="btn" style={{background:'var(--rtl-orange)'}} onClick={()=>{setBoostModalOpen(false);setPoisonModalOpen(false);setShieldModalOpen(false)}}>Abbrechen</button>
+                         <button className="btn" style={{background:'rgba(255,255,255,0.1)'}} onClick={()=>{setTargetModalOpen(false); setSelectedItem(null);}}>Abbrechen</button>
                        </div>
                    </div>
                </div>
@@ -1284,18 +1370,36 @@
        );
     }
     
-    if(meta.phase === 'roundSummary' && bonusCategoryModalOpen) {
-        const used = meta.categoryState?.used || [];
-        const available = CATEGORY_LIST.filter(c => !used.includes(c));
-        const displayCats = available.length > 0 ? available : CATEGORY_LIST;
+    if(meta.phase === 'roundSummary') {
+        // Check if this player is the category chooser
+        if(meta.categoryChooserCandidate === playerId && !meta.nextCategory) {
+            const used = meta.categoryState?.used || [];
+            const available = CATEGORY_LIST.filter(c => !used.includes(c));
+            const displayCats = available.length > 0 ? available : CATEGORY_LIST;
+            
+            return (
+                <div className="min-h-screen flex items-center justify-center p-4">
+                    <div className="card" style={{width:'100%'}}>
+                        <h3 style={{textAlign:'center', marginBottom:20, fontSize:24, fontWeight:900, color:'var(--rtl-orange)'}}>DU WÄHLST DIE KATEGORIE!</h3>
+                        <p style={{textAlign:'center', marginBottom:20, color:'var(--muted)'}}>Als Letztplatzierter darfst du die nächste Kategorie bestimmen.</p>
+                        <div style={{display:'flex', flexDirection:'column', gap:10}}>
+                            {displayCats.slice(0, 3).map(c => (<button key={c} className="btn btn-host" style={{padding:20}} onClick={()=>pickCategory(c)}>{c}</button>))}
+                            <button className="btn" style={{padding:20}} onClick={()=>pickCategory(displayCats[0])}>🎲 ZUFALL</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Not the chooser - show waiting screen
         return (
-            <div className="modal-backdrop">
-                <div className="modal-card">
-                    <h3 style={{textAlign:'center', marginBottom:20, fontSize:20, fontWeight:900}}>DU WÄHLST DIE KATEGORIE!</h3>
-                    {/* ENTFERNT: Bonus-Text */}
-                    <div style={{display:'flex', flexDirection:'column', gap:10}}>
-                        {displayCats.slice(0, 3).map(c => (<button key={c} className="btn btn-host" onClick={()=>pickCategory(c)}>{c}</button>))}
-                        <button className="btn" onClick={()=>pickCategory(displayCats[0])}>ZUFALL</button>
+            <div className="min-h-screen flex items-center justify-center p-4">
+                <div className="card" style={{textAlign:'center'}}>
+                    <h2 style={{fontSize:28, fontWeight:900, color:'var(--rtl-orange)', marginBottom:20}}>ZWISCHENSTAND</h2>
+                    <p style={{fontSize:18, color:'var(--muted)'}}>Warte auf Kategoriewahl...</p>
+                    <div style={{marginTop:30, padding:20, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)'}}>
+                        <div style={{fontSize:16, color:'var(--muted)', marginBottom:10}}>Dein Score</div>
+                        <div style={{fontSize:48, fontWeight:900}}>{player.score}</div>
                     </div>
                 </div>
             </div>
@@ -1306,7 +1410,6 @@
         const pointsEarned = player.lastPoints || 0;
         const isCorrect = player.currentAnswer===((game.questions||[])[meta.questionIndex||0]).correct;
         
-        // NEU: Zeige "Warten" an, solange playerReveal false ist
         if (!playerReveal) {
              return (
                 <div className="min-h-screen flex items-center justify-center p-4">
@@ -1318,20 +1421,15 @@
             );
         }
 
-        // Ergebnis wird erst nach dem Host-Reveal angezeigt
         return (
             <div className="min-h-screen flex items-center justify-center p-4" style={{background:'var(--bg)'}}>
                 <div className="card" style={{textAlign:'center', width:'100%'}}>
-                    {/* PLAYER HEADER with Total Score */}
                     <div style={{display:'flex', justifyContent:'flex-end', borderBottom:'1px solid rgba(255,255,255,0.1)', paddingBottom:10, marginBottom:20}}>
                          <span style={{fontWeight:900, color:'var(--tile)'}}>Gesamt: {player.score}</span>
                     </div>
 
-                    <div style={{fontSize:80, marginBottom:10}}>{isCorrect ? '😎' : '🫠'}</div>
-                    <h2 style={{fontSize:32, fontWeight:900, 
-                        /* ANPASSUNG: Ergebnis-Farbe auf Orange */
-                        color: 'var(--rtl-orange)', 
-                        marginBottom:20}}>
+                    <div style={{fontSize:80, marginBottom:10}}>{isCorrect ? '😎' : '🫤'}</div>
+                    <h2 style={{fontSize:32, fontWeight:900, color: 'var(--rtl-orange)', marginBottom:20}}>
                         {isCorrect ? 'RICHTIG' : 'FALSCH'}
                     </h2>
                     <div style={{background:'rgba(255,255,255,0.05)', padding:30, border:'1px solid rgba(255,255,255,0.1)'}}>
@@ -1357,7 +1455,7 @@
       const snap = await db.ref(`games/${joinGameId}`).get();
       if(!snap.exists()) return alert('Code falsch');
       const pid = makePlayerId();
-      await db.ref(`games/${joinGameId}/players/${pid}`).set({ name, score:0, items:DEFAULT_ITEMS });
+      await db.ref(`games/${joinGameId}/players/${pid}`).set({ name, score:0, itemSlots:[] });
       onJoined(joinGameId, pid, name);
     };
 
@@ -1417,7 +1515,7 @@
             const snap = await db.ref(`games/${code}`).get();
             if(!snap.exists()) { alert('Spiel nicht gefunden!'); return; }
             const pid = makePlayerId();
-            await db.ref(`games/${code}/players/${pid}`).set({ name, score: 0, items: DEFAULT_ITEMS });
+            await db.ref(`games/${code}/players/${pid}`).set({ name, score: 0, itemSlots: [] });
             sessionStorage.setItem(`quiz_pid_${code}`, pid);
             setGameId(code); setPlayerId(pid); setPlayerName(name); setMode('playerGame');
         } catch(e) { console.error(e); alert('Fehler beim Beitreten'); }
@@ -1439,5 +1537,6 @@
   </script>
 </body>
 </html>
+
 
 
