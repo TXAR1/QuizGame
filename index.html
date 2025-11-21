@@ -210,6 +210,157 @@
       text-shadow: 0 0 20px rgba(0,0,0,0.8);
     }
 
+    /* Item Box Roulette Animation */
+    .item-roulette-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .item-box-container {
+      position: relative;
+      width: 400px;
+      height: 500px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .item-box-display {
+      width: 200px;
+      height: 200px;
+      border: 6px solid var(--rtl-orange);
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 100px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(255, 102, 0, 0.6);
+    }
+
+    .item-box-display::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(45deg, transparent 30%, rgba(255,102,0,0.3) 50%, transparent 70%);
+      animation: shine 2s linear infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .item-roulette-strip {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      animation: rouletteSpin 0.1s linear infinite;
+    }
+
+    @keyframes rouletteSpin {
+      0% { transform: translateX(-50%) translateY(0); }
+      100% { transform: translateX(-50%) translateY(-110px); }
+    }
+
+    .item-roulette-strip.slowing {
+      animation: rouletteSlowSpin 0.2s linear infinite;
+    }
+
+    @keyframes rouletteSlowSpin {
+      0% { transform: translateX(-50%) translateY(0); }
+      100% { transform: translateX(-50%) translateY(-110px); }
+    }
+
+    .item-roulette-strip.stopping {
+      animation: rouletteStopSpin 0.4s ease-out forwards;
+    }
+
+    @keyframes rouletteStopSpin {
+      0% { transform: translateX(-50%) translateY(0); }
+      100% { transform: translateX(-50%) translateY(-55px); }
+    }
+
+    .roulette-item {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    .item-box-text {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--rtl-orange);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    .item-revealed {
+      animation: itemPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes itemPop {
+      0% { transform: scale(0) rotate(0deg); }
+      50% { transform: scale(1.3) rotate(180deg); }
+      100% { transform: scale(1) rotate(360deg); }
+    }
+
+    .item-box-info {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .item-box-info h3 {
+      font-size: 32px;
+      font-weight: 900;
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    .item-box-info .rarity-badge {
+      display: inline-block;
+      padding: 8px 20px;
+      font-size: 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+    }
+
+    .item-box-info .rarity-badge.common { background: #888; color: white; }
+    .item-box-info .rarity-badge.uncommon { background: #4CAF50; color: white; }
+    .item-box-info .rarity-badge.rare { background: #2196F3; color: white; }
+    .item-box-info .rarity-badge.legendary { background: linear-gradient(45deg, #FFD700, #FFA500); color: #000; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.05); }
+    }
+
   </style>
 </head>
 <body>
@@ -1112,6 +1263,13 @@
     const [scannedAnswers, setScannedAnswers] = useState({});
     const [isFrozen, setIsFrozen] = useState(false);
     const [freezeTimeLeft, setFreezeTimeLeft] = useState(0);
+    
+    // NEW: Item Box Roulette States
+    const [showItemRoulette, setShowItemRoulette] = useState(false);
+    const [rouletteItems, setRouletteItems] = useState([]);
+    const [finalRouletteItem, setFinalRouletteItem] = useState(null);
+    const [roulettePhase, setRoulettePhase] = useState('spinning'); // spinning, slowing, stopping, revealed
+    const [pendingNewItem, setPendingNewItem] = useState(null);
 
     useEffect(() => { if(playerId && gameId) { sessionStorage.setItem(`quiz_pid_${gameId}`, playerId); } }, [playerId, gameId]);
 
@@ -1150,6 +1308,49 @@
             setPlayerReveal(false);
         }
     }, [meta?.phase, meta?.questionIndex]);
+
+    // NEW: Detect when new item is received and trigger roulette
+    useEffect(() => {
+      if(player?.hasNewItem && meta?.phase === 'results' && playerReveal) {
+        const currentSlots = player.itemSlots || [];
+        const lastItem = currentSlots[currentSlots.length - 1];
+        if(lastItem && !pendingNewItem) {
+          setPendingNewItem(lastItem);
+          
+          // Wait 1.5 seconds after reveal, then start roulette
+          setTimeout(() => {
+            startItemRoulette(lastItem);
+          }, 1500);
+        }
+      }
+    }, [player?.hasNewItem, meta?.phase, playerReveal]);
+
+    const startItemRoulette = (finalItem) => {
+      // Generate random items for roulette effect
+      const allItems = Object.values(ITEM_TYPES);
+      const randomItems = [];
+      for(let i = 0; i < 20; i++) {
+        randomItems.push(allItems[Math.floor(Math.random() * allItems.length)]);
+      }
+      // Insert final item at the end
+      randomItems.push(finalItem);
+      
+      setRouletteItems(randomItems);
+      setFinalRouletteItem(finalItem);
+      setRoulettePhase('spinning');
+      setShowItemRoulette(true);
+      
+      // Timing sequence
+      setTimeout(() => setRoulettePhase('slowing'), 2000); // Spin for 2s
+      setTimeout(() => setRoulettePhase('stopping'), 3000); // Slow down at 3s
+      setTimeout(() => setRoulettePhase('revealed'), 3800); // Reveal at 3.8s
+      setTimeout(() => {
+        setShowItemRoulette(false);
+        setPendingNewItem(null);
+        // Clear the hasNewItem flag
+        db.ref(`games/${gameId}/players/${playerId}/hasNewItem`).set(false);
+      }, 6000); // Close at 6s
+    };
 
     // Check for freeze effect
     useEffect(() => {
@@ -1422,25 +1623,66 @@
         }
 
         return (
-            <div className="min-h-screen flex items-center justify-center p-4" style={{background:'var(--bg)'}}>
-                <div className="card" style={{textAlign:'center', width:'100%'}}>
-                    <div style={{display:'flex', justifyContent:'flex-end', borderBottom:'1px solid rgba(255,255,255,0.1)', paddingBottom:10, marginBottom:20}}>
-                         <span style={{fontWeight:900, color:'var(--tile)'}}>Gesamt: {player.score}</span>
+            <>
+              <div className="min-h-screen flex items-center justify-center p-4" style={{background:'var(--bg)'}}>
+                  <div className="card" style={{textAlign:'center', width:'100%'}}>
+                      <div style={{display:'flex', justifyContent:'flex-end', borderBottom:'1px solid rgba(255,255,255,0.1)', paddingBottom:10, marginBottom:20}}>
+                           <span style={{fontWeight:900, color:'var(--tile)'}}>Gesamt: {player.score}</span>
+                      </div>
+
+                      <div style={{fontSize:80, marginBottom:10}}>{isCorrect ? '😎' : '🫤'}</div>
+                      <h2 style={{fontSize:32, fontWeight:900, color: 'var(--rtl-orange)', marginBottom:20}}>
+                          {isCorrect ? 'RICHTIG' : 'FALSCH'}
+                      </h2>
+                      <div style={{background:'rgba(255,255,255,0.05)', padding:30, border:'1px solid rgba(255,255,255,0.1)'}}>
+                          <div style={{fontSize:16, color:'var(--muted)', textTransform:'uppercase', fontWeight:700}}>Punkte diese Runde</div>
+                          <div style={{fontSize:60, fontWeight:900, color:'white', lineHeight:1}}>
+                              {pointsEarned > 0 ? '+' : ''}{pointsEarned}
+                          </div>
+                      </div>
+                      <div style={{marginTop:30, fontSize:14, color:'var(--muted)'}}>Warte auf nächste Frage...</div>
+                  </div>
+              </div>
+
+              {/* Item Box Roulette Animation */}
+              {showItemRoulette && (
+                <div className="item-roulette-overlay">
+                  <div className="item-box-container">
+                    <div className="item-box-text">
+                      {roulettePhase === 'revealed' ? '🎉 NEUES ITEM! 🎉' : '📦 ITEM BOX 📦'}
+                    </div>
+                    
+                    <div className="item-box-display">
+                      {roulettePhase === 'revealed' ? (
+                        <div className="item-revealed" style={{fontSize: 100}}>
+                          {finalRouletteItem?.icon}
+                        </div>
+                      ) : (
+                        <div className={`item-roulette-strip ${roulettePhase}`}>
+                          {rouletteItems.map((item, idx) => (
+                            <div key={idx} className="roulette-item">
+                              {item.icon}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
-                    <div style={{fontSize:80, marginBottom:10}}>{isCorrect ? '😎' : '🫤'}</div>
-                    <h2 style={{fontSize:32, fontWeight:900, color: 'var(--rtl-orange)', marginBottom:20}}>
-                        {isCorrect ? 'RICHTIG' : 'FALSCH'}
-                    </h2>
-                    <div style={{background:'rgba(255,255,255,0.05)', padding:30, border:'1px solid rgba(255,255,255,0.1)'}}>
-                        <div style={{fontSize:16, color:'var(--muted)', textTransform:'uppercase', fontWeight:700}}>Punkte diese Runde</div>
-                        <div style={{fontSize:60, fontWeight:900, color:'white', lineHeight:1}}>
-                            {pointsEarned > 0 ? '+' : ''}{pointsEarned}
+                    {roulettePhase === 'revealed' && (
+                      <div className="item-box-info">
+                        <h3>{finalRouletteItem?.name}</h3>
+                        <div className={`rarity-badge ${finalRouletteItem?.rarity}`}>
+                          {finalRouletteItem?.rarity.toUpperCase()}
                         </div>
-                    </div>
-                    <div style={{marginTop:30, fontSize:14, color:'var(--muted)'}}>Warte auf nächste Frage...</div>
+                        <p style={{color: 'var(--muted)', fontSize: 16}}>
+                          Das Item wurde zu deinem Inventar hinzugefügt!
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-            </div>
+              )}
+            </>
         );
     }
 
@@ -1537,6 +1779,7 @@
   </script>
 </body>
 </html>
+
 
 
 
