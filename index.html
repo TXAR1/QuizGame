@@ -452,33 +452,102 @@
   const db = firebase.database();
 
   /************ Question Pool ************/
-  const CATEGORY_LIST = ["Geografie", "Wissenschaft", "Geschichte", "Kultur & Kunst", "Sport", "Technik & Digitalisierung"];
-  
-  const QUESTION_POOL = [
-    { question: "Welches Land hat die längste Küstenlinie der Welt?", answers: ["USA","Kanada","Australien","Indonesien"], correct: 1, category: "Geografie" },
-    { question: "Welche Stadt liegt am Bosporus?", answers: ["Belgrad","Istanbul","Athen","Sofia"], correct: 1, category: "Geografie" },
-    { question: "Wie viele Chromosomen hat der Mensch normalerweise?", answers: ["42","44","46","48"], correct: 2, category: "Wissenschaft" },
-    { question: "Welches Gas atmen wir hauptsächlich ein?", answers: ["Sauerstoff","Stickstoff","Kohlendioxid","Helium"], correct: 1, category: "Wissenschaft" },
-    { question: "Wer war der erste Kanzler der Bundesrepublik Deutschland?", answers: ["Brandt","Schmidt","Adenauer","Kohl"], correct: 2, category: "Geschichte" },
-    { question: "In welchem Jahr begann der Zweite Weltkrieg?", answers: ["1938","1939","1940","1941"], correct: 1, category: "Geschichte" },
-    { question: "Wer komponierte die 9. Sinfonie?", answers: ["Beethoven","Mozart","Bach","Haydn"], correct: 0, category: "Kultur & Kunst" },
-    { question: "Welcher Künstler schuf die 'Sternennacht'?", answers: ["Monet","Van Gogh","Gauguin","Da Vinci"], correct: 1, category: "Kultur & Kunst" },
-    { question: "Wie viele Spieler hat eine Fußballmannschaft auf dem Feld?", answers: ["9","10","11","12"], correct: 2, category: "Sport" },
-    { question: "Wer gewann die Fußball-WM 2014?", answers: ["Brasilien","Deutschland","Spanien","Argentinien"], correct: 1, category: "Sport" },
-    { question: "Was bedeutet die Abkürzung 'CPU'?", answers: ["Central Performance Unit","Central Processing Unit","Computer Personal Unit","Control Processing Unit"], correct: 1, category: "Technik & Digitalisierung" },
-    { question: "Welche Firma entwickelte das erste iPhone?", answers: ["Samsung","Apple","Nokia","Motorola"], correct: 1, category: "Technik & Digitalisierung" },
-  ];
+ const CATEGORY_LIST = [
+  "Gaming",
+  "Anime",
+  "Star Wars",
+  "Österreich",
+  "Herr der Ringe",
+  "Marvel"
+];
+
+const QUESTION_POOL = [
+  // ===== GAMING =====
+  { question: "Wie heißt der legendäre Endboss aus Dark Souls, der als 'Gwyns Erbe' bekannt ist?", answers: ["Artorias","Ornstein","Cinder Lord","Nito"], correct: 2, category: "Gaming" },
+  { question: "Welche Firma entwickelte die erste PlayStation?", answers: ["Nintendo","Sony","Sega","Atari"], correct: 1, category: "Gaming" },
+  { question: "Wie heißt die Heimatwelt der Protoss in StarCraft?", answers: ["Aiur","Char","Korhal","Zerus"], correct: 0, category: "Gaming" },
+  { question: "Welche Farbe hat der legendäre Loot in Borderlands?", answers: ["Blau","Lila","Orange","Gelb"], correct: 2, category: "Gaming" },
+  { question: "Wie heißt der Protagonist der Halo-Reihe?", answers: ["Commander Shepard","Master Chief","Doom Slayer","Gordon Freeman"], correct: 1, category: "Gaming" },
+  { question: "In welchem Spiel gibt es die Stadt Rapture?", answers: ["Fallout","Dishonored","Bioshock","Half-Life"], correct: 2, category: "Gaming" },
+  { question: "Welche Kreatur jagt dich in 'Subnautica' am gefährlichsten?", answers: ["Stalker","Reaper Leviathan","Sandshark","Peeper"], correct: 1, category: "Gaming" },
+  { question: "Welche Klasse gibt es in Diablo III NICHT?", answers: ["Barbar","Kreuzritter","Druide","Mönch"], correct: 2, category: "Gaming" },
+  { question: "Wie heißt das ikonische Fahrzeug in Mario Kart?", answers: ["Kart Racer","Speedster","Koopa Car","Standard Kart"], correct: 3, category: "Gaming" },
+  { question: "Welche Spielfigur sagt 'Do a barrel roll!'?", answers: ["Link","Fox McCloud","Mario","Samus"], correct: 1, category: "Gaming" },
+
+  // ===== ANIME =====
+  { question: "Wie heißt der Hauptcharakter aus One Piece?", answers: ["Naruto","Goku","Luffy","Ichigo"], correct: 2, category: "Anime" },
+  { question: "Welche Fähigkeit besitzt ein Sharingan?", answers: ["Zeit reisen","Techniken kopieren","Teleportieren","Unsichtbarkeit"], correct: 1, category: "Anime" },
+  { question: "Wie heißt der Titan, der Eren Yeager zuerst frisst?", answers: ["Koloss Titan","Smiling Titan","Beast Titan","Armored Titan"], correct: 1, category: "Anime" },
+  { question: "In welchem Anime kommt die Stadt Neo-Tokyo vor?", answers: ["Akira","Ghost in the Shell","Bleach","Death Note"], correct: 0, category: "Anime" },
+  { question: "Wie heißt der Shinigami, der Light begleitet?", answers: ["Ryuk","Rem","Misa","Soichiro"], correct: 0, category: "Anime" },
+  { question: "Welche Anime-Figur trägt einen Strohhut?", answers: ["Edward Elric","Monkey D. Luffy","Gon Freecss","Levi Ackerman"], correct: 1, category: "Anime" },
+  { question: "Wie nennt man die Energie in Dragon Ball?", answers: ["Chakra","Nen","Haki","Ki"], correct: 3, category: "Anime" },
+  { question: "In welchem Anime gibt es die Hunter-Prüfung?", answers: ["Bleach","Naruto","Hunter x Hunter","Yu-Gi-Oh!"], correct: 2, category: "Anime" },
+  { question: "Welche Farbe haben die Haare von Hatsune Miku?", answers: ["Rosa","Blond","Türkis","Schwarz"], correct: 2, category: "Anime" },
+  { question: "Wer ist der Alchemist mit der mechanischen Prothese?", answers: ["Levi","Edward Elric","Guts","Saitama"], correct: 1, category: "Anime" },
+
+  // ===== STAR WARS =====
+  { question: "Wie heißt das Schiff von Han Solo?", answers: ["X-Wing","Slave I","Millennium Falcon","Star Destroyer"], correct: 2, category: "Star Wars" },
+  { question: "Wer ist der Jedi-Meister von Obi-Wan Kenobi?", answers: ["Yoda","Qui-Gon Jinn","Mace Windu","Plo Koon"], correct: 1, category: "Star Wars" },
+  { question: "Wie heißt der Heimatplanet der Wookiees?", answers: ["Endor","Mustafar","Kashyyyk","Geonosis"], correct: 2, category: "Star Wars" },
+  { question: "Welche Farbe hatte Mace Windus Lichtschwert?", answers: ["Grün","Blau","Rot","Lila"], correct: 3, category: "Star Wars" },
+  { question: "Wer sagt 'I have a bad feeling about this'?", answers: ["Anakin","Han Solo","Obi-Wan","Es kommt in jedem Film vor"], correct: 3, category: "Star Wars" },
+  { question: "Wie nennt man die dunkle Seite der Macht?", answers: ["Shadow Force","Black Order","Dark Side","Void Force"], correct: 2, category: "Star Wars" },
+  { question: "Wie heißt der Planet, auf dem Luke Skywalker aufwächst?", answers: ["Tatooine","Hoth","Naboo","Dagobah"], correct: 0, category: "Star Wars" },
+  { question: "Wie viele Sith-Regeln gibt es laut der 'Rule of Two'?", answers: ["1","2","3","4"], correct: 1, category: "Star Wars" },
+  { question: "Welcher Droide spricht in Piep-Tönen?", answers: ["C-3PO","R2-D2","BB-8","K-2SO"], correct: 1, category: "Star Wars" },
+  { question: "Wie heißt der Mandalorianer aus der Disney+ Serie?", answers: ["Boba Fett","Din Djarin","Bo-Katan","Sabine Wren"], correct: 1, category: "Star Wars" },
+
+  // ===== ÖSTERREICH =====
+  { question: "Wie heißt die Hauptstadt von Österreich?", answers: ["Wien","Graz","Linz","Salzburg"], correct: 0, category: "Österreich" },
+  { question: "Welche österreichische Süßspeise ist weltberühmt?", answers: ["Sachertorte","Apfelstrudel","Kaiserschmarrn","Linzer Torte"], correct: 0, category: "Österreich" },
+  { question: "Wie heißt der höchste Berg Österreichs?", answers: ["Hochkönig","Wildspitze","Großglockner","Zugspitze"], correct: 2, category: "Österreich" },
+  { question: "Welcher Fluss fließt durch Wien?", answers: ["Rhein","Donau","Inn","Mur"], correct: 1, category: "Österreich" },
+  { question: "Wie heißt der berühmte Schauspieler aus Österreich, der Gouverneur wurde?", answers: ["Waltz","Kruger","Schwarzenegger","Brandauer"], correct: 2, category: "Österreich" },
+  { question: "Welcher Komponist stammt aus Salzburg?", answers: ["Mozart","Beethoven","Haydn","Schubert"], correct: 0, category: "Österreich" },
+  { question: "Welche Farbe hat die österreichische Flagge?", answers: ["Schwarz-Weiß","Blau-Gelb","Rot-Weiß-Rot","Rot-Gelb-Blau"], correct: 2, category: "Österreich" },
+  { question: "Wie heißt der größte See Österreichs?", answers: ["Weißensee","Neusiedler See","Wörthersee","Attersee"], correct: 1, category: "Österreich" },
+  { question: "Welche Stadt ist für die 'Festspiele' bekannt?", answers: ["Innsbruck","Salzburg","Klagenfurt","Wien"], correct: 1, category: "Österreich" },
+  { question: "Was ist ein 'Kipferl'?", answers: ["Gebäck","Berg","Trachtenhut","Dialektwort für Kaffee"], correct: 0, category: "Österreich" },
+
+  // ===== HERR DER RINGE =====
+  { question: "Wie heißt der dunkle Herrscher von Mordor?", answers: ["Melkor","Saruman","Sauron","Gothmog"], correct: 2, category: "Herr der Ringe" },
+  { question: "Wer trägt den Einen Ring zu Beginn der Geschichte?", answers: ["Bilbo","Frodo","Gandalf","Sam"], correct: 0, category: "Herr der Ringe" },
+  { question: "Wie heißt Gandalfs Pferd?", answers: ["Brummer","Schattenfell","Arod","Hasufel"], correct: 1, category: "Herr der Ringe" },
+  { question: "Wie heißen die Waldelben aus Bruchtal?", answers: ["Istari","Moriquendi","Noldor","Sindar"], correct: 2, category: "Herr der Ringe" },
+  { question: "Woraus besteht das Mithril?", answers: ["Stahl","Silberart","Diamant","Magischer Stein"], correct: 1, category: "Herr der Ringe" },
+  { question: "Wie heißt die Festung der Rohirrim?", answers: ["Helms Klamm","Minas Tirith","Isengard","Erebor"], correct: 0, category: "Herr der Ringe" },
+  { question: "Wie alt wird Aragorn ungefähr?", answers: ["100","150","210","87"], correct: 3, category: "Herr der Ringe" },
+  { question: "Wie nennen Hobbits ihre Mahlzeit zwischen Frühstück und Mittagessen?", answers: ["Vormittagssnack","Zweites Frühstück","Brunch","Bissen"], correct: 1, category: "Herr der Ringe" },
+  { question: "Welche Kreatur bewacht Moria?", answers: ["Troll","Balrog","Nazgûl","Gollum"], correct: 1, category: "Herr der Ringe" },
+  { question: "Wie heißt der Schöpfer der Welt Arda?", answers: ["Ilúvatar","Manwë","Ulmo","Yavanna"], correct: 0, category: "Herr der Ringe" },
+
+  // ===== MARVEL =====
+  { question: "Wie heißt Thors Hammer?", answers: ["Gungnir","Stormbreaker","Hofund","Mjölnir"], correct: 3, category: "Marvel" },
+  { question: "Wie heißt Iron Mans KI im Anzug?", answers: ["JARVIS","FRIDAY","ULTRON","KAREN"], correct: 0, category: "Marvel" },
+  { question: "Welcher Infinity-Stein kontrolliert die Zeit?", answers: ["Mind","Reality","Time","Power"], correct: 2, category: "Marvel" },
+  { question: "Wer ist der Anführer der Guardians of the Galaxy?", answers: ["Drax","Star-Lord","Rocket","Groot"], correct: 1, category: "Marvel" },
+  { question: "Aus welchem Metall besteht Captain Americas Schild?", answers: ["Vibranium","Adamantium","Titan","Wolfram"], correct: 0, category: "Marvel" },
+  { question: "Wie heißt der Heimatplanet von Thanos?", answers: ["Skrullos","Xandar","Titan","Knowhere"], correct: 2, category: "Marvel" },
+  { question: "Wer ist Black Panthers Schwester?", answers: ["Nakia","Shuri","Okoye","Ramonda"], correct: 1, category: "Marvel" },
+  { question: "Welche Fähigkeit besitzt Doctor Strange?", answers: ["Superspeed","Realitätsverformung","Magie","Telepathie"], correct: 2, category: "Marvel" },
+  { question: "Wie lautet Peter Parkers Superheldenname?", answers: ["Nightcrawler","Iron Fist","Spider-Man","Cyclops"], correct: 2, category: "Marvel" },
+  { question: "Wer hebt Mjölnir in Endgame?", answers: ["Iron Man","Hulk","Captain America","Vision"], correct: 2, category: "Marvel" }
+];
 
   const FINAL_QUESTION_POOL = [
-    { question: "In welchem Jahr wurde die Berliner Mauer errichtet?", answer: "1961" },
-    { question: "Wie heißt der höchste Berg Deutschlands?", answer: "Zugspitze" },
-    { question: "Welches chemische Element hat das Symbol 'Au'?", answer: "Gold" },
-    { question: "Wie viele Bundesländer hat Deutschland?", answer: "16" },
-    { question: "In welcher Stadt steht die Freiheitsstatue?", answer: "New York" },
-    { question: "Welcher Planet ist der Sonne am nächsten?", answer: "Merkur" },
-    { question: "Wie viele Tasten hat ein Standardklavier?", answer: "88" },
-    { question: "Welches Jahr markiert den Beginn des Ersten Weltkriegs?", answer: "1914" },
-  ];
+  
+  { question: "Wie heißt die Hauptstadt von Kanada?", answer: "Ottawa" },
+  { question: "Wie lautet der Name des Autors von 'Der Herr der Ringe'?", answer: "J. R. R. Tolkien" },
+  { question: "Welche Programmiersprache wird hauptsächlich für Webbrowser-Skripte verwendet?", answer: "JavaScript" },
+  { question: "Wie heißt der längste Fluss der Welt?", answer: "Nil" },
+  { question: "Welche physikalische Größe wird in Ampere gemessen?", answer: "Stromstärke" },
+  { question: "Wie heißt der berühmte Turm in Pisa?", answer: "Schiefer Turm von Pisa" },
+  { question: "Welcher Wissenschaftler entwickelte die Relativitätstheorie?", answer: "Albert Einstein" },
+  { question: "Wie viele Kontinente gibt es auf der Erde?", answer: "7" },
+  { question: "Wie heißt die Hauptstadt von Australien?", answer: "Canberra" },
+  { question: "Welcher Ozean ist der größte der Erde?", answer: "Pazifik" }
+];
 
   function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[i],a[j]];} return a; }
   function randomGameID(){ return Math.random().toString(36).substr(2,6).toUpperCase(); }
@@ -1869,6 +1938,7 @@
   </script>
 </body>
 </html>
+
 
 
 
