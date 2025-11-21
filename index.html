@@ -385,22 +385,22 @@
 
   const ITEM_TYPES = {
     // OFFENSIVE
-    GIFTPFEIL: { id: 'giftpfeil', name: 'Giftpfeil', icon: '☠️', rarity: 'uncommon', effect: 'poison', needsTarget: true },
-    FREEZE: { id: 'freeze', name: 'Eisschock', icon: '❄️', rarity: 'uncommon', effect: 'freeze', needsTarget: true },
-    ZEITSCHNAPPER: { id: 'zeitschnapper', name: 'Zeitschnapper', icon: '⏱️', rarity: 'rare', effect: 'time_reduce', needsTarget: true },
+    GIFTPFEIL: { id: 'giftpfeil', name: 'Giftpfeil', icon: '☠️', rarity: 'uncommon', effect: 'poison', needsTarget: true, description: 'Reduziert die Punkte eines Gegners um 25%' },
+    FREEZE: { id: 'freeze', name: 'Eisschock', icon: '❄️', rarity: 'uncommon', effect: 'freeze', needsTarget: true, description: 'Friert einen Gegner für 8 Sekunden ein' },
+    ZEITSCHNAPPER: { id: 'zeitschnapper', name: 'Zeitschnapper', icon: '⏱️', rarity: 'rare', effect: 'time_reduce', needsTarget: true, description: 'Halbiert die verbleibende Zeit eines Gegners' },
     
     // DEFENSIVE
-    SCHILD: { id: 'schild', name: 'Schild', icon: '🛡️', rarity: 'common', effect: 'shield', needsTarget: false },
-    SPIEGELGLAS: { id: 'spiegelglas', name: 'Spiegelglas', icon: '🔮', rarity: 'rare', effect: 'mirror', needsTarget: false },
+    SCHILD: { id: 'schild', name: 'Schild', icon: '🛡️', rarity: 'common', effect: 'shield', needsTarget: false, description: 'Schützt dich vor dem nächsten Angriff und reflektiert ihn' },
+    SPIEGELGLAS: { id: 'spiegelglas', name: 'Spiegelglas', icon: '🔮', rarity: 'rare', effect: 'mirror', needsTarget: false, description: 'Zeigt die meistgewählte Antwort aller Spieler' },
     
     // BOOST
-    TURBO: { id: 'turbo', name: 'Turbo-Boost', icon: '🔥', rarity: 'common', effect: 'boost', needsTarget: false },
-    MAGNET: { id: 'magnet', name: 'Magnet', icon: '🧲', rarity: 'uncommon', effect: 'magnet', needsTarget: false },
-    ZAPFER: { id: 'zapfer', name: 'Frage-Zapfer', icon: '💡', rarity: 'rare', effect: '5050', needsTarget: false },
+    TURBO: { id: 'turbo', name: 'Turbo-Boost', icon: '🔥', rarity: 'common', effect: 'boost', needsTarget: false, description: 'Erhöht deine Punkte bei richtiger Antwort um 50%' },
+    MAGNET: { id: 'magnet', name: 'Magnet', icon: '🧲', rarity: 'uncommon', effect: 'magnet', needsTarget: false, description: 'Bonus-Punkte wenn andere auch richtig antworten (10% pro Spieler)' },
+    ZAPFER: { id: 'zapfer', name: 'Frage-Zapfer', icon: '💡', rarity: 'rare', effect: '5050', needsTarget: false, description: 'Eliminiert 2 falsche Antworten (50/50)' },
     
     // CHAOS
-    PLATZTAUSCHER: { id: 'platztauscher', name: 'Platztauscher', icon: '🔄', rarity: 'legendary', effect: 'swap_points', needsTarget: false },
-    SCANNER: { id: 'scanner', name: 'Antwort-Scanner', icon: '👁️', rarity: 'rare', effect: 'scanner', needsTarget: true }
+    PLATZTAUSCHER: { id: 'platztauscher', name: 'Platztauscher', icon: '🔄', rarity: 'legendary', effect: 'swap_points', needsTarget: false, description: 'Tauscht deine Punkte mit einem zufälligen Spieler' },
+    SCANNER: { id: 'scanner', name: 'Antwort-Scanner', icon: '👁️', rarity: 'rare', effect: 'scanner', needsTarget: true, description: 'Zeigt dir die Antwort eines anderen Spielers' }
   };
 
   // Rarity weights for item distribution (catch-up mechanic)
@@ -1270,6 +1270,12 @@
     const [finalRouletteItem, setFinalRouletteItem] = useState(null);
     const [roulettePhase, setRoulettePhase] = useState('spinning'); // spinning, slowing, stopping, revealed
     const [pendingNewItem, setPendingNewItem] = useState(null);
+    
+    // NEW: Item Tooltip States
+    const [showItemTooltip, setShowItemTooltip] = useState(false);
+    const [tooltipItem, setTooltipItem] = useState(null);
+    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+    const longPressTimer = useRef(null);
 
     useEffect(() => { if(playerId && gameId) { sessionStorage.setItem(`quiz_pid_${gameId}`, playerId); } }, [playerId, gameId]);
 
@@ -1326,14 +1332,24 @@
     }, [player?.hasNewItem, meta?.phase, playerReveal]);
 
     const startItemRoulette = (finalItem) => {
-      // Generate random items for roulette effect
+      // Generate roulette items - ensure final item appears at the right position
       const allItems = Object.values(ITEM_TYPES);
       const randomItems = [];
-      for(let i = 0; i < 20; i++) {
-        randomItems.push(allItems[Math.floor(Math.random() * allItems.length)]);
+      
+      // Add 15 random items
+      for(let i = 0; i < 15; i++) {
+        const randomItem = allItems[Math.floor(Math.random() * allItems.length)];
+        randomItems.push({...randomItem, key: `random-${i}`});
       }
-      // Insert final item at the end
-      randomItems.push(finalItem);
+      
+      // Add the final item at position that will be centered when animation stops
+      randomItems.push({...finalItem, key: 'final-item'});
+      
+      // Add a few more random items after
+      for(let i = 0; i < 5; i++) {
+        const randomItem = allItems[Math.floor(Math.random() * allItems.length)];
+        randomItems.push({...randomItem, key: `random-after-${i}`});
+      }
       
       setRouletteItems(randomItems);
       setFinalRouletteItem(finalItem);
@@ -1341,15 +1357,54 @@
       setShowItemRoulette(true);
       
       // Timing sequence
-      setTimeout(() => setRoulettePhase('slowing'), 2000); // Spin for 2s
-      setTimeout(() => setRoulettePhase('stopping'), 3000); // Slow down at 3s
-      setTimeout(() => setRoulettePhase('revealed'), 3800); // Reveal at 3.8s
-      setTimeout(() => {
-        setShowItemRoulette(false);
-        setPendingNewItem(null);
-        // Clear the hasNewItem flag
-        db.ref(`games/${gameId}/players/${playerId}/hasNewItem`).set(false);
-      }, 6000); // Close at 6s
+      setTimeout(() => setRoulettePhase('slowing'), 2000);
+      setTimeout(() => setRoulettePhase('stopping'), 3000);
+      setTimeout(() => setRoulettePhase('revealed'), 3800);
+      // Don't auto-close anymore - user must click button
+    };
+
+    const closeItemRoulette = () => {
+      setShowItemRoulette(false);
+      setPendingNewItem(null);
+      db.ref(`games/${gameId}/players/${playerId}/hasNewItem`).set(false);
+    };
+
+    // Item Tooltip Handlers
+    const handleItemPressStart = (item, slotIndex, event) => {
+      if(isFrozen) return;
+      
+      const rect = event.target.getBoundingClientRect();
+      setTooltipPosition({ 
+        x: rect.left + rect.width / 2, 
+        y: rect.top - 10 
+      });
+      
+      longPressTimer.current = setTimeout(() => {
+        setTooltipItem(item);
+        setShowItemTooltip(true);
+      }, 500); // Show tooltip after 500ms hold
+    };
+
+    const handleItemPressEnd = (item, slotIndex) => {
+      clearTimeout(longPressTimer.current);
+      
+      // If tooltip was shown, don't activate item
+      if(showItemTooltip) {
+        setShowItemTooltip(false);
+        setTooltipItem(null);
+        return;
+      }
+      
+      // Otherwise, activate item (short press)
+      if(!isFrozen) {
+        useItem(item, slotIndex);
+      }
+    };
+
+    const handleItemPressCancel = () => {
+      clearTimeout(longPressTimer.current);
+      setShowItemTooltip(false);
+      setTooltipItem(null);
     };
 
     // Check for freeze effect
@@ -1509,8 +1564,14 @@
                     <div 
                       key={slotIdx}
                       className={`item-slot ${item ? `rarity-${item.rarity}` : 'empty'} ${isFrozen ? '' : ''}`}
-                      onClick={() => item && !isFrozen && useItem(item, slotIdx)}
+                      onMouseDown={(e) => item && handleItemPressStart(item, slotIdx, e)}
+                      onMouseUp={() => item && handleItemPressEnd(item, slotIdx)}
+                      onMouseLeave={handleItemPressCancel}
+                      onTouchStart={(e) => item && handleItemPressStart(item, slotIdx, e)}
+                      onTouchEnd={() => item && handleItemPressEnd(item, slotIdx)}
+                      onTouchCancel={handleItemPressCancel}
                       title={item ? item.name : 'Leer'}
+                      style={{cursor: item && !isFrozen ? 'pointer' : 'default'}}
                     >
                       {item ? item.icon : '?'}
                     </div>
@@ -1549,6 +1610,30 @@
                })}
              </div>
            </div>
+           
+           {/* Item Tooltip */}
+           {showItemTooltip && tooltipItem && (
+             <div 
+               className="item-tooltip" 
+               style={{
+                 left: tooltipPosition.x,
+                 top: tooltipPosition.y,
+                 transform: 'translate(-50%, -100%)'
+               }}
+             >
+               <h4>
+                 <span style={{fontSize: 28}}>{tooltipItem.icon}</span>
+                 {tooltipItem.name}
+               </h4>
+               <div className={`rarity-mini ${tooltipItem.rarity}`}>
+                 {tooltipItem.rarity}
+               </div>
+               <p>{tooltipItem.description}</p>
+               <div style={{fontSize: 11, color: 'var(--rtl-orange)', marginTop: 10, fontWeight: 700}}>
+                 {tooltipItem.needsTarget ? '🎯 Benötigt Ziel' : '✨ Auf dich selbst'}
+               </div>
+             </div>
+           )}
            
            {targetModalOpen && selectedItem && (
                <div className="modal-backdrop">
@@ -1660,7 +1745,7 @@
                       ) : (
                         <div className={`item-roulette-strip ${roulettePhase}`}>
                           {rouletteItems.map((item, idx) => (
-                            <div key={idx} className="roulette-item">
+                            <div key={item.key || idx} className="roulette-item">
                               {item.icon}
                             </div>
                           ))}
@@ -1674,9 +1759,14 @@
                         <div className={`rarity-badge ${finalRouletteItem?.rarity}`}>
                           {finalRouletteItem?.rarity.toUpperCase()}
                         </div>
-                        <p style={{color: 'var(--muted)', fontSize: 16}}>
-                          Das Item wurde zu deinem Inventar hinzugefügt!
-                        </p>
+                        <p style={{marginBottom: 20}}>{finalRouletteItem?.description}</p>
+                        <button 
+                          className="btn btn-host" 
+                          onClick={closeItemRoulette}
+                          style={{fontSize: 18, padding: '15px 40px'}}
+                        >
+                          VERSTANDEN ✓
+                        </button>
                       </div>
                     )}
                   </div>
@@ -1779,7 +1869,6 @@
   </script>
 </body>
 </html>
-
 
 
 
