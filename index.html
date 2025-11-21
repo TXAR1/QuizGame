@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Monochrome V8</title>
+  <title>RTL AdAlliance Quiz - Item Mayhem V10 (Fixed Finale)</title>
 
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
@@ -23,54 +23,29 @@
       --muted:rgba(255,255,255,0.65);
     }
     
-    /* RADIKALER RESET FÜR KANTIGES DESIGN */
-    * { border-radius: 0px !important; }
+    /* RESET */
+    * { border-radius: 0px !important; box-sizing: border-box; }
     button, div, span, input, img { border-radius: 0px !important; }
 
-    html,body,#root{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; overflow: hidden;}
+    html,body,#root{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, sans-serif; overflow: hidden;}
     body{ background:linear-gradient(180deg,var(--bg), #090909); color:var(--tile); }
     
-    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
     ::-webkit-scrollbar-thumb { background: var(--rtl-orange); }
-    ::-webkit-scrollbar-thumb:hover { background: #ff8533; }
 
     input, textarea, select { background: white !important; color: #0b0b0b !important; border: 1px solid rgba(0,0,0,0.1); padding: 12px; font-weight: 600; }
     
     .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:900; padding:14px 28px; cursor:pointer; border:none; background:rgba(255,255,255,0.1); color:var(--tile); font-size:18px; transition: background 0.2s; text-transform: uppercase; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.1); }
     .btn:hover { background:rgba(255,255,255,0.25); }
     .btn:active { transform: translateY(2px); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
 
     .btn-host{ background:var(--rtl-orange); color:white; border: 1px solid var(--rtl-orange); }
     .btn-host:hover { background: #ff7b24; }
     
     .btn-join{ background:var(--rtl-purple); color:white; border: 1px solid var(--rtl-purple); }
     
-    /* Gold Pause Button */
-    .btn-pause-gold {
-      background: #FFD700;
-      color: #000;
-      border: 2px solid #fff;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-      font-weight: 900;
-      width: 60px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      z-index: 50;
-    }
-    .btn-pause-gold:hover { background: #ffeb3b; transform: scale(1.05); }
-
-    .btn-show-results{
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.3);
-      color: var(--tile);
-    }
-    .btn-show-results:hover { background: rgba(255,255,255,0.3); }
-
     .card{ padding:30px; background: #111; border:1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     
     .host-screen{ display:flex; width: 100%; height:100vh; overflow:hidden; position: relative; background: var(--bg); }
@@ -85,37 +60,19 @@
     }
 
     .game-top-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 40px;
-        background: #000;
-        border-bottom: 2px solid rgba(255,255,255,0.08);
-        height: 130px; /* Fixed height to prevent layout jumps */
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 20px 40px; background: #000; border-bottom: 2px solid rgba(255,255,255,0.08);
+        height: 130px;
     }
 
     .countdown-badge{ width:90px; height:90px; display:flex; align-items:center; justify-content:center; font-size:2.8rem; font-weight:900; color:var(--tile); border:4px solid rgba(255,255,255,0.15); background:#000; }
     .countdown-badge.warning{ border-color:var(--rtl-orange); color:var(--rtl-orange); }
-    /* ANPASSUNG: Roter Danger-Zustand wird Orange */
-    .countdown-badge.danger{ border-color:var(--rtl-orange); color:var(--rtl-orange); background: rgba(255,102,0,0.1); }
+    .countdown-badge.danger{ border-color:#ef4444; color:#ef4444; background: rgba(239,68,68,0.1); }
     
-    .question-area { 
-        flex-grow: 1; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        padding: 20px 60px; 
-        text-align: center;
-    }
-    .question-text {
-        font-size: 6vh; 
-        font-weight: 900;
-        line-height: 1.2;
-        text-shadow: 0 4px 10px rgba(0,0,0,0.8);
-    }
+    .question-text { font-size: 5vh; font-weight: 900; line-height: 1.2; text-shadow: 0 4px 10px rgba(0,0,0,0.8); text-align: center; margin-bottom: 40px;}
 
-    .answers-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:24px; height: 35vh; margin-top: auto; }
-    .answer-btn{ background: #e0e0e0; color:#0b0b0b; padding:30px; font-size:1.8rem; font-weight:800; height: 100%; display:flex; align-items: center; gap:24px; border: 4px solid transparent; transition: transform 0.1s; }
+    .answers-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:24px; flex: 1; }
+    .answer-btn{ background: #e0e0e0; color:#0b0b0b; padding:20px; font-size:1.5rem; font-weight:800; height: 100%; display:flex; align-items: center; gap:24px; border: 4px solid transparent; transition: transform 0.1s; position: relative; overflow: hidden; }
     .answer-btn:hover { transform: translateY(-2px); background: #fff; }
     
     .results-split-view { display: grid; grid-template-columns: 4fr 3fr; gap: 40px; height: 100%; overflow: hidden; }
@@ -125,70 +82,26 @@
     .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.95); display:flex; align-items:center; justify-content:center; z-index:9999; backdrop-filter: blur(5px); }
     .modal-card{ width:95%; max-width:600px; background:#000; border:3px solid var(--rtl-orange); padding:40px; color:var(--tile); box-shadow: 0 0 80px rgba(255,102,0,0.3); }
     
-    .toggle-switch { position: relative; display: inline-block; width: 60px; height: 32px; }
-    .toggle-switch input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: .2s; }
-    input:checked + .toggle-slider { background-color: var(--rtl-orange); }
-    
-    .action-log-item { padding: 12px; background: rgba(255,255,255,0.03); border-left: 5px solid rgba(255,255,255,0.1); margin-bottom: 8px; font-size: 15px; font-weight: 600; }
-    /* ANPASSUNG: Item Farben auf Orange/Violett */
-    .action-log-item.boost { border-left-color: var(--rtl-orange); }
-    .action-log-item.poison { border-left-color: var(--rtl-orange); }
-    .action-log-item.shield { border-left-color: var(--rtl-purple); }
-    .action-log-item.trade { border-left-color: var(--rtl-orange); }
-    .action-log-item.karma { border-left-color: #ffffff; background: rgba(255,255,255,0.1); }
-
-    .item-btn { border: 1px solid rgba(255,255,255,0.2); padding: 10px; background: transparent; color: white; font-weight: 800; font-size: 14px; }
-    .item-btn.active { background: var(--rtl-orange); border-color: var(--rtl-orange); color: #000; }
-    .item-btn.item-disabled { opacity: 0.3; cursor: not-allowed; }
-
-    /* Lobby Grid for TV */
-    .lobby-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 15px;
-        padding: 20px;
+    /* Item Inventory Styles */
+    .inventory-slot {
+        width: 70px; height: 70px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2);
+        display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative;
+        transition: all 0.2s;
     }
-    .lobby-player-chip {
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 15px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 20px;
-        font-weight: 700;
-        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .inventory-slot.filled:hover { border-color: var(--rtl-orange); transform: scale(1.05); }
+    .item-tag { padding: 4px 8px; font-size: 12px; font-weight: 900; text-transform: uppercase; }
+    .rarity-common { color: #fff; border: 1px solid #fff; }
+    .rarity-uncommon { color: #a3e635; border: 1px solid #a3e635; }
+    .rarity-rare { color: #3b82f6; border: 1px solid #3b82f6; }
+    .rarity-legendary { color: #eab308; border: 1px solid #eab308; box-shadow: 0 0 10px rgba(234,179,8,0.3); }
 
-    /* Winner Podium */
-    .podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 40px; height: 50vh; margin-top: 50px; }
-    .podium-place { display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
-    .podium-bar { width: 180px; background: rgba(255,255,255,0.1); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20px; font-size: 80px; font-weight: 900; color: rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.2); position: relative; overflow: hidden;}
+    .effect-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 50; display: flex; align-items: center; justify-content: center; font-size: 4rem; font-weight: 900; text-transform: uppercase; animation: pulse 1s infinite; opacity: 0.8; }
+    .effect-freeze { background: rgba(0, 150, 255, 0.3); color: #00ffff; text-shadow: 0 0 20px blue; }
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+    /* Chart Bar for Mirror */
+    .chart-bar { transition: height 0.5s ease; background: var(--rtl-orange); width: 40px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
     
-    .podium-1 .podium-bar { height: 350px; background: linear-gradient(180deg, #FFD700 0%, #B8860B 100%); border-color: #FFD700; color: rgba(255,255,255,0.5); box-shadow: 0 0 100px rgba(255, 215, 0, 0.4); }
-    .podium-2 .podium-bar { height: 250px; background: linear-gradient(180deg, #C0C0C0 0%, #808080 100%); border-color: #C0C0C0; color: rgba(255,255,255,0.5); }
-    .podium-3 .podium-bar { height: 180px; background: linear-gradient(180deg, #CD7F32 0%, #8B4513 100%); border-color: #CD7F32; color: rgba(255,255,255,0.5); }
-
-    .winner-name { font-size: 32px; fontWeight: 900; margin-bottom: 15px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-    .winner-score { font-size: 24px; color: var(--muted); margin-bottom: 5px; }
-
-    /* Confetti particles (Simple CSS implementation) */
-    .confetti { position: absolute; width: 10px; height: 10px; background: #f00; animation: fall 3s linear infinite; z-index: 0; }
-    /* ANPASSUNG: Confetti Farben auf Orange/Violett/Weiß */
-    @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1;} 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
-    
-    /* ANPASSUNG: Entfernung der Puls-Animation (Größenänderung) */
-    @keyframes revealPulse { 0% { box-shadow: 0 0 0 rgba(255,255,255,0); } 50% { box-shadow: 0 0 30px rgba(255,255,255,0.3); } 100% { box-shadow: 0 0 0 rgba(255,255,255,0); } }
-    .reveal-correct { 
-        animation: revealPulse 2s infinite; 
-        background: #fff !important; 
-        color: #000 !important; 
-        border-color: #fff !important; 
-        /* transform: scale(1.02); REMOVED */
-    }
-
   </style>
 </head>
 <body>
@@ -197,19 +110,14 @@
   <script type="text/babel">
   const { useState, useEffect, useRef } = React;
 
-  /************ CONFIG - DESIGNER BALANCING ************/
+  /************ CONFIG ************/
   const TOTAL_ROUNDS = 4;
   const QUESTIONS_PER_ROUND = 2;
-  const QUESTION_TIME = 40;
-  
-  // NEW: Escalating Points per Round
-  const ROUND_POINTS = { 1: 100, 2: 200, 3: 400, 4: 800 };
-  
-  // const CATEGORY_CHOOSER_BONUS = 1.2; // ENTFERNT: Kategorie-Bonus
+  const QUESTION_TIME = 60; 
   const FINAL_QUESTIONS = 5;
   const FINAL_TIME = 60;
   
-  // NEW: Escalating Finale Points
+  const ROUND_POINTS = { 1: 100, 2: 200, 3: 400, 4: 800 };
   const FINAL_ROUND_POINTS = [500, 750, 1000, 1500, 2000];
 
   const firebaseConfig = {
@@ -224,9 +132,31 @@
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
+  /************ ITEMS SYSTEM ************/
+  const ITEM_DEFS = {
+    BOOST: { id: 'BOOST', name: 'Turbo-Boost', icon: '🚀', desc: '+50% Punkte', type: 'SELF', rarity: 'COMMON' },
+    SHIELD: { id: 'SHIELD', name: 'Schild', icon: '🛡️', desc: 'Schutz & Reflektion', type: 'SELF', rarity: 'COMMON' },
+    POISON: { id: 'POISON', name: 'Giftpfeil', icon: '☠️', desc: '-25% Punkte Gegner', type: 'TARGET', rarity: 'UNCOMMON' },
+    FREEZE: { id: 'FREEZE', name: 'Eisschock', icon: '❄️', desc: 'Blockiert 10s', type: 'TARGET', rarity: 'UNCOMMON' },
+    TIME_SNATCH: { id: 'TIME_SNATCH', name: 'Zeitschnapper', icon: '⏳', desc: 'Halbe Zeit Gegner', type: 'TARGET', rarity: 'RARE' },
+    MIRROR: { id: 'MIRROR', name: 'Spiegelglas', icon: '📊', desc: 'Zeigt Antworten', type: 'SELF', rarity: 'RARE' },
+    MAGNET: { id: 'MAGNET', name: 'Magnet', icon: '🧲', desc: 'Mehrheits-Bonus', type: 'SELF', rarity: 'UNCOMMON' },
+    HINT: { id: 'HINT', name: 'Frage-Zapfer', icon: '💡', desc: 'Entfernt 2 falsche', type: 'SELF', rarity: 'RARE' },
+    SPY: { id: 'SPY', name: 'Antwort-Scanner', icon: '🔦', desc: 'Spioniert Antwort', type: 'TARGET', rarity: 'RARE' },
+    SWAP: { id: 'SWAP', name: 'Platztauscher', icon: '🎭', desc: 'Punkte Tausch!', type: 'SELF', rarity: 'LEGENDARY' }
+  };
+
+  function getRandomItem(normalizedRank) {
+    let pool = [];
+    if (normalizedRank > 0.75) pool = ['SWAP','HINT','TIME_SNATCH','FREEZE','MIRROR','POISON','SPY'];
+    else if (normalizedRank > 0.4) pool = ['POISON','FREEZE','MAGNET','SHIELD','BOOST','HINT'];
+    else pool = ['SHIELD','BOOST','MAGNET','POISON'];
+    const itemId = pool[Math.floor(Math.random() * pool.length)];
+    return ITEM_DEFS[itemId];
+  }
+
   /************ Fragen Pool ************/
   const CATEGORY_LIST = ["Geografie", "Wissenschaft", "Geschichte", "Kultur & Kunst", "Sport", "Technik & Digitalisierung"];
-  
   const QUESTION_POOL = [
     { question: "Welches Land hat die längste Küstenlinie der Welt?", answers: ["USA","Kanada","Australien","Indonesien"], correct: 1, category: "Geografie" },
     { question: "Welche Stadt liegt am Bosporus?", answers: ["Belgrad","Istanbul","Athen","Sofia"], correct: 1, category: "Geografie" },
@@ -241,16 +171,12 @@
     { question: "Was bedeutet die Abkürzung 'CPU'?", answers: ["Central Performance Unit","Central Processing Unit","Computer Personal Unit","Control Processing Unit"], correct: 1, category: "Technik & Digitalisierung" },
     { question: "Welche Firma entwickelte das erste iPhone?", answers: ["Samsung","Apple","Nokia","Motorola"], correct: 1, category: "Technik & Digitalisierung" },
   ];
-
   const FINAL_QUESTION_POOL = [
     { question: "In welchem Jahr wurde die Berliner Mauer errichtet?", answer: "1961" },
     { question: "Wie heißt der höchste Berg Deutschlands?", answer: "Zugspitze" },
     { question: "Welches chemische Element hat das Symbol 'Au'?", answer: "Gold" },
     { question: "Wie viele Bundesländer hat Deutschland?", answer: "16" },
     { question: "In welcher Stadt steht die Freiheitsstatue?", answer: "New York" },
-    { question: "Welcher Planet ist der Sonne am nächsten?", answer: "Merkur" },
-    { question: "Wie viele Tasten hat ein Standardklavier?", answer: "88" },
-    { question: "Welches Jahr markiert den Beginn des Ersten Weltkriegs?", answer: "1914" },
   ];
 
   function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[i],a[j]];} return a; }
@@ -259,96 +185,51 @@
 
   function getQuestionsForCategory(category, count, usedQuestions = []) {
     let pool = QUESTION_POOL.filter(q => q.category === category && !usedQuestions.includes(q.question));
-    if (pool.length < count) {
-      const fallbackPool = QUESTION_POOL.filter(q => !usedQuestions.includes(q.question));
-      pool = fallbackPool.length > 0 ? fallbackPool : QUESTION_POOL.filter(q => q.category === category);
-    }
-    pool = shuffle(pool).slice(0, count);
-    return pool.map((q, idx) => ({ 
-      id: `${category}-${Date.now()}-${Math.random().toString(36).substr(2,5)}-${idx}`, 
-      ...q 
-    }));
+    if (pool.length < count) pool = QUESTION_POOL.filter(q => !usedQuestions.includes(q.question));
+    return shuffle(pool).slice(0, count).map((q, idx) => ({ id: `${category}-${Date.now()}-${idx}`, ...q }));
   }
-
-  const DEFAULT_ITEMS = { boost: 5, poison: 5, shield: 3 };
 
   function RTLLogo({ size = "md" }) {
-    const sizeMap = { sm: 40, md: 60, lg: 80 };
-    const height = sizeMap[size] || 60;
-    // HINWEIS: Bitte stellen Sie sicher, dass "Logo.png" im selben Verzeichnis liegt oder ersetzen Sie es durch einen Base64-String oder einen öffentlichen Link.
-    return <img src="Logo.png" alt="Logo" style={{ height, width: "auto" }} />; 
+    const h = size === 'lg' ? 80 : 50;
+    return <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/RTL_Group_logo.svg/2560px-RTL_Group_logo.svg.png" alt="Logo" style={{height: h, filter:'brightness(0) invert(1)'}} />; 
   }
-
   function qrUrlForGame(gameId){
     const url = `${window.location.origin}${window.location.pathname}?join=${gameId}`;
     return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=500&margin=1&dark=000000&light=ffffff`;
   }
-
   function ConfettiRain() {
      const particles = Array.from({length: 50});
      return (
         <div style={{position:'fixed', inset:0, pointerEvents:'none', overflow:'hidden', zIndex:0}}>
            {particles.map((_, i) => (
-              /* ANPASSUNG: Confetti Farben auf Orange/Violett/Weiß */
-              <div key={i} className="confetti" style={{
+              <div key={i} style={{
+                 position:'absolute', width:10, height:10,
                  left: Math.random() * 100 + 'vw',
+                 animation: `fall ${2+Math.random()*3}s linear infinite`,
                  animationDelay: Math.random() * 3 + 's',
                  backgroundColor: ['#FF6600', '#7B2CBF', '#FFF'][Math.floor(Math.random()*3)]
               }} />
            ))}
+           <style>{`@keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1;} 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }`}</style>
         </div>
      )
   }
 
   /****************************************
-   * START SCREEN
-   ****************************************/
-  function StartScreen({ onCreate, onJoin }){
-    const [name,setName] = useState('');
-    const [code,setCode] = useState('');
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6" style={{background:'var(--bg)'}}>
-        <div style={{maxWidth:760, width:'100%'}} className="card">
-          <div style={{display:'flex', alignItems:'center', gap:12}}>
-            <RTLLogo size="md" />
-            <div style={{fontWeight:900, fontSize:24}}>AdAlliance Quiz</div>
-          </div>
-          <h1 style={{fontSize:32, fontWeight:900, marginTop:20, color:'var(--rtl-orange)'}}>Quiz Master</h1>
-          <div style={{marginTop:30}}>
-            <input className="w-full p-3 mb-3" placeholder="Dein Name" value={name} onChange={e=>setName(e.target.value)} style={{fontSize:18}} />
-            <div style={{display:'flex', gap:12}}>
-              <button className="btn btn-host flex-1" onClick={()=>onCreate(name)} disabled={!name}>Host werden</button>
-              <input className="p-2" placeholder="Code" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} style={{width:'140px', textAlign:'center', fontSize:18, fontWeight:900}} />
-              <button className="btn btn-join" onClick={()=>onJoin(name,code)} disabled={!name || !code}>Beitreten</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  /****************************************
    * HOST SCREEN
    ****************************************/
-  function HostScreen({ gameId, hostName }){
+  function HostScreen({ gameId }){
     const [game,setGame] = useState(null);
     const [meta,setMeta] = useState(null);
     const [timeLeft,setTimeLeft] = useState(0);
-    const [pauseModalOpen, setPauseModalOpen] = useState(false);
-    const [finaleEnabled, setFinaleEnabled] = useState(true);
-    const [revealAnswer, setRevealAnswer] = useState(false); // NEW: State for delayed reveal
+    const [revealAnswer, setRevealAnswer] = useState(false);
+    const [judged, setJudged] = useState({}); // For Finale
     const timerRef = useRef(null);
 
     useEffect(()=>{
       const gRef = db.ref(`games/${gameId}`);
-      gRef.on('value', snap => setGame(snap.val()));
-      const mRef = db.ref(`games/${gameId}/meta`);
-      mRef.on('value', snap => {
-        const val = snap.val();
-        setMeta(val);
-        if (val && val.finaleEnabled !== undefined) setFinaleEnabled(val.finaleEnabled);
-      });
-      return ()=> { gRef.off(); mRef.off(); clearInterval(timerRef.current); };
+      gRef.on('value', snap => { setGame(snap.val()); setMeta(snap.val()?.meta); });
+      return ()=> { gRef.off(); clearInterval(timerRef.current); };
     },[gameId]);
 
     useEffect(()=>{
@@ -363,113 +244,91 @@
           setTimeLeft(rem);
           if(rem === 0) { isFinal ? await nextFinalQuestion() : await showResultsNow(); }
         };
-        tick();
         clearInterval(timerRef.current);
         timerRef.current = setInterval(tick, 500);
+        tick();
         return ()=> clearInterval(timerRef.current);
-      } else { setTimeLeft(0); }
+      }
     },[meta?.phase, meta?.questionStartTime, meta?.finalQuestionStartTime]);
 
-    // NEW: Delayed Reveal Logic
     useEffect(() => {
         if (meta?.phase === 'results') {
             setRevealAnswer(false);
-            // 3 seconds delay for visual reveal (answer box highlight + score breakdown)
-            const t = setTimeout(() => setRevealAnswer(true), 3000); 
-            return () => clearTimeout(t);
-        } else {
-            setRevealAnswer(false);
+            setTimeout(() => setRevealAnswer(true), 3000); 
         }
     }, [meta?.phase]);
-
-    const handlePause = () => setPauseModalOpen(true);
-    const resumeGame = () => setPauseModalOpen(false);
-
-    const backToLobby = async ()=>{
-      await db.ref(`games/${gameId}/meta`).set({ phase: 'lobby', finaleEnabled: meta?.finaleEnabled ?? true });
-      await db.ref(`games/${gameId}/questions`).remove();
-      await db.ref(`games/${gameId}/finalQuestions`).remove();
-      setPauseModalOpen(false);
-    };
 
     const showResultsNow = async ()=>{
       try{
         const snap = await db.ref(`games/${gameId}`).get();
         const g = snap.val();
         if(!g || g.meta.phase === 'results') return;
+        
         const qIndex = g.meta?.questionIndex || 0;
         const q = (g.questions || [])[qIndex];
-        if(!q) return;
-
         const playerObj = g.players || {};
         const updates = {};
-        const categoryChooser = g.meta?.categoryChooserForRound || null;
         const currentRound = g.meta.round || 1;
-
-        // --- DESIGNER LOGIC: Escalating Points ---
         const basePoints = ROUND_POINTS[currentRound] || 100;
-        
-        // --- DESIGNER LOGIC: Reflection & Shield Pre-Calculation ---
-        const reflectionDamage = {}; // Key: AttackerID, Value: How many reflections they triggered
 
-        // 1. Check Shields first
+        // Calculation Logic (Items + Base)
+        let activeSwapUser = null;
+        const roundResults = {}; 
+
         Object.entries(playerObj).forEach(([pid, p]) => {
-            if (p.activeEffects?.shield) {
-                // Find everyone who poisoned THIS shielded player
-                const attackers = p.activeEffects?.poisonedBy || [];
-                attackers.forEach(attackerId => {
-                    if (!reflectionDamage[attackerId]) reflectionDamage[attackerId] = 0;
-                    reflectionDamage[attackerId]++; // Count reflections
-                });
-            }
-        });
-
-        // 2. Calculate Points
-        Object.entries(playerObj).forEach(([pid,p])=>{
+          const effects = p.activeEffects || {};
           const ans = p.currentAnswer;
           const correct = typeof ans === 'number' && ans === q.correct;
           
-          // Base Points (Scaled)
           let points = correct ? basePoints : 0;
-          
-          // Boost
-          if(correct && p.activeEffects?.boost) points = Math.round(points * 1.5);
-          
-          // // Kategorie Chooser Bonus Logic ENTFERNT
-          // if(correct && categoryChooser === pid) points = Math.round(points * CATEGORY_CHOOSER_BONUS);
-          
-          // Current Score before penalties
-          let currentTotal = p.score || 0;
-          let penalty = 0;
+          if (correct && effects.BOOST) points = Math.round(points * 1.5);
+          if (correct && effects.MAGNET) {
+             const othersCorrect = Object.values(playerObj).filter(op => op.currentAnswer === q.correct).length;
+             if (othersCorrect > 1) points += 50 * (othersCorrect - 1);
+          }
 
-          // --- DESIGNER LOGIC: Percentage Poison ---
-          // 10% for first poison, +5% for each additional
-          // BUT: If shielded, you take 0 poison damage.
-          if (!p.activeEffects?.shield) {
-             const poisonCount = Array.isArray(p.activeEffects?.poisonedBy) ? p.activeEffects.poisonedBy.length : 0;
-             if (poisonCount > 0) {
-                 const percentage = 0.10 + ((poisonCount - 1) * 0.05); // 1->10%, 2->15%, 3->20%
-                 penalty += Math.round(currentTotal * percentage);
+          const isShielded = effects.SHIELD;
+          const poisonAttackers = effects.poisonedBy || [];
+          let poisonPenalty = 0;
+          if (!isShielded && poisonAttackers.length > 0) {
+             poisonPenalty = Math.round(points * 0.25 * poisonAttackers.length); 
+          }
+          
+          if (effects.SWAP) activeSwapUser = pid; 
+          roundResults[pid] = Math.max(0, points - poisonPenalty);
+        });
+
+        // SWAP Logic
+        if (activeSwapUser) {
+             const allPids = Object.keys(playerObj);
+             const targetPid = allPids[Math.floor(Math.random() * allPids.length)];
+             if (targetPid !== activeSwapUser) {
+                 const temp = roundResults[activeSwapUser];
+                 roundResults[activeSwapUser] = roundResults[targetPid];
+                 roundResults[targetPid] = temp;
+                 
+                 const actions = g.meta.actions || [];
+                 actions[qIndex] = actions[qIndex] || [];
+                 actions[qIndex].push({ type:'SWAP', from: activeSwapUser, to: targetPid });
+                 updates[`games/${gameId}/meta/actions/${qIndex}`] = actions[qIndex];
              }
-          }
+        }
 
-          // --- DESIGNER LOGIC: Apply Reflection Damage to Attackers ---
-          if (reflectionDamage[pid]) {
-              // I attacked someone with a shield! I take 10% damage per blocked attack.
-              const reflections = reflectionDamage[pid];
-              const reflectionPenalty = Math.round(currentTotal * (0.10 * reflections));
-              penalty += reflectionPenalty;
-              
-              // We will handle logging via the normal action stream, but here we just apply math.
-          }
+        const sortedByScore = Object.entries(playerObj).map(([pid, p]) => ({pid, score: p.score || 0})).sort((a,b) => b.score - a.score);
+        
+        Object.entries(roundResults).forEach(([pid, pts]) => {
+            const currentTotal = playerObj[pid].score || 0;
+            updates[`games/${gameId}/players/${pid}/score`] = currentTotal + pts;
+            updates[`games/${gameId}/players/${pid}/lastPoints`] = pts;
 
-          const finalPoints = points - penalty;
-          
-          // WICHTIG: Die Punkte werden HIER berechnet und in die DB geschrieben.
-          // Der Gesamtscore des Spielers (p.score) wird an dieser Stelle aktualisiert.
-          // Der PlayerView zeigt den neuen Gesamtscore erst an, wenn er im 'results' Screen ist.
-          updates[`games/${gameId}/players/${pid}/score`] = currentTotal + finalPoints;
-          updates[`games/${gameId}/players/${pid}/lastPoints`] = finalPoints;
+            // Lootbox Logic
+            const pInv = playerObj[pid].inventory || [];
+            if (pInv.length < 2) {
+                const rankIdx = sortedByScore.findIndex(x => x.pid === pid);
+                const normalizedRank = sortedByScore.length > 1 ? rankIdx / (sortedByScore.length - 1) : 0;
+                pInv.push(getRandomItem(normalizedRank));
+                updates[`games/${gameId}/players/${pid}/inventory`] = pInv;
+            }
         });
         
         await db.ref().update(updates);
@@ -478,96 +337,73 @@
     };
 
     const startNextRound = async ()=>{
-      if(!meta) return;
       const gameSnap = await db.ref(`games/${gameId}`).get();
       const g = gameSnap.val();
-      if (!g) { alert("Datenfehler: Spiel nicht gefunden"); return; }
-      
       const currentIndex = g.meta.questionIndex || 0;
-      const currentQuestions = g.questions || [];
       const nextIndex = currentIndex + 1;
       
-      if(meta.phase === 'results'){
+      if(g.meta.phase === 'results'){
         const isRoundEnd = (nextIndex % QUESTIONS_PER_ROUND) === 0;
         if (isRoundEnd) {
              const finishedRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
              if (finishedRound >= TOTAL_ROUNDS) {
-                if(meta.finaleEnabled === false) await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
-                else await prepareFinale();
+                // WICHTIG: HIER WAR DER FEHLER. JETZT STARTET FINALE!
+                await prepareFinale(g);
                 return;
              }
-             const pObj = g.players || {};
-             const sorted = Object.entries(pObj).sort(([,a],[,b]) => (a.score||0) - (b.score||0));
+             const sorted = Object.entries(g.players||{}).sort(([,a],[,b]) => (a.score||0) - (b.score||0));
              const minScore = sorted[0]?.[1].score || 0;
              const losers = sorted.filter(([,p]) => (p.score||0) === minScore).map(([id]) => id);
-             const pickedLoser = losers.length > 0 ? losers[Math.floor(Math.random() * losers.length)] : null;
+             const pickedLoser = losers[Math.floor(Math.random() * losers.length)];
 
              await db.ref(`games/${gameId}/meta`).update({
                phase: 'roundSummary',
                round: finishedRound + 1,
-               categoryChooserCandidate: pickedLoser || null
+               categoryChooserCandidate: pickedLoser
              });
-             return;
-
         } else {
-            await proceedToQuestion(nextIndex, g.meta.currentCategory, g.meta.categoryChooserForRound || null);
+            await proceedToQuestion(nextIndex, g.meta.currentCategory);
         }
       }
-      else if(meta.phase === 'roundSummary'){
-         const chosenCat = meta.nextCategory || null;
-         const chooser = meta.categoryChooserForRound || null;
-         
-         let finalCat = chosenCat;
-         if(!finalCat) {
-            const used = meta.categoryState?.used || [];
+      else if(g.meta.phase === 'roundSummary'){
+         let cat = g.meta.nextCategory;
+         if(!cat) {
+            const used = g.meta.categoryState?.used || [];
             const avail = CATEGORY_LIST.filter(c => !used.includes(c));
-            finalCat = avail.length > 0 ? avail[0] : CATEGORY_LIST[0];
+            cat = avail[0] || CATEGORY_LIST[0];
          }
-
-         const newBlock = getQuestionsForCategory(finalCat, QUESTIONS_PER_ROUND, currentQuestions.map(q=>q.question));
-         const newQuestions = [...currentQuestions, ...newBlock];
-         
-         await db.ref(`games/${gameId}/questions`).set(newQuestions);
-         const used = [...(meta.categoryState?.used || []), finalCat];
+         const newBlock = getQuestionsForCategory(cat, QUESTIONS_PER_ROUND, (g.questions||[]).map(q=>q.question));
+         await db.ref(`games/${gameId}/questions`).set([...(g.questions||[]), ...newBlock]);
+         const used = [...(g.meta.categoryState?.used || []), cat];
          await db.ref(`games/${gameId}/meta/categoryState/used`).set(used);
-         
          await db.ref(`games/${gameId}/meta/nextCategory`).remove();
          await db.ref(`games/${gameId}/meta/categoryChooserCandidate`).remove();
-
-         const safeStartIndex = currentQuestions.length; 
-         await proceedToQuestion(safeStartIndex, finalCat, chooser);
+         await proceedToQuestion((g.questions||[]).length, cat);
       }
     };
 
-    const proceedToQuestion = async (index, category, chooser) => {
+    const proceedToQuestion = async (index, category) => {
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const updates = {};
       Object.keys(pSnap.val() || {}).forEach(pid => {
         updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-        updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost:false, boostTarget:null, shield:false, shieldTarget:null, poisonedBy: [] };
-        updates[`games/${gameId}/players/${pid}/hasTraded`] = false;
+        updates[`games/${gameId}/players/${pid}/activeEffects`] = null;
       });
       await db.ref().update(updates);
-
       await db.ref(`games/${gameId}/meta`).update({
-          questionIndex: index,
-          phase: 'question',
-          questionStartTime: Date.now(),
-          currentCategory: category,
-          categoryChooserForRound: chooser || null,
-          round: Math.floor(index / QUESTIONS_PER_ROUND) + 1
+          questionIndex: index, phase: 'question', questionStartTime: Date.now(),
+          currentCategory: category, round: Math.floor(index / QUESTIONS_PER_ROUND) + 1
       });
     };
 
-    const prepareFinale = async () => {
-      const pSnap = await db.ref(`games/${gameId}/players`).get();
-      const pObj = pSnap.val() || {};
-      const playersArr = Object.entries(pObj).map(([pid,p])=>({pid,...p})).sort((a,b)=>(b.score||0)-(a.score||0));
-      if(playersArr.length < 2){ await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' }); return; }
-      const top2 = playersArr.slice(0, 2).map(p => p.pid);
+    /******** FINALE LOGIK ********/
+    const prepareFinale = async (g) => {
+      const pArr = Object.entries(g.players || {}).map(([pid,p])=>({pid,...p})).sort((a,b)=>(b.score||0)-(a.score||0));
+      const top2 = pArr.slice(0, 2).map(p => p.pid);
       await db.ref(`games/${gameId}/finalQuestions`).set(shuffle(FINAL_QUESTION_POOL).slice(0, FINAL_QUESTIONS));
+      
       const updates = {};
-      Object.keys(pObj).forEach(pid => {
+      Object.keys(g.players).forEach(pid => {
         updates[`games/${gameId}/players/${pid}/isFinalist`] = top2.includes(pid);
         updates[`games/${gameId}/players/${pid}/finalAnswers`] = {};
         updates[`games/${gameId}/players/${pid}/finalistReady`] = false;
@@ -577,490 +413,303 @@
     };
 
     const startFinalQuestion = async () => db.ref(`games/${gameId}/meta`).update({ phase: 'finalQuestion', finalQuestionIndex: 0, finalQuestionStartTime: Date.now() });
+    
     const nextFinalQuestion = async () => {
       const snap = await db.ref(`games/${gameId}`).get();
-      const currentIndex = (snap.val()?.meta?.finalQuestionIndex || 0) + 1;
-      if(currentIndex >= FINAL_QUESTIONS) await db.ref(`games/${gameId}/meta`).update({ phase: 'finalReview', finalReviewIndex: 0 });
-      else await db.ref(`games/${gameId}/meta`).update({ finalQuestionIndex: currentIndex, finalQuestionStartTime: Date.now() });
+      const cur = (snap.val()?.meta?.finalQuestionIndex || 0) + 1;
+      if(cur >= FINAL_QUESTIONS) await db.ref(`games/${gameId}/meta`).update({ phase: 'finalReview', finalReviewIndex: 0 });
+      else await db.ref(`games/${gameId}/meta`).update({ finalQuestionIndex: cur, finalQuestionStartTime: Date.now() });
     };
-    const judgeFinalAnswer = async (playerId, correct) => {
+    
+    const judgeFinalAnswer = async (pid, ok) => {
       const snap = await db.ref(`games/${gameId}`).get();
-      const reviewIndex = snap.val()?.meta?.finalReviewIndex || 0;
-      const player = snap.val()?.players?.[playerId];
-      if(!player) return;
-      // --- DESIGNER LOGIC: Escalating Finale Points ---
-      const points = correct ? (FINAL_ROUND_POINTS[reviewIndex] || 2000) : 0;
-      await db.ref(`games/${gameId}/players/${playerId}`).update({ score: (player.score || 0) + points, [`finalScores/${reviewIndex}`]: points });
+      const revIdx = snap.val()?.meta?.finalReviewIndex || 0;
+      const p = snap.val()?.players?.[pid];
+      const points = ok ? (FINAL_ROUND_POINTS[revIdx] || 2000) : 0;
+      await db.ref(`games/${gameId}/players/${pid}`).update({ score: (p.score||0) + points });
+      setJudged(prev => ({...prev, [pid]: ok}));
     };
+
     const nextFinalReview = async () => {
       const snap = await db.ref(`games/${gameId}`).get();
-      const reviewIndex = (snap.val()?.meta?.finalReviewIndex || 0) + 1;
-      if(reviewIndex >= FINAL_QUESTIONS) await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
-      else await db.ref(`games/${gameId}/meta`).update({ finalReviewIndex: reviewIndex });
+      const revIdx = (snap.val()?.meta?.finalReviewIndex || 0) + 1;
+      setJudged({});
+      if(revIdx >= FINAL_QUESTIONS) await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+      else await db.ref(`games/${gameId}/meta`).update({ finalReviewIndex: revIdx });
     };
 
     const startGame = async ()=>{
-      const categoriesForGame = shuffle(CATEGORY_LIST).slice(0, TOTAL_ROUNDS);
+      const categoriesForGame = shuffle(CATEGORY_LIST);
       const firstCat = categoriesForGame[0];
       const block = getQuestionsForCategory(firstCat, QUESTIONS_PER_ROUND, []);
-      
       await db.ref(`games/${gameId}/questions`).set(block);
-      await db.ref(`games/${gameId}/meta/categoryState`).set({ used: [firstCat], remaining: categoriesForGame.slice(1) });
-      await db.ref(`games/${gameId}/meta`).set({ 
-        phase: 'question', questionIndex: 0, round: 1, questionStartTime: Date.now(), 
-        currentCategory: firstCat, categoryChooserForRound: null, finaleEnabled: finaleEnabled 
-      });
-
+      await db.ref(`games/${gameId}/meta/categoryState`).set({ used: [firstCat] });
+      await db.ref(`games/${gameId}/meta`).set({ phase: 'question', questionIndex: 0, round: 1, questionStartTime: Date.now(), currentCategory: firstCat });
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const updates = {};
       Object.keys(pSnap.val() || {}).forEach(pid=>{
         updates[`games/${gameId}/players/${pid}/score`] = 0;
-        updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
-        updates[`games/${gameId}/players/${pid}/items`] = DEFAULT_ITEMS;
-        updates[`games/${gameId}/players/${pid}/activeEffects`] = { boost:false, boostTarget:null, shield:false, shieldTarget:null, poisonedBy: [] };
-        updates[`games/${gameId}/players/${pid}/lastPoints`] = 0;
-        updates[`games/${gameId}/players/${pid}/hasTraded`] = false;
+        updates[`games/${gameId}/players/${pid}/inventory`] = [];
       });
       await db.ref().update(updates);
-      await db.ref(`games/${gameId}/meta/actions`).remove();
     };
 
-    const toggleFinale = async () => {
-      const newValue = !finaleEnabled;
-      setFinaleEnabled(newValue);
-      await db.ref(`games/${gameId}/meta/finaleEnabled`).set(newValue);
-    };
-
-    if(!meta || !game) return <div className="min-h-screen flex items-center justify-center">Lade Spiel...</div>;
-
-    const isLobby = meta.phase === 'lobby';
-    /* ANPASSUNG: Bei Confetti die Farbe anpassen (siehe ConfettiRain Komponente) */
+    if(!meta || !game) return <div className="text-white text-center mt-10">Lade Spiel...</div>;
     const playersArr = Object.entries(game.players || {}).map(([pid,p])=>({pid,...p})).sort((a,b)=>(b.score||0)-(a.score||0));
     const qIndex = meta.questionIndex || 0;
     const question = (game.questions || [])[qIndex];
-    const countdownClass = timeLeft <= 10 ? 'danger' : timeLeft <= 20 ? 'warning' : '';
 
-    const isFinalPhase = meta.phase.startsWith('final');
-    const displayCategory = isFinalPhase ? "FINALE" : (meta.currentCategory || question?.category || 'Allgemein');
-    const displayCategoryColor = isFinalPhase ? 'var(--rtl-orange)' : 'var(--rtl-orange)'; /* ANPASSUNG: Finale Farbe auf Orange */
-
-    // Special Sorting for Results Phase: Sort by points earned in this round (highest first)
-    const resultsRanking = [...playersArr].sort((a,b) => (b.lastPoints||0) - (a.lastPoints||0));
+    // --- HOST RENDER ---
+    if (meta.phase === 'lobby') {
+        return (
+            <div className="host-screen flex-col bg-black">
+                <div className="flex-1 flex items-center justify-center border-b border-white/10 bg-neutral-900">
+                    <div className="flex items-center gap-10 scale-110">
+                        <div className="bg-white p-4"><img src={qrUrlForGame(gameId)} className="w-[300px] h-[300px]" /></div>
+                        <div>
+                            <RTLLogo size="lg" />
+                            <div className="text-2xl text-gray-500 mt-4 uppercase tracking-widest">Join Code:</div>
+                            <div className="text-9xl font-black text-white tracking-wider font-mono">{gameId}</div>
+                        </div>
+                    </div>
+                </div>
+                <div className="h-1/3 bg-neutral-950 p-6">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-3xl font-bold text-[var(--rtl-orange)]">LOBBY ({playersArr.length})</h2>
+                        <button className="btn btn-host text-2xl px-8" onClick={startGame}>START ▶</button>
+                    </div>
+                    <div className="flex flex-wrap gap-4 overflow-auto h-full pb-10">
+                        {playersArr.map(p=>(<div key={p.pid} className="bg-white/10 px-6 py-3 border border-white/10 text-xl font-bold flex items-center gap-3">{p.name} <span className="text-[var(--rtl-orange)]">●</span></div>))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
-      <div className="host-screen">
-        {isLobby ? (
-          <div style={{display:'flex', flexDirection:'column', width:'100%', height:'100vh', background:'#000'}}>
-             {/* TOP: BIG INFO (TV Optimized) */}
-             <div style={{flex: '0 0 60%', display:'flex', alignItems:'center', justifyContent:'center', borderBottom:'2px solid rgba(255,255,255,0.1)', background:'radial-gradient(circle at center, #111 0%, #000 100%)'}}>
-                <div style={{display:'flex', alignItems:'center', gap:80, transform:'scale(1.1)'}}>
-                    <div style={{padding:20, background:'white'}}>
-                        <img src={qrUrlForGame(gameId)} alt="QR" style={{width:'40vh', height:'40vh'}} />
-                    </div>
-                    <div style={{display:'flex', flexDirection:'column', gap:10}}>
-                        <RTLLogo size="lg" />
-                        <div style={{fontSize:'2rem', color:'var(--muted)', letterSpacing:2, marginTop:20}}>JOIN CODE:</div>
-                        <div style={{fontSize:'8rem', fontWeight:900, lineHeight:1, color:'white', letterSpacing:10}}>{gameId}</div>
-                    </div>
-                </div>
-             </div>
-             
-             {/* BOTTOM: PLAYER GRID */}
-             <div style={{flex:1, background:'#0a0a0a', display:'flex', flexDirection:'column'}}>
-                <div style={{display:'flex', justifyContent:'space-between', padding:'20px 40px', borderBottom:'1px solid rgba(255,255,255,0.1)', background:'#111'}}>
-                    <div style={{fontSize:24, fontWeight:900, color:'var(--rtl-orange)'}}>LOBBY</div>
-                    <div style={{display:'flex', alignItems:'center', gap:30}}>
-                        <div style={{fontSize:24, fontWeight:700}}>Spieler: {playersArr.length}</div>
-                         <div style={{display:'flex', alignItems:'center', gap:10, padding:'5px 15px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)'}}>
-                            <span style={{fontSize:'14px', fontWeight:700}}>Finale?</span>
-                            <label className="toggle-switch" style={{transform:'scale(0.8)'}}>
-                              <input type="checkbox" checked={finaleEnabled} onChange={toggleFinale} />
-                              <span className="toggle-slider"></span>
-                            </label>
-                          </div>
-                        <button className="btn btn-host" onClick={startGame} style={{fontSize:20, padding:'10px 30px'}}>START ▶</button>
-                    </div>
-                </div>
-                <div className="scroll-area lobby-grid">
-                   {playersArr.map(p => (
-                       <div key={p.pid} className="lobby-player-chip">
-                           <span>{p.name}</span>
-                           {/* ANPASSUNG: Status-Farbe auf Orange */}
-                           <span style={{color:'var(--rtl-orange)'}}>●</span>
-                       </div>
-                   ))}
-                </div>
-             </div>
-          </div>
-        ) : (
-          <div className="host-main">
-            {/* TOP BAR */}
-            {meta.phase !== 'finalIntro' && meta.phase !== 'finished' && (
-                <div className="game-top-bar">
-                     {meta.phase === 'roundSummary' ? (
-                        /* CLEAN HEADER FOR ROUND SUMMARY */
-                        <div style={{display:'flex', alignItems:'center', width:'100%'}}>
-                            <div style={{fontSize:'3rem', fontWeight:900, color:'white', letterSpacing:2}}>ZWISCHENSTAND</div>
-                        </div>
-                     ) : (
-                        /* STANDARD HEADER */
-                        <div style={{display:'flex', alignItems:'center', gap:20}}>
-                            <div className={`countdown-badge ${countdownClass}`}>{timeLeft}</div>
-                            <div>
-                              <div style={{color:'var(--muted)', fontSize:'1rem', textTransform:'uppercase'}}>
-                                  {isFinalPhase ? 'Das Finale' : `Runde ${meta.round || 1} | Frage ${(qIndex%QUESTIONS_PER_ROUND)+1}`}
-                              </div>
-                              <div style={{fontWeight:900, fontSize:'1.8rem', color: displayCategoryColor}}>{displayCategory}</div>
-                            </div>
-                        </div>
-                     )}
-                     
-                     <div style={{display:'flex', alignItems:'center', gap:20}}>
-                        {meta.phase === 'question' && <button className="btn btn-show-results" onClick={showResultsNow}>Lösung anzeigen ▶</button>}
-                        {meta.phase === 'results' && <button className="btn btn-host" onClick={startNextRound}>Weiter ▶</button>}
-                        {meta.phase === 'roundSummary' && <button className="btn btn-host" onClick={startNextRound}>Nächste Runde ▶</button>}
-                        <button className="btn-pause-gold" onClick={handlePause} title="Spiel pausieren">II</button>
-                     </div>
-                </div>
-            )}
-
-            <div className="host-main-inner">
-                {meta.phase === 'question' && question && (
-                  <>
-                    <div className="question-area">
-                        <h2 className="question-text">{question.question}</h2>
-                    </div>
-                    <div className="answers-grid">
-                      {question.answers.map((a,i)=>(
-                        <div key={i} className="answer-btn">
-                          <div style={{fontWeight:900, color:'var(--rtl-orange)', fontSize:'3rem'}}>{String.fromCharCode(65+i)}</div>
-                          <div style={{fontSize:'2.2rem'}}>{a}</div>
-                        </div>
-                      ))}
-                    </div>
-                    {/* ANTWORT STATUS LEISTE */}
-                    <div style={{marginTop: 'auto', paddingTop: 30, borderTop:'1px solid rgba(255,255,255,0.1)', width:'100%'}}>
-                        <div style={{fontSize:16, color:'var(--muted)', marginBottom:15, textAlign:'center', textTransform:'uppercase', letterSpacing:1, fontWeight:700}}>
-                            Spieler Status ({playersArr.filter(p => p.currentAnswer !== undefined && p.currentAnswer !== null).length} / {playersArr.length})
-                        </div>
-                        <div style={{display:'flex', flexWrap:'wrap', gap:10, justifyContent:'center'}}>
-                            {playersArr.map(p => {
-                                const hasAnswered = p.currentAnswer !== null && p.currentAnswer !== undefined;
-                                return (
-                                    <div key={p.pid} style={{
-                                        padding: '8px 16px',
-                                        /* ANPASSUNG: Status-Farbe auf Orange */
-                                        background: hasAnswered ? 'var(--rtl-orange)' : 'rgba(255,255,255,0.1)',
-                                        color: hasAnswered ? '#000' : 'rgba(255,255,255,0.5)',
-                                        fontWeight: 900,
-                                        fontSize: 14,
-                                        border: hasAnswered ? '1px solid var(--rtl-orange)' : '1px solid rgba(255,255,255,0.1)',
-                                        display:'flex', alignItems:'center', gap:6
-                                    }}>
-                                        {p.name}
-                                        {hasAnswered && <span>✓</span>}
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </div>
-                  </>
-                )}
-
-                {meta.phase === 'results' && question && (
-                   <div className="results-split-view">
-                      <div className="results-col">
-                         {/* DESIGNER LOGIC: Delayed White Reveal */}
-                         <div style={{display:'grid', gap:12, flex:1, overflow:'auto', alignContent:'center', height:'100%'}}>
-                            {question.answers.map((a,i)=>{
-                              const isCorrect = i === question.correct;
-                              const voters = playersArr.filter(p => p.currentAnswer === i);
-                              
-                              // Logic: Show votes always, but highlight correct only if revealed
-                              const showHighlight = isCorrect && revealAnswer;
-
-                              return (
-                                <div key={i} className={showHighlight ? 'reveal-correct' : ''} style={{
-                                    padding:30, 
-                                    border: showHighlight ? '5px solid white' : '1px solid rgba(255,255,255,0.1)', 
-                                    background: showHighlight ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.02)',
-                                    color: showHighlight ? '#000' : '#fff',
-                                    /* ANPASSUNG: Entfernung der Skalierungs-Transformation */
-                                    transition: 'all 0.5s ease'
-                                }}>
-                                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                                    <div style={{fontWeight:900, fontSize:28}}>{String.fromCharCode(65+i)}. {a}</div>
-                                  </div>
-                                  <div style={{marginTop:12, fontSize:20, color: showHighlight ? '#000' : 'var(--muted)'}}>
-                                    {voters.length} Stimmen {voters.length>0 && `(${voters.map(p=>p.name).join(', ')})`}
-                                  </div>
-                                </div>
-                              )
-                            })}
+        <div className="host-screen bg-neutral-900">
+            <div className="host-main">
+                {/* TOP BAR */}
+                {meta.phase !== 'finished' && meta.phase !== 'finalIntro' && (
+                    <div className="game-top-bar">
+                         <div className="flex items-center gap-6">
+                             {(meta.phase === 'question' || meta.phase === 'finalQuestion') && <div className={`countdown-badge ${timeLeft<=10?'danger':timeLeft<=30?'warning':''}`}>{timeLeft}</div>}
+                             <div>
+                                 <div className="text-gray-400 uppercase tracking-widest text-sm">
+                                     {meta.phase.includes('final') ? 'DAS FINALE' : `Runde ${meta.round} | Frage ${(qIndex%QUESTIONS_PER_ROUND)+1}`}
+                                 </div>
+                                 <div className="text-3xl font-black text-[var(--rtl-orange)] uppercase">
+                                     {meta.phase === 'roundSummary' ? 'ZWISCHENSTAND' : (meta.phase.includes('final') ? 'FINALE' : (meta.currentCategory || 'Frage'))}
+                                 </div>
+                             </div>
                          </div>
-                      </div>
-                      <div className="results-col">
-                         {/* NEU: Anzeigen von Aktionen und Score erst, wenn das Ergebnis enthüllt ist */}
-                         {revealAnswer && (
-                            <>
-                                <div style={{flex:1, display:'flex', flexDirection:'column', background:'rgba(255,255,255,0.02)', padding:20, border:'1px solid rgba(255,255,255,0.05)'}}>
-                                   <h3 style={{color:'var(--rtl-orange)', fontWeight:900, marginBottom:15, fontSize:22}}>Aktionen</h3>
-                                   <div className="scroll-area" style={{flex:1}}>
-                                     {(() => {
-                                        const actions = (game.meta?.actions?.[qIndex] || []);
-                                        if(actions.length === 0) return <div style={{color:'var(--muted)', fontStyle:'italic'}}>Keine Aktionen.</div>;
-                                        return actions.map((act, idx) => {
-                                           const from = game.players[act.from]?.name || '???';
-                                           const to = game.players[act.to]?.name || '???';
-                                           if(act.type === 'boost') return <div key={idx} className="action-log-item boost">🔥 <b>{from}</b> boostet {act.target === act.from ? 'sich selbst' : to}</div>;
-                                           if(act.type === 'poison') return <div key={idx} className="action-log-item poison">☠️ <b>{from}</b> vergiftet {to} {act.blocked ? '(🛡 reflektiert!)' : ''}</div>;
-                                           if(act.type === 'shield') return <div key={idx} className="action-log-item shield">🛡 <b>{from}</b> schützt {act.target === act.from ? 'sich selbst' : to}</div>;
-                                        });
-                                     })()}
-                                   </div>
-                                </div>
-                                <div style={{flex:1, display:'flex', flexDirection:'column', background:'rgba(255,255,255,0.02)', padding:20, border:'1px solid rgba(255,255,255,0.05)'}}>
-                                    <h3 style={{color:'var(--rtl-orange)', fontWeight:900, marginBottom:15, fontSize:22}}>Score (Frage)</h3>
-                                    <div className="scroll-area" style={{flex:1}}>
-                                      {/* SORTED BY POINTS EARNED IN THIS QUESTION, DISPLAY ONLY POINTS EARNED */}
-                                      {resultsRanking.map((p,i)=>(
-                                        <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:'12px', background:i<3?'rgba(255,255,255,0.05)':'transparent', marginBottom:4}}>
-                                          <div style={{display:'flex', gap:8}}>
-                                            <span style={{fontWeight:700, fontSize:18}}>{p.name}</span>
-                                            {/* ENTFERNT: Kategorie-Bonus Anzeige */}
-                                          </div>
-                                          {/* ANPASSUNG: Punkte Farben auf Orange (Positiv/Negativ) und Muted (Neutral) */}
-                                          <div style={{fontWeight:900, color: p.lastPoints>0 ? 'var(--rtl-orange)' : (p.lastPoints<0 ? 'var(--rtl-orange)' : 'var(--muted)'), fontSize:18}}>
-                                             {p.lastPoints > 0 ? '+' : ''}{p.lastPoints}
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                </div>
-                            </>
-                         )}
-                      </div>
-                   </div>
+                         <div>
+                            {meta.phase === 'question' && <button className="btn btn-host" onClick={showResultsNow}>Lösung ▶</button>}
+                            {(meta.phase === 'results' || meta.phase === 'roundSummary') && <button className="btn btn-host" onClick={startNextRound}>Weiter ▶</button>}
+                            
+                            {/* Final Buttons */}
+                            {meta.phase === 'finalQuestion' && <button className="btn btn-host" onClick={nextFinalQuestion}>Nächste/Review ▶</button>}
+                            {meta.phase === 'finalReview' && Object.keys(judged).length === (meta.finalists||[]).length && <button className="btn btn-host" onClick={nextFinalReview}>Weiter ▶</button>}
+                         </div>
+                    </div>
                 )}
+                
+                <div className="host-main-inner relative">
+                    {/* NORMAL QUESTION */}
+                    {meta.phase === 'question' && question && (
+                        <>
+                            <div className="flex-grow flex items-center justify-center p-10">
+                                <h2 className="question-text">{question.question}</h2>
+                            </div>
+                            <div className="answers-grid">
+                                {question.answers.map((a,i)=>(
+                                    <div key={i} className="answer-btn">
+                                        <div className="font-black text-[var(--rtl-orange)] text-5xl">{String.fromCharCode(65+i)}</div>
+                                        <div className="text-3xl">{a}</div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-auto pt-6 border-t border-white/10 w-full text-center">
+                                <div className="flex flex-wrap justify-center gap-2">
+                                    {playersArr.map(p => {
+                                        const answered = p.currentAnswer !== undefined && p.currentAnswer !== null;
+                                        return <div key={p.pid} className={`px-3 py-1 text-sm font-bold border ${answered?'bg-[var(--rtl-orange)] border-[var(--rtl-orange)] text-black':'bg-white/5 border-white/10 text-gray-500'}`}>{p.name}</div>
+                                    })}
+                                </div>
+                            </div>
+                        </>
+                    )}
 
-                {meta.phase === 'roundSummary' && (
-                   <div style={{width:'100%', height:'100%', display:'flex', flexDirection:'column'}}>
-                      <h2 style={{textAlign:'center', fontSize:48, fontWeight:900, color:'var(--rtl-orange)', marginBottom:20}}>Stand nach Runde {meta.round - 1}</h2>
-                      <div style={{textAlign:'center', color:'var(--muted)', marginBottom:30, fontSize:20, display:'flex', flexDirection:'column', gap:10, alignItems:'center'}}>
-                         <div>Der Spieler auf dem letzten Platz wählt die nächste Kategorie.</div>
-                         {meta.categoryChooserCandidate && (
-                            <div style={{background:'rgba(255,255,255,0.1)', padding:'10px 20px', border:'1px solid rgba(255,255,255,0.2)', display:'flex', gap:15, alignItems:'center'}}>
-                                <span style={{fontWeight:700}}>WÄHLER: {game.players[meta.categoryChooserCandidate]?.name}</span>
-                                {/* SHOW SELECTION STATUS */}
-                                {game.meta?.nextCategory ? (
-                                    /* ANPASSUNG: Status-Farbe auf Orange */
-                                    <span style={{color:'var(--rtl-orange)', fontWeight:900}}>HAT GEWÄHLT: {game.meta.nextCategory}</span>
-                                ) : (
-                                     /* ANPASSUNG: Status-Farbe auf Orange */
-                                    <span style={{color:'var(--rtl-orange)', fontWeight:900, animation:'pulse 1s infinite'}}>WÄHLT...</span>
+                    {/* NORMAL RESULTS */}
+                    {meta.phase === 'results' && question && (
+                        <div className="results-split-view">
+                            <div className="results-col justify-center">
+                                <div className="grid gap-4">
+                                    {question.answers.map((a,i)=>{
+                                        const correct = i === question.correct;
+                                        const voters = playersArr.filter(p => p.currentAnswer === i);
+                                        const show = correct && revealAnswer;
+                                        return (
+                                            <div key={i} style={{transition:'all 0.5s'}} className={`p-6 border ${show ? 'bg-white text-black border-white scale-105' : 'bg-white/5 border-white/10 text-gray-400'}`}>
+                                                <div className="flex justify-between items-center">
+                                                    <div className="text-2xl font-bold">{String.fromCharCode(65+i)}. {a}</div>
+                                                    {show && <div className="text-3xl">✅</div>}
+                                                </div>
+                                                <div className="mt-2 text-lg opacity-70">{voters.length} Stimmen</div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                            <div className="results-col bg-white/5 border border-white/10 p-4 overflow-hidden">
+                                {revealAnswer && (
+                                    <>
+                                        <h3 className="text-[var(--rtl-orange)] font-black text-xl mb-4 uppercase">Aktionen & Punkte</h3>
+                                        <div className="scroll-area flex-1 space-y-2">
+                                            {(game.meta.actions?.[qIndex] || []).map((act, idx) => {
+                                                const from = game.players[act.from]?.name;
+                                                const to = game.players[act.to]?.name;
+                                                const def = ITEM_DEFS[act.type];
+                                                return (
+                                                    <div key={'act'+idx} className="text-sm bg-white/10 p-2 border-l-2 border-[var(--rtl-purple)]">
+                                                        {def?.icon} <b>{from}</b> nutzte {def?.name} {act.to ? `auf ${to}` : ''}
+                                                    </div>
+                                                );
+                                            })}
+                                            <div className="h-px bg-white/20 my-4"></div>
+                                            {playersArr.sort((a,b)=>(b.lastPoints||0)-(a.lastPoints||0)).map(p => (
+                                                <div key={p.pid} className="flex justify-between items-center p-2 hover:bg-white/5">
+                                                    <span className="font-bold">{p.name}</span>
+                                                    <span className={`font-black ${p.lastPoints>0?'text-[var(--rtl-orange)]':'text-gray-500'}`}>
+                                                        {p.lastPoints > 0 ? '+' : ''}{p.lastPoints}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
                                 )}
                             </div>
-                         )}
-                      </div>
-                      <div className="scroll-area" style={{flex:1, background:'rgba(255,255,255,0.02)', padding:40, border:'1px solid rgba(255,255,255,0.05)'}}>
-                         {playersArr.map((p,i)=>(
-                            <div key={p.pid} style={{
-                               display:'flex', alignItems:'center', justifyContent:'space-between',
-                               padding:25, marginBottom:10,
-                               background: i===0 ? 'linear-gradient(90deg, rgba(255,215,0,0.2), rgba(0,0,0,0))' : 
-                                           i===1 ? 'linear-gradient(90deg, rgba(192,192,192,0.2), rgba(0,0,0,0))' : 
-                                           i===2 ? 'linear-gradient(90deg, rgba(205,127,50,0.2), rgba(0,0,0,0))' : 'rgba(255,255,255,0.02)',
-                               borderLeft: i===0 ? '6px solid gold' : i===1 ? '6px solid silver' : i===2 ? '6px solid #cd7f32' : '6px solid transparent'
-                            }}>
-                               <div style={{display:'flex', alignItems:'center', gap:30}}>
-                                  <div style={{fontSize:36, fontWeight:900, width:60}}>{i===0?'1.':i===1?'2.':i===2?'3.':`${i+1}.`}</div>
-                                  <div style={{fontSize:28, fontWeight:700}}>{p.name}</div>
-                                  {meta.categoryChooserCandidate === p.pid && <div style={{background:'var(--rtl-orange)', color: '#000', padding:'6px 12px', fontWeight:900, fontSize:16}}>DARF WÄHLEN!</div>}
-                               </div>
-                               <div style={{display:'flex', alignItems:'center', gap:40}}>
-                                  <div style={{fontSize:20, color:'var(--muted)', display:'flex', gap:20}}>
-                                    <span>🔥{p.items?.boost||0}</span>
-                                    <span>☠️{p.items?.poison||0}</span>
-                                    <span>🛡{p.items?.shield||0}</span>
-                                  </div>
-                                  <div style={{fontSize:36, fontWeight:900, color:'var(--tile)'}}>{p.score}</div>
-                               </div>
+                        </div>
+                    )}
+
+                    {/* ROUND SUMMARY */}
+                    {meta.phase === 'roundSummary' && (
+                        <div className="flex flex-col items-center h-full">
+                            <h2 className="text-5xl font-black text-[var(--rtl-orange)] mb-8">BESTENLISTE</h2>
+                            {meta.categoryChooserCandidate && (
+                                <div className="mb-8 p-4 border border-[var(--rtl-orange)] bg-[var(--rtl-orange)]/10 text-center animate-pulse">
+                                    <div className="text-sm uppercase tracking-widest">Wählt nächste Kategorie</div>
+                                    <div className="text-2xl font-black">{game.players[meta.categoryChooserCandidate]?.name}</div>
+                                </div>
+                            )}
+                            <div className="w-full max-w-4xl scroll-area space-y-2">
+                                {playersArr.map((p, i) => (
+                                    <div key={p.pid} className={`flex items-center p-4 ${i===0?'bg-yellow-500/20 border-l-4 border-yellow-500':i===1?'bg-gray-400/20 border-l-4 border-gray-400':i===2?'bg-orange-700/20 border-l-4 border-orange-700':'bg-white/5'}`}>
+                                        <div className="w-12 text-2xl font-black text-gray-500">{i+1}.</div>
+                                        <div className="flex-1 text-xl font-bold">{p.name}</div>
+                                        <div className="flex gap-2 mr-8">{(p.inventory||[]).map((it,idx)=><span key={idx} title={it.name}>{it.icon}</span>)}</div>
+                                        <div className="text-3xl font-black">{p.score}</div>
+                                    </div>
+                                ))}
                             </div>
-                         ))}
-                      </div>
-                   </div>
-                )}
+                        </div>
+                    )}
 
-                {['finalIntro', 'finalQuestion', 'finalReview', 'finished'].includes(meta.phase) && (
-                    <div style={{flex:1, display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column'}}>
-                        {meta.phase === 'finalIntro' && <FinalIntroHostView game={game} meta={meta} onStart={startFinalQuestion} />}
-                        {meta.phase === 'finalQuestion' && <FinalQuestionHostView game={game} meta={meta} timeLeft={timeLeft} onNext={nextFinalQuestion} />}
-                        {meta.phase === 'finalReview' && <FinalReviewHostView game={game} meta={meta} onJudge={judgeFinalAnswer} onNext={nextFinalReview} />}
-                        {meta.phase === 'finished' && (
-                           <div style={{width:'100%', height:'100%', position:'relative', display:'flex', flexDirection:'column', alignItems:'center'}}>
-                              <ConfettiRain />
-                              <div style={{zIndex:10, textAlign:'center', paddingTop:40}}>
-                                  <h1 style={{fontSize:80, fontWeight:900, margin:0, color:'var(--rtl-orange)', textTransform:'uppercase', letterSpacing:4}}>Siegerehrung</h1>
-                              </div>
-                              <div className="podium-container" style={{zIndex:10}}>
-                                  {playersArr[1] && (
-                                      <div className="podium-place podium-2">
-                                          <div className="winner-score">{playersArr[1].score}</div>
-                                          <div className="winner-name">{playersArr[1].name}</div>
-                                          <div className="podium-bar">2</div>
-                                      </div>
-                                  )}
-                                  {playersArr[0] && (
-                                      <div className="podium-place podium-1">
-                                          <div className="winner-score">{playersArr[0].score}</div>
-                                          <div className="winner-name">👑 {playersArr[0].name}</div>
-                                          <div className="podium-bar">1</div>
-                                      </div>
-                                  )}
-                                  {playersArr[2] && (
-                                      <div className="podium-place podium-3">
-                                          <div className="winner-score">{playersArr[2].score}</div>
-                                          <div className="winner-name">{playersArr[2].name}</div>
-                                          <div className="podium-bar">3</div>
-                                      </div>
-                                  )}
-                              </div>
-                              <button className="btn btn-host" style={{zIndex:10, marginTop:'auto', marginBottom:40, fontSize:24, padding:'20px 50px'}} onClick={backToLobby}>Zurück zur Lobby</button>
-                           </div>
-                        )}
-                    </div>
-                )}
-            </div>
-          </div>
-        )}
+                    {/* FINALE INTRO */}
+                    {meta.phase === 'finalIntro' && (
+                        <div className="text-center w-full h-full flex flex-col justify-center items-center">
+                            <h2 className="text-8xl font-black text-[var(--rtl-orange)] mb-10 tracking-widest">FINALE</h2>
+                            <div className="flex gap-20 mb-10">
+                                {(meta.finalists||[]).map((pid, idx) => {
+                                    const f = game.players[pid];
+                                    return (
+                                        <div key={pid} className={`p-10 border-4 ${f.finalistReady ? 'border-[var(--rtl-orange)] bg-[var(--rtl-orange)] text-black' : 'border-white/20 bg-white/5'} w-96`}>
+                                            <div className="text-2xl mb-4 uppercase">{idx===0?'Erster':'Zweiter'}</div>
+                                            <div className="text-5xl font-black mb-4">{f.name}</div>
+                                            <div className="text-xl font-bold">{f.finalistReady ? 'BEREIT' : 'WARTEN...'}</div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                            {(meta.finalists||[]).every(pid => game.players[pid]?.finalistReady) && 
+                                <button className="btn btn-host text-3xl px-10 py-6" onClick={startFinalQuestion}>STARTEN ▶</button>
+                            }
+                        </div>
+                    )}
 
-        {pauseModalOpen && (
-          <div className="modal-backdrop">
-            <div className="modal-card" style={{textAlign:'center'}}>
-              <h3 style={{fontWeight:900, fontSize:32, marginBottom:10, color:'var(--rtl-orange)'}}>PAUSE</h3>
-              
-              {/* New Section for Game ID */}
-              <div style={{marginBottom: 30, padding: 20, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)'}}>
-                  <div style={{fontSize: 16, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 5}}>Game Code</div>
-                  <div style={{fontSize: 60, fontWeight: 900, color: 'white', letterSpacing: 8, fontFamily: 'monospace'}}>{gameId}</div>
-              </div>
+                    {/* FINALE QUESTION */}
+                    {meta.phase === 'finalQuestion' && (
+                        <div className="text-center w-full h-full flex flex-col pt-20">
+                             <h2 className="text-6xl font-black mb-20 px-20 leading-tight">{(game.finalQuestions||[])[meta.finalQuestionIndex]?.question}</h2>
+                             <div className="flex gap-10 justify-center">
+                                 {(meta.finalists||[]).map(pid => {
+                                     const f = game.players[pid];
+                                     const hasAns = f.finalAnswers && f.finalAnswers[meta.finalQuestionIndex];
+                                     return (
+                                         <div key={pid} className={`p-10 border-2 ${hasAns ? 'border-[var(--rtl-orange)] bg-[var(--rtl-orange)] text-black' : 'border-white/20' } w-80`}>
+                                             <div className="text-3xl font-black mb-2">{f.name}</div>
+                                             <div>{hasAns ? '✅ EINGELOGGT' : 'Tippt...'}</div>
+                                         </div>
+                                     )
+                                 })}
+                             </div>
+                        </div>
+                    )}
 
-              <div style={{display:'flex', flexDirection:'column', gap:20}}>
-                <button className="btn btn-host" onClick={resumeGame} style={{fontSize:20, padding:'20px'}}>▶ WEITER</button>
-                <button className="btn" onClick={backToLobby} style={{fontSize:20, padding:'20px', background:'rgba(255,255,255,0.1)'}}>↩ LOBBY / RESET</button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
+                    {/* FINALE REVIEW */}
+                    {meta.phase === 'finalReview' && (
+                        <div className="results-split-view">
+                             <div className="results-col justify-center p-10 bg-white/5">
+                                 <div className="text-sm uppercase text-gray-500 mb-2">Die Frage war:</div>
+                                 <div className="text-3xl font-black mb-10">{(game.finalQuestions||[])[meta.finalReviewIndex]?.question}</div>
+                                 <div className="p-10 bg-white text-black">
+                                     <div className="text-[var(--rtl-orange)] font-black uppercase mb-2">Lösung</div>
+                                     <div className="text-5xl font-black">{(game.finalQuestions||[])[meta.finalReviewIndex]?.answer}</div>
+                                 </div>
+                             </div>
+                             <div className="results-col justify-center p-10">
+                                 {(meta.finalists||[]).map(pid => {
+                                     const f = game.players[pid];
+                                     const ans = f.finalAnswers?.[meta.finalReviewIndex] || '---';
+                                     const isJudged = judged[pid] !== undefined;
+                                     return (
+                                         <div key={pid} className="mb-8 p-6 border border-white/20 bg-white/5">
+                                             <div className="flex justify-between mb-4">
+                                                 <span className="font-bold text-xl">{f.name}</span>
+                                                 <span className="text-gray-400">{f.score} Pkt</span>
+                                             </div>
+                                             <div className="text-3xl font-mono bg-black/50 p-4 mb-4 border-l-4 border-white">"{ans}"</div>
+                                             {!isJudged ? (
+                                                 <div className="flex gap-4">
+                                                     <button className="btn flex-1 bg-green-600 border-green-600 hover:bg-green-500" onClick={()=>judgeFinalAnswer(pid, true)}>Richtig</button>
+                                                     <button className="btn flex-1 bg-red-600 border-red-600 hover:bg-red-500" onClick={()=>judgeFinalAnswer(pid, false)}>Falsch</button>
+                                                 </div>
+                                             ) : (
+                                                 <div className={`text-center font-black text-xl ${judged[pid] ? 'text-green-500':'text-red-500'}`}>{judged[pid] ? 'PUNKTE ERHALTEN' : 'FALSCH'}</div>
+                                             )}
+                                         </div>
+                                     )
+                                 })}
+                             </div>
+                        </div>
+                    )}
 
-  /****************************************
-   * FINAL COMPONENTS
-   ****************************************/
-  function FinalIntroHostView({ game, meta, onStart }){
-    const finalists = (meta.finalists || []).map(pid => ({ pid, ...(game.players?.[pid] || {}) }));
-    const allReady = finalists.every(f => f.finalistReady === true);
-    return (
-      <div style={{textAlign:'center', width:'100%'}}>
-        <h2 style={{fontSize:60, fontWeight:900, color:'var(--rtl-orange)', marginBottom:50}}>FINALE</h2>
-        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:60, width:'100%', maxWidth:1200, margin:'0 auto'}}>
-          {finalists.map((f, idx) => (
-            <div key={f.pid} style={{padding:50, background:'rgba(255,255,255,0.05)', 
-                 /* ANPASSUNG: Status-Farbe auf Orange */
-                 border: f.finalistReady ? '6px solid var(--rtl-orange)' : '6px solid var(--rtl-orange)'
-            }}>
-              <div style={{fontSize:100}}>{idx === 0 ? '1.' : '2.'}</div>
-              <div style={{fontSize:50, fontWeight:900}}>{f.name}</div>
-              <div style={{fontSize:40, color:'var(--muted)'}}>{f.score} Pkt</div>
-              <div style={{marginTop:40, padding:20, 
-                  /* ANPASSUNG: Status-Farbe auf Orange */
-                  background: f.finalistReady ? 'var(--rtl-orange)' : 'rgba(255,255,255,0.1)', 
-                  color: f.finalistReady ? '#000' : '#fff',
-                  fontWeight:700, fontSize:24}}>
-                {f.finalistReady ? 'BEREIT' : 'WARTEN...'}
-              </div>
-            </div>
-          ))}
-        </div>
-        {allReady && <button className="btn btn-host" onClick={onStart} style={{marginTop:60, fontSize:32, padding:'30px 60px'}}>START ▶</button>}
-      </div>
-    );
-  }
-
-  function FinalQuestionHostView({ game, meta, timeLeft, onNext }){
-    const finalQIndex = meta.finalQuestionIndex || 0;
-    const question = (game.finalQuestions || [])[finalQIndex];
-    const finalists = (meta.finalists || []).map(pid => ({ pid, ...(game.players?.[pid] || {}) }));
-    const allAnswered = finalists.every(f => f.finalAnswers?.[finalQIndex]);
-    
-    // **FIX: Ausgelagerter Button-Text zur Vermeidung von Babel SyntaxError**
-    const buttonText = finalQIndex + 1 >= FINAL_QUESTIONS ? 'ZUR AUSWERTUNG' : 'NÄCHSTE FRAGE';
-
-    return (
-      <div style={{textAlign:'center', width:'100%', maxWidth:1400}}>
-        <h2 style={{fontSize:50, fontWeight:900, lineHeight:1.3}}>{question?.question}</h2>
-        <div style={{display:'flex', gap:40, marginTop:80}}>
-          {finalists.map(f => (
-             <div key={f.pid} style={{flex:1, padding:40, background:'rgba(255,255,255,0.05)', 
-                 /* ANPASSUNG: Status-Farbe auf Orange */
-                 border: f.finalAnswers?.[finalQIndex] ? '5px solid var(--rtl-orange)' : '2px solid rgba(255,255,255,0.1)'
-             }}>
-                <div style={{fontWeight:900, fontSize:36}}>{f.name}</div>
-                <div style={{marginTop:20, fontSize:24, 
-                    /* ANPASSUNG: Status-Farbe auf Orange */
-                    color: f.finalAnswers?.[finalQIndex] ? 'var(--rtl-orange)' : 'var(--muted)'}}>
-                   {f.finalAnswers?.[finalQIndex] ? '✓ ANTWORT DA' : 'Tippt...'}
+                    {/* SIEGEREHRUNG */}
+                    {meta.phase === 'finished' && (
+                        <div className="flex flex-col items-center justify-center h-full relative z-10">
+                            <ConfettiRain />
+                            <h1 className="text-8xl font-black text-[var(--rtl-orange)] mb-10">SIEGER</h1>
+                            <div className="flex items-end gap-10">
+                                {playersArr[1] && <div className="text-center"><div className="text-4xl mb-2">{playersArr[1].name}</div><div className="h-40 w-32 bg-gray-500 flex items-end justify-center pb-4 text-4xl font-black">2</div></div>}
+                                {playersArr[0] && <div className="text-center scale-125 origin-bottom"><div className="text-6xl font-black mb-4 text-yellow-400">👑 {playersArr[0].name}</div><div className="h-60 w-40 bg-yellow-500 flex items-end justify-center pb-4 text-6xl font-black text-black shadow-[0_0_50px_gold]">1</div></div>}
+                                {playersArr[2] && <div className="text-center"><div className="text-4xl mb-2">{playersArr[2].name}</div><div className="h-32 w-32 bg-orange-700 flex items-end justify-center pb-4 text-4xl font-black">3</div></div>}
+                            </div>
+                            <button className="btn mt-20 z-50" onClick={()=>window.location.reload()}>NEUES SPIEL</button>
+                        </div>
+                    )}
                 </div>
-             </div>
-          ))}
+            </div>
         </div>
-        {/* Korrigierte Zeile (jetzt buttonText verwendend) */}
-        {(timeLeft === 0 || allAnswered) && <button className="btn btn-host" onClick={onNext} style={{marginTop:60, fontSize:28, padding:'20px 40px'}}>{buttonText}</button>}
-      </div>
-    );
-  }
-
-  function FinalReviewHostView({ game, meta, onJudge, onNext }){
-    const reviewIndex = meta.finalReviewIndex || 0;
-    const question = (game.finalQuestions || [])[reviewIndex];
-    const finalists = (meta.finalists || []).map(pid => ({ pid, ...(game.players?.[pid] || {}) }));
-    const [judged, setJudged] = useState({});
-    const handleJudge = async (pid, ok) => { await onJudge(pid, ok); setJudged(prev => ({...prev, [pid]: ok})); };
-    return (
-      <div className="results-split-view" style={{width:'100%'}}>
-        <div className="results-col" style={{justifyContent:'center', padding:40}}>
-           <h3 style={{color:'var(--muted)', textTransform:'uppercase', fontWeight:900, fontSize:20}}>Frage {reviewIndex+1}</h3>
-           <div style={{fontSize:40, fontWeight:900, marginBottom:40, lineHeight:1.2}}>{question?.question}</div>
-           <div style={{padding:40, background:'#fff', color:'#000'}}>
-              {/* ANPASSUNG: Lösungs-Farbe auf Orange */}
-              <div style={{fontSize:18, fontWeight:900, color:'var(--rtl-orange)'}}>LÖSUNG</div>
-              <div style={{fontSize:36, fontWeight:900}}>{question?.answer}</div>
-           </div>
-        </div>
-        <div className="results-col" style={{justifyContent:'center', padding:40}}>
-           {finalists.map(f => (
-              <div key={f.pid} style={{padding:30, background:'rgba(255,255,255,0.05)', marginBottom:20}}>
-                 <div style={{display:'flex', justifyContent:'space-between', marginBottom:15}}>
-                    <span style={{fontWeight:900, fontSize:24}}>{f.name}</span>
-                    <span style={{color:'var(--muted)', fontSize:20}}>{f.score} Pkt</span>
-                 </div>
-                 <div style={{fontSize:28, padding:20, background:'rgba(0,0,0,0.5)', marginBottom:20, fontStyle:'italic'}}>"{f.finalAnswers?.[reviewIndex] || '---'}"</div>
-                 {judged[f.pid] === undefined ? (
-                    <div style={{display:'flex', gap:20}}>
-                       <button className="btn" style={{flex:1, background:'white', color:'black', border:'2px solid white', fontSize:20}} onClick={()=>handleJudge(f.pid, true)}>✓ KORREKT</button>
-                       <button className="btn" style={{flex:1, background:'transparent', border:'2px solid rgba(255,255,255,0.2)', color:'white'}} onClick={()=>handleJudge(f.pid, false)}>✗ FALSCH</button>
-                    </div>
-                 ) : (
-                    /* ANPASSUNG: Status-Farbe auf Orange */
-                    <div style={{textAlign:'center', fontWeight:900, color: judged[f.pid] ? 'var(--rtl-orange)' : 'var(--rtl-orange)', fontSize:20}}>{judged[f.pid] ? 'PUNKTE VERGEBEN' : 'ALS FALSCH GEWERTET'}</div>
-                 )}
-              </div>
-           ))}
-           {Object.keys(judged).length === finalists.length && <button className="btn btn-host" onClick={()=>{ setJudged({}); onNext(); }} style={{marginTop:30, fontSize:24, padding:'20px 40px'}}>WEITER ▶</button>}
-        </div>
-      </div>
     );
   }
 
@@ -1069,332 +718,327 @@
    ****************************************/
   function PlayerView({ gameId, playerId }){
     const [game,setGame] = useState(null);
-    const [meta,setMeta] = useState(null);
     const [player,setPlayer] = useState(null);
     const [timeLeft,setTimeLeft] = useState(0);
-    const [poisonModalOpen, setPoisonModalOpen] = useState(false);
-    const [poisonTargets, setPoisonTargets] = useState([]);
-    const [boostModalOpen, setBoostModalOpen] = useState(false);
-    const [shieldModalOpen, setShieldModalOpen] = useState(false);
+    
+    // UI States
+    const [targetModalItem, setTargetModalItem] = useState(null); 
     const [bonusCategoryModalOpen, setBonusCategoryModalOpen] = useState(false);
-    const [finalAnswer, setFinalAnswer] = useState('');
-    const [hasUsedItem, setHasUsedItem] = useState(false); 
-    const [playerReveal, setPlayerReveal] = useState(false); // NEU: Zustand für verzögerte Player-Anzeige
+    const [usedItemIndex, setUsedItemIndex] = useState(-1); 
+    const [playerReveal, setPlayerReveal] = useState(false); 
+    const [finalAns, setFinalAns] = useState('');
+
+    // Local Effects
+    const [isFrozen, setIsFrozen] = useState(false);
+    const [timeSnatchActive, setTimeSnatchActive] = useState(false);
+    const [mirrorData, setMirrorData] = useState(null);
 
     useEffect(() => { if(playerId && gameId) { sessionStorage.setItem(`quiz_pid_${gameId}`, playerId); } }, [playerId, gameId]);
 
     useEffect(()=>{
       const gRef = db.ref(`games/${gameId}`);
-      gRef.on('value', snap => setGame(snap.val()));
-      const mRef = db.ref(`games/${gameId}/meta`);
-      mRef.on('value', snap => setMeta(snap.val()));
       const pRef = db.ref(`games/${gameId}/players/${playerId}`);
+      gRef.on('value', snap => setGame(snap.val()));
       pRef.on('value', snap => setPlayer(snap.val()));
-      return ()=> { gRef.off(); mRef.off(); pRef.off(); };
+      return ()=> { gRef.off(); pRef.off(); };
     },[gameId, playerId]);
 
+    const meta = game?.meta;
+    
     useEffect(() => {
-        setHasUsedItem(false);
+        setUsedItemIndex(-1);
+        setMirrorData(null);
     }, [meta?.questionIndex]);
 
-    useEffect(()=>{
-      if(!meta){ setTimeLeft(0); return; }
-      if(meta.phase === 'question' && meta.questionStartTime){
-        const tick = ()=>{ const elapsed = Math.floor((Date.now() - meta.questionStartTime)/1000); setTimeLeft(Math.max(0, QUESTION_TIME - elapsed)); };
-        tick(); const t = setInterval(tick, 500); return ()=> clearInterval(t);
-      } else if(meta.phase === 'finalQuestion' && meta.finalQuestionStartTime){
-        const tick = ()=>{ const elapsed = Math.floor((Date.now() - meta.finalQuestionStartTime)/1000); setTimeLeft(Math.max(0, FINAL_TIME - elapsed)); };
-        tick(); const t = setInterval(tick, 500); return ()=> clearInterval(t);
-      } else { setTimeLeft(0); }
-    },[meta?.questionStartTime, meta?.finalQuestionStartTime, meta?.phase]);
+    useEffect(() => {
+        if (meta?.phase === 'roundSummary' && meta?.categoryChooserCandidate === playerId && !meta.nextCategory) {
+            setBonusCategoryModalOpen(true);
+        } else {
+            setBonusCategoryModalOpen(false);
+        }
+    }, [meta?.phase, meta?.categoryChooserCandidate, meta?.nextCategory, playerId]);
 
-    // NEU: Verzögerte Player-Ergebnisanzeige (synchronisiert mit Host)
+    // Time Logic
+    useEffect(()=>{
+      if(!meta) return;
+      const isFinal = meta.phase === 'finalQuestion';
+      const start = isFinal ? meta.finalQuestionStartTime : meta.questionStartTime;
+      const duration = isFinal ? FINAL_TIME : QUESTION_TIME;
+
+      if((meta.phase === 'question' || isFinal) && start){
+        const myEffects = player?.activeEffects || {};
+        if (myEffects.FREEZE) {
+             setIsFrozen(true);
+             setTimeout(() => setIsFrozen(false), 10000);
+        } else setIsFrozen(false);
+
+        const isSnatched = !!myEffects.TIME_SNATCH;
+        setTimeSnatchActive(isSnatched);
+        
+        const tick = ()=>{ 
+            const elapsed = (Date.now() - start)/1000;
+            const penalty = isSnatched ? 30 : 0;
+            setTimeLeft(Math.max(0, Math.floor(duration - elapsed - penalty)));
+        };
+        const t = setInterval(tick, 250);
+        return ()=> clearInterval(t);
+      } else { 
+          setTimeLeft(0); setIsFrozen(false); 
+      }
+    },[meta?.questionStartTime, meta?.finalQuestionStartTime, meta?.phase, player?.activeEffects]);
+
     useEffect(() => {
         if (meta?.phase === 'results') {
             setPlayerReveal(false);
-            const t = setTimeout(() => setPlayerReveal(true), 3000); 
-            return () => clearTimeout(t);
-        } else {
-            setPlayerReveal(false);
+            setTimeout(() => setPlayerReveal(true), 3000); 
         }
-    }, [meta?.phase, meta?.questionIndex]);
+    }, [meta?.phase]);
 
-    const openBoostModal = () => { 
-        if(hasUsedItem) return alert("Du kannst nur 1 Item pro Frage nutzen!"); 
-        setPoisonTargets(Object.entries(game.players || {}).map(([pid,p]) => ({ pid, name: p.name }))); 
-        setBoostModalOpen(true); 
-    };
-    const sendBoostTo = async (targetPid) => {
-      setBoostModalOpen(false);
-      if(hasUsedItem) return;
-      if(!(player.items && player.items.boost > 0)) return;
-      setHasUsedItem(true);
-      const updates = {};
-      updates[`games/${gameId}/players/${playerId}/items/boost`] = (player.items.boost - 1);
-      updates[`games/${gameId}/players/${targetPid}/activeEffects/boost`] = true;
-      await db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).once('value', s => {
-         const arr = s.val() || []; arr.push({ type:'boost', from: playerId, to: targetPid, target: targetPid });
-         db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).set(arr);
-      });
-      await db.ref().update(updates);
-    };
-
-    const openPoisonModal = () => { 
-        if(hasUsedItem) return alert("Du kannst nur 1 Item pro Frage nutzen!");
-        setPoisonTargets(Object.entries(game.players || {}).filter(([pid]) => pid !== playerId).map(([pid,p]) => ({ pid, name: p.name }))); 
-        setPoisonModalOpen(true); 
-    };
-    const sendPoisonTo = async (targetPid) => { 
-        setPoisonModalOpen(false); 
-        if(hasUsedItem) return;
-        if(!(player.items && player.items.poison > 0)) return;
-        setHasUsedItem(true);
-        await db.ref(`games/${gameId}/players/${playerId}/items/poison`).set(player.items.poison-1);
-        const tSnap = await db.ref(`games/${gameId}/players/${targetPid}`).get();
-        const tData = tSnap.val();
-        const blocked = tData.activeEffects?.shield;
-        if(!blocked){
-             const prev = tData.activeEffects?.poisonedBy || [];
-             await db.ref(`games/${gameId}/players/${targetPid}/activeEffects/poisonedBy`).set([...prev, playerId]);
+    useEffect(() => {
+        if (player?.activeEffects?.MIRROR && game?.players) {
+            const interval = setInterval(() => {
+                const counts = [0,0,0,0];
+                Object.values(game.players).forEach(p => {
+                    if (p.currentAnswer !== undefined && p.currentAnswer !== null && p.currentAnswer >= 0) counts[p.currentAnswer]++;
+                });
+                setMirrorData(counts);
+            }, 1000);
+            return () => clearInterval(interval);
         }
-        await db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).once('value', s => {
-             const arr = s.val() || []; arr.push({ type:'poison', from: playerId, to: targetPid, blocked: !!blocked });
-             db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).set(arr);
-        });
+    }, [player?.activeEffects?.MIRROR, game?.players]);
+
+    const useItem = async (item, slotIndex, targetPid = null) => {
+        if (usedItemIndex !== -1) return alert("Nur 1 Item pro Runde!");
+        setTargetModalItem(null);
+        setUsedItemIndex(slotIndex);
+
+        const newInv = [...(player.inventory || [])];
+        newInv.splice(slotIndex, 1);
+        
+        const updates = {};
+        updates[`games/${gameId}/players/${playerId}/inventory`] = newInv;
+
+        if (item.type === 'SELF') {
+            updates[`games/${gameId}/players/${playerId}/activeEffects/${item.id}`] = true;
+        } else if (item.type === 'TARGET' && targetPid) {
+            if (item.id === 'POISON') {
+                const targetP = game.players[targetPid];
+                const currentPoison = targetP.activeEffects?.poisonedBy || [];
+                updates[`games/${gameId}/players/${targetPid}/activeEffects/poisonedBy`] = [...currentPoison, playerId];
+            } else {
+                updates[`games/${gameId}/players/${targetPid}/activeEffects/${item.id}`] = true;
+            }
+        }
+        
+        const actions = game.meta.actions?.[meta.questionIndex] || [];
+        actions.push({ type: item.id, from: playerId, to: targetPid });
+        updates[`games/${gameId}/meta/actions/${meta.questionIndex}`] = actions;
+
+        await db.ref().update(updates);
     };
 
-    const openShieldModal = () => { 
-        if(hasUsedItem) return alert("Du kannst nur 1 Item pro Frage nutzen!");
-        setPoisonTargets(Object.entries(game.players || {}).map(([pid,p]) => ({ pid, name: p.name }))); 
-        setShieldModalOpen(true); 
-    };
-    const sendShieldTo = async (targetPid) => {
-        setShieldModalOpen(false);
-        if(hasUsedItem) return;
-        if(!(player.items && player.items.shield > 0)) return;
-        setHasUsedItem(true);
-        await db.ref(`games/${gameId}/players/${playerId}/items/shield`).set(player.items.shield-1);
-        await db.ref(`games/${gameId}/players/${targetPid}/activeEffects/shield`).set(true);
-        await db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).once('value', s => {
-             const arr = s.val() || []; arr.push({ type:'shield', from: playerId, to: targetPid, target: targetPid });
-             db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).set(arr);
-        });
+    const handleSlotClick = (item, idx) => {
+        if (!item || meta.phase !== 'question' || usedItemIndex !== -1) return;
+        if (item.type === 'TARGET') setTargetModalItem({ item, idx });
+        else if (confirm(`${item.name} einsetzen?`)) useItem(item, idx);
     };
 
     const pickCategory = async (cat) => {
-        await db.ref(`games/${gameId}/meta`).update({ 
-            nextCategory: cat, 
-            categoryChooserForRound: playerId 
-        });
+        await db.ref(`games/${gameId}/meta`).update({ nextCategory: cat });
         setBonusCategoryModalOpen(false);
     };
 
-    if(!game || !meta || !player) return <div className="min-h-screen flex items-center justify-center">Warte auf Spiel...</div>;
+    if(!game || !meta || !player) return <div className="flex h-screen items-center justify-center bg-black text-white">Loading...</div>;
 
+    // FINAL PLAYER SCREENS
     if(meta.phase === 'finalIntro') {
-        if(!player.isFinalist) return <div className="min-h-screen flex items-center justify-center p-4"><div className="card"><h2>Finale</h2><p>Du bist Zuschauer.</p></div></div>;
+        if(!player.isFinalist) return <div className="h-screen bg-black flex items-center justify-center text-white text-2xl">Du bist Zuschauer im Finale!</div>
         return (
-            <div className="min-h-screen p-4 flex items-center justify-center">
-                <div className="card" style={{textAlign:'center', width:'100%'}}>
-                    <h2 style={{fontSize:30, marginBottom:20}}>FINALE!</h2>
-                    <p style={{marginBottom:30}}>Bist du bereit?</p>
-                    {!player.finalistReady ? (
-                        <button className="btn btn-host w-full" style={{padding:30, fontSize:24}} onClick={()=>db.ref(`games/${gameId}/players/${playerId}/finalistReady`).set(true)}>ICH BIN BEREIT</button>
-                    ) : (
-                        /* ANPASSUNG: Status-Farbe auf Orange */
-                        <div style={{color:'var(--rtl-orange)', fontSize:20, fontWeight:900}}>WARTEN AUF GEGNER...</div>
-                    )}
-                </div>
+            <div className="h-screen bg-black flex flex-col items-center justify-center p-6 text-center">
+                <div className="text-[var(--rtl-orange)] text-4xl font-black mb-6">FINALE!</div>
+                <div className="text-white mb-10">Bist du bereit für den Showdown?</div>
+                {!player.finalistReady ? 
+                    <button className="btn btn-host w-full py-6 text-2xl" onClick={()=>db.ref(`games/${gameId}/players/${playerId}/finalistReady`).set(true)}>ICH BIN BEREIT</button>
+                : <div className="text-green-500 font-bold text-2xl">WARTEN AUF START...</div>}
             </div>
-        );
-    }
-    if(meta.phase === 'finalQuestion'){
-       const question = (game.finalQuestions||[])[meta.finalQuestionIndex||0];
-       if(!player.isFinalist) return <div className="min-h-screen flex items-center justify-center p-4"><div className="card"><h2>Finale läuft...</h2></div></div>;
-       const hasAnswered = player.finalAnswers && player.finalAnswers[meta.finalQuestionIndex||0];
-       return (
-          <div className="min-h-screen p-4"><div className="card"><h2>Frage {meta.finalQuestionIndex+1}</h2><p>{question?.question}</p>
-          {!hasAnswered ? <><input className="w-full p-3 mt-4" value={finalAnswer} onChange={e=>setFinalAnswer(e.target.value)}/><button className="btn btn-host w-full mt-2" onClick={()=>{db.ref(`games/${gameId}/players/${playerId}/finalAnswers/${meta.finalQuestionIndex}`).set(finalAnswer); setFinalAnswer('');}}>Senden</button></> : <p>Antwort gesendet.</p>}</div></div>
-       );
+        )
     }
 
+    if(meta.phase === 'finalQuestion') {
+         if(!player.isFinalist) return <div className="h-screen bg-black flex items-center justify-center text-white">Finale läuft...</div>
+         const hasAns = player.finalAnswers && player.finalAnswers[meta.finalQuestionIndex];
+         return (
+             <div className="h-screen bg-black p-6 flex flex-col">
+                 <div className="flex justify-between text-white mb-6">
+                     <span>Frage {meta.finalQuestionIndex+1}</span>
+                     <span className="text-[var(--rtl-orange)] font-bold">{timeLeft}s</span>
+                 </div>
+                 <div className="text-2xl font-black text-white mb-6">{(game.finalQuestions||[])[meta.finalQuestionIndex]?.question}</div>
+                 {!hasAns ? (
+                     <div className="flex flex-col gap-4">
+                         <input className="text-xl p-4 text-black" placeholder="Deine Antwort..." value={finalAns} onChange={e=>setFinalAns(e.target.value)} />
+                         <button className="btn btn-host py-4" onClick={()=>{
+                             db.ref(`games/${gameId}/players/${playerId}/finalAnswers/${meta.finalQuestionIndex}`).set(finalAns);
+                             setFinalAns('');
+                         }}>ABSENDEN</button>
+                     </div>
+                 ) : (
+                     <div className="text-[var(--rtl-orange)] text-center text-2xl font-bold mt-10">ANTWORT GESENDET</div>
+                 )}
+             </div>
+         )
+    }
+
+    // NORMAL GAME
     if(meta.phase === 'question'){
-       const question = (game.questions||[])[meta.questionIndex||0];
+       const q = (game.questions||[])[meta.questionIndex||0];
        const hasAnswered = player.currentAnswer !== null && player.currentAnswer !== undefined;
+       const inventory = player.inventory || [];
+       let hiddenIndices = [];
+       if (player.activeEffects?.HINT) {
+            const wrongIndices = q.answers.map((_,i) => i).filter(i => i !== q.correct);
+            const seed = q.question.length;
+            hiddenIndices.push(wrongIndices[seed % wrongIndices.length]);
+            if (wrongIndices.length > 1) hiddenIndices.push(wrongIndices[(seed + 1) % wrongIndices.length]);
+       }
+
        return (
-         <div className="min-h-screen p-4" style={{overflowY:'auto'}}>
-           <div className="card">
-             {/* PLAYER HEADER with Total Score */}
-             <div style={{display:'flex', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.1)', paddingBottom:10, marginBottom:15}}>
-                 <span style={{fontWeight:700, color:'var(--muted)'}}>Runde {meta.round}</span>
-                 <span style={{fontWeight:900, color:'var(--tile)'}}>Gesamt: {player.score}</span>
+         <div className="min-h-screen p-4 flex flex-col bg-neutral-900 relative overflow-hidden">
+           {isFrozen && <div className="effect-overlay effect-freeze">EISSCHOCK!</div>}
+           {timeSnatchActive && <div className="absolute top-0 right-0 p-2 bg-red-600 text-white font-bold z-50 animate-pulse">ZEIT GESTOHLEN!</div>}
+
+           <div className="card flex-1 flex flex-col">
+             <div className="flex justify-between items-end border-b border-white/10 pb-4 mb-4">
+                 <div className="text-sm text-gray-400 uppercase">Runde {meta.round}</div>
+                 <div className="text-3xl font-black">{player.score} <span className="text-sm font-normal text-gray-500">Pkt</span></div>
              </div>
              
-             <div style={{display:'flex',justifyContent:'space-between'}}><span>Zeit:</span><span style={{fontWeight:900,color:'var(--rtl-orange)'}}>{timeLeft}s</span></div>
-             <h3 style={{fontSize:20,fontWeight:900,marginTop:12}}>{question?.question}</h3>
-             <div style={{display:'grid', gap:10, marginTop:20}}>
-               {question?.answers.map((a,i)=>(
-                 <button 
-                    key={i} 
-                    disabled={hasAnswered||timeLeft<=0} 
+             <div className="flex justify-between items-center mb-6">
+                <div className="font-bold text-gray-400 uppercase tracking-widest">{meta.currentCategory}</div>
+                <div className={`text-4xl font-black ${timeLeft<10?'text-red-500':'text-[var(--rtl-orange)]'}`}>{timeLeft}</div>
+             </div>
+
+             <h3 className="text-xl font-bold leading-tight mb-6">{q?.question}</h3>
+             
+             {mirrorData && (
+                 <div className="mb-4 h-24 flex items-end justify-around bg-black/20 p-2 border border-white/10">
+                     {q.answers.map((_,i) => (
+                         <div key={i} className="flex flex-col items-center w-full">
+                             <div className="chart-bar" style={{height: `${(mirrorData[i]/Object.keys(game.players).length)*100}%`}}></div>
+                             <div className="text-xs mt-1 font-bold">{String.fromCharCode(65+i)}</div>
+                         </div>
+                     ))}
+                 </div>
+             )}
+
+             <div className="grid gap-3 flex-1 content-start">
+               {q?.answers.map((a,i)=>{
+                 if (hiddenIndices.includes(i)) return <button key={i} disabled className="p-4 bg-black/20 text-gray-600 border border-white/5 text-left flex items-center gap-3">⛔ [TIPP: Falsch]</button>;
+                 const selected = player.currentAnswer===i;
+                 return (
+                 <button key={i} disabled={hasAnswered||timeLeft<=0||isFrozen} 
                     onClick={()=>db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i)} 
-                    style={{
-                        padding:15,
-                        // NEU: Weiße Boxen für Antworten
-                        background:player.currentAnswer===i?'var(--rtl-orange)':'white', 
-                        color:player.currentAnswer===i?'white':'#0b0b0b', // Textfarbe
-                        border: player.currentAnswer===i ? '1px solid var(--rtl-orange)' : '1px solid #e0e0e0',
-                        textAlign:'left', 
-                        fontSize:18,
-                        display:'flex',
-                        alignItems:'center',
-                        gap: '10px',
-                        transition: 'all 0.2s'
-                    }}>
-                    {/* ANPASSUNG: Buchstaben-Präfix hinzugefügt */}
-                    <span style={{fontWeight:900, color: player.currentAnswer===i?'white':'var(--rtl-orange)', marginRight: '10px'}}>{String.fromCharCode(65+i)}.</span>
+                    className={`p-4 text-left text-lg font-bold flex items-center gap-3 transition-all ${selected ? 'bg-[var(--rtl-orange)] text-black border-[var(--rtl-orange)]' : 'bg-white text-black border-white'}`}
+                    style={{opacity: (hasAnswered && !selected) ? 0.5 : 1}}
+                 >
+                    <span className={`font-black ${selected?'text-black':'text-[var(--rtl-orange)]'}`}>{String.fromCharCode(65+i)}.</span>
                     {a}
                  </button>
-               ))}
+               )})}
              </div>
-             <div style={{marginTop:20, display:'grid', gridTemplateColumns:'1fr 1fr', gap:10}}>
-                <button className={`item-btn ${player.items?.boost>0 && !hasUsedItem ?'':'item-disabled'}`} onClick={openBoostModal}>🔥 {player.items?.boost}</button>
-                <button className={`item-btn ${player.items?.poison>0 && !hasUsedItem ?'':'item-disabled'}`} onClick={openPoisonModal}>☠️ {player.items?.poison}</button>
-                <button className={`item-btn ${player.items?.shield>0 && !hasUsedItem ?'':'item-disabled'}`} style={{gridColumn:'span 2'}} onClick={openShieldModal}>🛡 {player.items?.shield}</button>
+
+             <div className="mt-6 pt-4 border-t border-white/10">
+                 <div className="text-xs uppercase text-gray-500 font-bold mb-2">Dein Inventar (Tippen zum Nutzen)</div>
+                 <div className="flex gap-4 justify-center">
+                    {[0,1].map(idx => {
+                        const item = inventory[idx];
+                        if (!item) return <div key={idx} className="inventory-slot"><span className="opacity-20 text-2xl">+</span></div>;
+                        const disabled = usedItemIndex !== -1;
+                        return (
+                            <div key={idx} onClick={()=>!disabled && handleSlotClick(item, idx)} className={`inventory-slot filled ${disabled?'opacity-30 grayscale':''} rarity-${item.rarity.toLowerCase()}`}>
+                                <div className="item-icon">{item.icon}</div>
+                                <div className={`absolute -top-3 -right-3 item-tag rarity-${item.rarity.toLowerCase()} bg-black scale-75`}>{item.name}</div>
+                            </div>
+                        )
+                    })}
+                 </div>
              </div>
            </div>
-           {(boostModalOpen||poisonModalOpen||shieldModalOpen) && (
+
+           {targetModalItem && (
                <div className="modal-backdrop">
                    <div className="modal-card">
-                       <h3>Ziel wählen</h3>
-                       <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                         {poisonTargets.map(t=>(
-                            <button key={t.pid} className="btn" onClick={()=>{
-                                if(boostModalOpen) sendBoostTo(t.pid);
-                                if(poisonModalOpen) sendPoisonTo(t.pid);
-                                if(shieldModalOpen) sendShieldTo(t.pid);
-                            }}>{t.name}</button>
+                       <h3 className="text-xl font-black mb-4 text-[var(--rtl-orange)]">Ziel wählen</h3>
+                       <div className="grid grid-cols-2 gap-3 max-h-[50vh] overflow-auto">
+                         {Object.entries(game.players).filter(([pid]) => pid !== playerId).map(([pid, p])=>(
+                            <button key={pid} className="btn bg-white/10 hover:bg-white/20" onClick={()=>useItem(targetModalItem.item, targetModalItem.idx, pid)}>{p.name}</button>
                          ))}
-                         <button className="btn" style={{background:'var(--rtl-orange)'}} onClick={()=>{setBoostModalOpen(false);setPoisonModalOpen(false);setShieldModalOpen(false)}}>Abbrechen</button>
                        </div>
+                       <button className="btn mt-4 w-full bg-red-500" onClick={()=>setTargetModalItem(null)}>ABBRECHEN</button>
                    </div>
                </div>
            )}
          </div>
        );
     }
-    
-    if(meta.phase === 'roundSummary' && bonusCategoryModalOpen) {
-        const used = meta.categoryState?.used || [];
+
+    if (meta.phase === 'results') {
+        const isCorrect = player.currentAnswer === (game.questions[meta.questionIndex] || {}).correct;
+        const pts = player.lastPoints || 0;
+        if (!playerReveal) return <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-black text-center"><h2 className="text-2xl font-bold text-[var(--rtl-orange)] animate-pulse">Antwort eingeloggt...</h2></div>;
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-black text-center">
+                <div className="text-8xl mb-6">{isCorrect ? '😎' : '🫠'}</div>
+                <h1 className="text-5xl font-black text-white mb-2">{isCorrect ? 'RICHTIG!' : 'LEIDER FALSCH'}</h1>
+                <div className={`text-6xl font-black my-6 ${pts > 0 ? 'text-[var(--rtl-orange)]' : 'text-gray-500'}`}>{pts > 0 ? '+' : ''}{pts}</div>
+            </div>
+        );
+    }
+
+    if (bonusCategoryModalOpen) {
+        const used = game.meta.categoryState?.used || [];
         const available = CATEGORY_LIST.filter(c => !used.includes(c));
-        const displayCats = available.length > 0 ? available : CATEGORY_LIST;
         return (
             <div className="modal-backdrop">
-                <div className="modal-card">
-                    <h3 style={{textAlign:'center', marginBottom:20, fontSize:20, fontWeight:900}}>DU WÄHLST DIE KATEGORIE!</h3>
-                    {/* ENTFERNT: Bonus-Text */}
-                    <div style={{display:'flex', flexDirection:'column', gap:10}}>
-                        {displayCats.slice(0, 3).map(c => (<button key={c} className="btn btn-host" onClick={()=>pickCategory(c)}>{c}</button>))}
-                        <button className="btn" onClick={()=>pickCategory(displayCats[0])}>ZUFALL</button>
+                <div className="modal-card text-center">
+                    <h3 className="text-2xl font-black text-[var(--rtl-orange)] mb-6">DU DARFST WÄHLEN!</h3>
+                    <div className="grid gap-3">
+                        {(available.length?available:CATEGORY_LIST).map(c => (<button key={c} className="btn btn-host w-full" onClick={()=>pickCategory(c)}>{c}</button>))}
                     </div>
                 </div>
             </div>
         );
     }
 
-    if(meta.phase === 'results') {
-        const pointsEarned = player.lastPoints || 0;
-        const isCorrect = player.currentAnswer===((game.questions||[])[meta.questionIndex||0]).correct;
-        
-        // NEU: Zeige "Warten" an, solange playerReveal false ist
-        if (!playerReveal) {
-             return (
-                <div className="min-h-screen flex items-center justify-center p-4">
-                    <div className="card" style={{textAlign:'center', width:'100%'}}>
-                        <h2 style={{fontSize:32, fontWeight:900, color: 'var(--rtl-orange)', marginBottom:20}}>ANTWORT ERFASST</h2>
-                        <div style={{fontSize:20, color:'var(--muted)'}}>Warte auf die offizielle Auflösung durch den Host...</div>
-                    </div>
-                </div>
-            );
-        }
-
-        // Ergebnis wird erst nach dem Host-Reveal angezeigt
-        return (
-            <div className="min-h-screen flex items-center justify-center p-4" style={{background:'var(--bg)'}}>
-                <div className="card" style={{textAlign:'center', width:'100%'}}>
-                    {/* PLAYER HEADER with Total Score */}
-                    <div style={{display:'flex', justifyContent:'flex-end', borderBottom:'1px solid rgba(255,255,255,0.1)', paddingBottom:10, marginBottom:20}}>
-                         <span style={{fontWeight:900, color:'var(--tile)'}}>Gesamt: {player.score}</span>
-                    </div>
-
-                    <div style={{fontSize:80, marginBottom:10}}>{isCorrect ? '😎' : '🫠'}</div>
-                    <h2 style={{fontSize:32, fontWeight:900, 
-                        /* ANPASSUNG: Ergebnis-Farbe auf Orange */
-                        color: 'var(--rtl-orange)', 
-                        marginBottom:20}}>
-                        {isCorrect ? 'RICHTIG' : 'FALSCH'}
-                    </h2>
-                    <div style={{background:'rgba(255,255,255,0.05)', padding:30, border:'1px solid rgba(255,255,255,0.1)'}}>
-                        <div style={{fontSize:16, color:'var(--muted)', textTransform:'uppercase', fontWeight:700}}>Punkte diese Runde</div>
-                        <div style={{fontSize:60, fontWeight:900, color:'white', lineHeight:1}}>
-                            {pointsEarned > 0 ? '+' : ''}{pointsEarned}
-                        </div>
-                    </div>
-                    <div style={{marginTop:30, fontSize:14, color:'var(--muted)'}}>Warte auf nächste Frage...</div>
-                </div>
-            </div>
-        );
-    }
-
-    return <div className="min-h-screen flex items-center justify-center"><div>Warte auf Host...</div></div>;
+    return <div className="flex h-screen items-center justify-center bg-black text-white">Warte auf Host...</div>;
   }
 
   function PlayerJoin({ joinGameId, onJoined }){
     const [name,setName] = useState('');
-    
     const handleJoin = async ()=>{
       if(!name) return;
       const snap = await db.ref(`games/${joinGameId}`).get();
       if(!snap.exists()) return alert('Code falsch');
       const pid = makePlayerId();
-      await db.ref(`games/${joinGameId}/players/${pid}`).set({ name, score:0, items:DEFAULT_ITEMS });
+      await db.ref(`games/${joinGameId}/players/${pid}`).set({ name, score:0, inventory: [] });
       onJoined(joinGameId, pid, name);
     };
-
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6" style={{background:'var(--bg)'}}>
-        <div style={{marginBottom: 40, display:'flex', flexDirection:'column', alignItems:'center'}}>
-            <RTLLogo size="md" />
-            <h1 style={{marginTop:15, fontSize:24, fontWeight:900, color:'var(--tile)', letterSpacing:1}}>AdAlliance Quiz</h1>
-        </div>
-        <div className="card" style={{width:'100%', maxWidth:400, textAlign:'center'}}>
-          <h2 style={{fontSize:20, fontWeight:900, color:'var(--rtl-orange)', marginBottom:20, textTransform:'uppercase'}}>Spieler Login</h2>
-          <div style={{marginBottom:20}}>
-             <label style={{display:'block', textAlign:'left', marginBottom:8, fontSize:14, color:'var(--muted)', fontWeight:700}}>DEIN NAME</label>
-             <input 
-                value={name} 
-                onChange={e=>setName(e.target.value)} 
-                placeholder="z.B. Max Power" 
-                className="w-full"
-                maxLength={12}
-             />
-          </div>
-          <button className="btn btn-host w-full" onClick={handleJoin} disabled={!name} style={{fontSize:20, padding:18}}>
-            BEITRETEN ▶
-          </button>
+        <div className="mb-10 text-center"><RTLLogo size="md" /><h1 className="mt-4 text-2xl font-black text-white tracking-widest">Quiz Mayhem</h1></div>
+        <div className="card w-full max-w-md text-center">
+          <h2 className="text-xl font-black text-[var(--rtl-orange)] mb-6 uppercase">Spieler Login</h2>
+          <input value={name} onChange={e=>setName(e.target.value)} placeholder="Dein Name" className="w-full mb-4 text-center text-xl font-bold" maxLength={12} />
+          <button className="btn btn-host w-full py-4 text-xl" onClick={handleJoin} disabled={!name}>BEITRETEN ▶</button>
         </div>
       </div>
     );
   }
 
-  /****************************************
-   * MAIN APP
-   ****************************************/
   function App(){
     const [mode,setMode] = useState('start');
     const [gameId,setGameId] = useState('');
     const [playerId,setPlayerId] = useState('');
-    const [playerName,setPlayerName] = useState('');
 
     useEffect(()=>{
       const params = new URLSearchParams(window.location.search);
@@ -1402,43 +1046,37 @@
       if(joinCode){ 
         const savedPid = sessionStorage.getItem(`quiz_pid_${joinCode}`);
         if(savedPid) {
-          db.ref(`games/${joinCode}/players/${savedPid}`).once('value', snap => {
-            if(snap.exists()) { setGameId(joinCode); setPlayerId(savedPid); setPlayerName(snap.val().name); setMode('playerGame'); }
-            else { setMode('playerJoin'); setGameId(joinCode); }
-          });
-        } else { setMode('playerJoin'); setGameId(joinCode); }
+           db.ref(`games/${joinCode}/players/${savedPid}`).once('value', s => {
+               if(s.exists()) { setGameId(joinCode); setPlayerId(savedPid); setMode('playerGame'); }
+               else { setGameId(joinCode); setMode('playerJoin'); }
+           });
+        } else { setGameId(joinCode); setMode('playerJoin'); }
       }
     },[]);
 
-    const handleCreate = async (name)=>{ const gid = randomGameID(); setGameId(gid); await db.ref(`games/${gid}/meta`).set({ phase: 'lobby', finaleEnabled: true }); setMode('hostLobby'); };
-    
+    const handleCreate = async (name)=>{ const gid = randomGameID(); setGameId(gid); await db.ref(`games/${gid}/meta`).set({ phase: 'lobby' }); setMode('hostLobby'); };
     const handleJoin = async (name, code)=>{
-        try {
-            const snap = await db.ref(`games/${code}`).get();
-            if(!snap.exists()) { alert('Spiel nicht gefunden!'); return; }
-            const pid = makePlayerId();
-            await db.ref(`games/${code}/players/${pid}`).set({ name, score: 0, items: DEFAULT_ITEMS });
-            sessionStorage.setItem(`quiz_pid_${code}`, pid);
-            setGameId(code); setPlayerId(pid); setPlayerName(name); setMode('playerGame');
-        } catch(e) { console.error(e); alert('Fehler beim Beitreten'); }
+        const snap = await db.ref(`games/${code}`).get();
+        if(!snap.exists()) { alert('Spiel nicht gefunden!'); return; }
+        const pid = makePlayerId();
+        await db.ref(`games/${code}/players/${pid}`).set({ name, score: 0, inventory: [] });
+        sessionStorage.setItem(`quiz_pid_${code}`, pid);
+        setGameId(code); setPlayerId(pid); setMode('playerGame');
     };
-    
-    const handlePlayerJoined = (code,pid,name) => { sessionStorage.setItem(`quiz_pid_${code}`, pid); setGameId(code); setPlayerId(pid); setPlayerName(name); setMode('playerGame'); };
+    const handlePlayerJoined = (code,pid) => { sessionStorage.setItem(`quiz_pid_${code}`, pid); setGameId(code); setPlayerId(pid); setMode('playerGame'); };
 
     return (
       <>
         {mode === 'start' && <StartScreen onCreate={handleCreate} onJoin={handleJoin} />}
-        {mode === 'hostLobby' && <HostScreen gameId={gameId} hostName={playerName} />}
+        {mode === 'hostLobby' && <HostScreen gameId={gameId} />}
         {mode === 'playerGame' && <PlayerView gameId={gameId} playerId={playerId} />}
         {mode === 'playerJoin' && <PlayerJoin joinGameId={gameId} onJoined={handlePlayerJoined} />}
       </>
     );
   }
+
   const root = ReactDOM.createRoot(document.getElementById('root'));
   root.render(<App />);
   </script>
 </body>
 </html>
-
-
-
