@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Item Mayhem V10 (Fixed Finale)</title>
+  <title>RTL AdAlliance Quiz - Item Mayhem V11 (Fixed)</title>
 
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
@@ -216,6 +216,33 @@
   }
 
   /****************************************
+   * START SCREEN
+   ****************************************/
+  function StartScreen({ onCreate, onJoin }){
+    const [name,setName] = useState('');
+    const [code,setCode] = useState('');
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6" style={{background:'var(--bg)'}}>
+        <div style={{maxWidth:760, width:'100%'}} className="card">
+          <div style={{display:'flex', alignItems:'center', gap:12}}>
+            <RTLLogo size="md" />
+            <div style={{fontWeight:900, fontSize:24}}>Quiz Mayhem</div>
+          </div>
+          <h1 style={{fontSize:32, fontWeight:900, marginTop:20, color:'var(--rtl-orange)'}}>Quiz Master</h1>
+          <div style={{marginTop:30}}>
+            <input className="w-full p-3 mb-3" placeholder="Dein Name" value={name} onChange={e=>setName(e.target.value)} style={{fontSize:18}} />
+            <div style={{display:'flex', gap:12}}>
+              <button className="btn btn-host flex-1" onClick={()=>onCreate(name)} disabled={!name}>Host werden</button>
+              <input className="p-2" placeholder="Code" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} style={{width:'140px', textAlign:'center', fontSize:18, fontWeight:900}} />
+              <button className="btn btn-join" onClick={()=>onJoin(name,code)} disabled={!name || !code}>Beitreten</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /****************************************
    * HOST SCREEN
    ****************************************/
   function HostScreen({ gameId }){
@@ -347,7 +374,7 @@
         if (isRoundEnd) {
              const finishedRound = Math.floor(currentIndex / QUESTIONS_PER_ROUND) + 1;
              if (finishedRound >= TOTAL_ROUNDS) {
-                // WICHTIG: HIER WAR DER FEHLER. JETZT STARTET FINALE!
+                // Start Finale
                 await prepareFinale(g);
                 return;
              }
@@ -1080,3 +1107,4 @@
   </script>
 </body>
 </html>
+
