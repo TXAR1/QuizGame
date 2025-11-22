@@ -1781,11 +1781,11 @@
             return (
                 <div className="min-h-screen flex items-center justify-center p-4">
                     <div className="card" style={{width:'100%'}}>
-                        <h3 style={{textAlign:'center', marginBottom:20, fontSize:24, fontWeight:900, color:'var(--rtl-orange)'}}>DU WÄHLST DIE KATEGORIE!</h3>
+                        <h3 style={{textAlign:'center', marginBottom:20, fontSize:24, fontWeight:900, color:'var(--rtl-orange)'}}>DU WÄHLST DIE KATEGORIE</h3>
                         <p style={{textAlign:'center', marginBottom:20, color:'var(--muted)'}}>Als Letztplatzierter darfst du die nächste Kategorie bestimmen.</p>
                         <div style={{display:'flex', flexDirection:'column', gap:10}}>
                             {displayCats.slice(0, 3).map(c => (<button key={c} className="btn btn-host" style={{padding:20}} onClick={()=>pickCategory(c)}>{c}</button>))}
-                            <button className="btn" style={{padding:20}} onClick={()=>pickCategory(displayCats[0])}>🎲 ZUFALL</button>
+                            <button className="btn" style={{padding:20}} onClick={()=>pickCategory(displayCats[0])}>ZUFALL</button>
                         </div>
                     </div>
                 </div>
@@ -1805,6 +1805,21 @@
                 </div>
             </div>
         );
+    }
+
+    if(meta.phase === 'finished') {
+      return (
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="card" style={{textAlign:'center'}}>
+            <h2 style={{fontSize:32, fontWeight:900, color:'var(--rtl-orange)', marginBottom:20}}>SPIEL BEENDET</h2>
+            <p style={{fontSize:18, color:'var(--muted)'}}>Danke fürs Spielen</p>
+            <div style={{marginTop:30, padding:20, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)'}}>
+                <div style={{fontSize:16, color:'var(--muted)', marginBottom:10}}>Dein Endergebnis</div>
+                <div style={{fontSize:48, fontWeight:900}}>{player.score} Punkte</div>
+            </div>
+          </div>
+        </div>
+      );
     }
 
     if(meta.phase === 'results') {
@@ -1849,7 +1864,7 @@
                 <div className="item-roulette-overlay">
                   <div className="item-box-container">
                     <div className="item-box-text">
-                      {roulettePhase === 'revealed' ? '🎉 NEUES ITEM! 🎉' : '📦 ITEM BOX 📦'}
+                      {roulettePhase === 'revealed' ? 'NEUES ITEM' : 'ITEM BOX'}
                     </div>
                     
                     <div className="item-box-display">
@@ -1880,7 +1895,7 @@
                           onClick={closeItemRoulette}
                           style={{fontSize: 18, padding: '15px 40px'}}
                         >
-                          VERSTANDEN ✓
+                          VERSTANDEN
                         </button>
                       </div>
                     )}
@@ -1891,7 +1906,7 @@
         );
     }
 
-    return <div className="min-h-screen flex items-center justify-center"><div>Warte auf Host...</div></div>;
+    return <div className="min-h-screen flex items-center justify-center p-4"><div className="card"><div style={{color:'var(--muted)'}}>Warte auf Host...</div></div></div>;
   }
 
   // Items Info Modal Component
@@ -2041,8 +2056,6 @@
   </script>
 </body>
 </html>
-
-
 
 
 
