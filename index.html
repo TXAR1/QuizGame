@@ -395,7 +395,7 @@
     ZEITSCHNAPPER: { id: 'zeitschnapper', name: 'Zeitschnapper', icon: '⏱️', rarity: 'rare', effect: 'time_reduce', needsTarget: true, description: 'Halbiert die verbleibende Zeit eines Gegners' },
     
     // DEFENSIVE
-    SCHILD: { id: 'schild', name: 'Schild', icon: '🛡️', rarity: 'rare', effect: 'shield', needsTarget: false, description: 'Schützt dich vor allen Angriffen und reflektiert sie' },
+    SCHILD: { id: 'schild', name: 'Schild', icon: '🛡️', rarity: 'uncommon', effect: 'shield', needsTarget: false, description: 'Schützt dich vor allen Angriffen und reflektiert sie' },
     SPIEGELGLAS: { id: 'spiegelglas', name: 'Spiegelglas', icon: '🔮', rarity: 'rare', effect: 'mirror', needsTarget: false, description: 'Zeigt die meistgewählte Antwort' },
     
     // BOOST
@@ -687,6 +687,34 @@
         });
         
         await db.ref().update(updates);
+        
+        // Handle Platztauscher (point swaps) AFTER scores are updated
+        const swapUpdates = {};
+        Object.entries(playerObj).forEach(([pid, p]) => {
+          if(p.activeEffects?.swapPointsWith) {
+            const targetPid = p.activeEffects.swapPointsWith;
+            const targetPlayer = playerObj[targetPid];
+            
+            if(targetPlayer) {
+              // Get new scores after current updates
+              const myNewScore = (p.score || 0) + (updates[`games/${gameId}/players/${pid}/lastPoints`] || 0);
+              const targetNewScore = (targetPlayer.score || 0) + (updates[`games/${gameId}/players/${targetPid}/lastPoints`] || 0);
+              
+              // Swap scores
+              swapUpdates[`games/${gameId}/players/${pid}/score`] = targetNewScore;
+              swapUpdates[`games/${gameId}/players/${targetPid}/score`] = myNewScore;
+              
+              // Mark that swap happened
+              swapUpdates[`games/${gameId}/players/${pid}/activeEffects/swappedWith`] = targetPid;
+              swapUpdates[`games/${gameId}/players/${targetPid}/activeEffects/swappedWith`] = pid;
+            }
+          }
+        });
+        
+        if(Object.keys(swapUpdates).length > 0) {
+          await db.ref().update(swapUpdates);
+        }
+        
         await db.ref(`games/${gameId}/meta`).update({ phase: 'results' });
       }catch(e){ console.error(e); }
     };
@@ -1302,7 +1330,24 @@
         setEliminated5050([]);
         setScannedAnswers({});
         setTimeReductionApplied(false);
+        setIsActivatingItem(false);
     }, [meta?.questionIndex]);
+
+    // Show round start screen
+    useEffect(() => {
+      if(meta?.phase === 'question' && meta?.questionStartTime) {
+        const elapsed = Date.now() - meta.questionStartTime;
+        if(elapsed < 100) { // Just started
+          const currentRound = meta.round || 1;
+          const points = ROUND_POINTS[currentRound] || 100;
+          setShowRoundStart(true);
+          
+          setTimeout(() => {
+            setShowRoundStart(false);
+          }, 3000);
+        }
+      }
+    }, [meta?.phase, meta?.questionStartTime]);
 
     useEffect(()=>{
       if(!meta){ setTimeLeft(0); return; }
@@ -1319,8 +1364,8 @@
             // Show notification
             setAttackNotification({
               icon: '⏱️',
-              title: 'ZEIT HALBIERT!',
-              message: 'Ein Gegner hat deine Zeit reduziert!'
+              title: 'ZEIT HALBIERT',
+              message: 'Ein Gegner hat deine Zeit reduziert'
             });
             setTimeout(() => setAttackNotification(null), 3000);
           }
@@ -1394,43 +1439,7 @@
       db.ref(`games/${gameId}/players/${playerId}/hasNewItem`).set(false);
     };
 
-    // Item Tooltip Handlers
-    const handleItemPressStart = (item, slotIndex, event) => {
-      if(isFrozen) return;
-      
-      const rect = event.target.getBoundingClientRect();
-      setTooltipPosition({ 
-        x: rect.left + rect.width / 2, 
-        y: rect.top - 10 
-      });
-      
-      longPressTimer.current = setTimeout(() => {
-        setTooltipItem(item);
-        setShowItemTooltip(true);
-      }, 500); // Show tooltip after 500ms hold
-    };
-
-    const handleItemPressEnd = (item, slotIndex) => {
-      clearTimeout(longPressTimer.current);
-      
-      // If tooltip was shown, don't activate item
-      if(showItemTooltip) {
-        setShowItemTooltip(false);
-        setTooltipItem(null);
-        return;
-      }
-      
-      // Otherwise, activate item (short press)
-      if(!isFrozen) {
-        useItem(item, slotIndex);
-      }
-    };
-
-    const handleItemPressCancel = () => {
-      clearTimeout(longPressTimer.current);
-      setShowItemTooltip(false);
-      setTooltipItem(null);
-    };
+    // Item Tooltip handlers removed - no longer needed
 
     // Check for freeze effect
     useEffect(() => {
@@ -1459,8 +1468,8 @@
       if(player?.activeEffects?.poisoned && meta?.phase === 'question') {
         setAttackNotification({
           icon: '☠️',
-          title: 'VERGIFTET!',
-          message: 'Du erhältst 25% weniger Punkte!'
+          title: 'VERGIFTET',
+          message: 'Du erhältst 25% weniger Punkte'
         });
         setTimeout(() => setAttackNotification(null), 3000);
       }
@@ -1468,17 +1477,29 @@
       if(player?.activeEffects?.frozen && meta?.phase === 'question') {
         setAttackNotification({
           icon: '❄️',
-          title: 'EINGEFROREN!',
-          message: 'Du bist für 8 Sekunden blockiert!'
+          title: 'EINGEFROREN',
+          message: 'Du bist für 8 Sekunden blockiert'
         });
         setTimeout(() => setAttackNotification(null), 3000);
       }
-    }, [player?.activeEffects?.poisoned, player?.activeEffects?.frozen, meta?.questionIndex]);
+      
+      if(player?.activeEffects?.swappedWith && meta?.phase === 'results') {
+        const swappedPlayer = game?.players?.[player.activeEffects.swappedWith];
+        setAttackNotification({
+          icon: '🔄',
+          title: 'PLATZTAUSCHER',
+          message: `Punkte getauscht mit ${swappedPlayer?.name || 'einem Spieler'}`
+        });
+        setTimeout(() => setAttackNotification(null), 4000);
+      }
+    }, [player?.activeEffects?.poisoned, player?.activeEffects?.frozen, player?.activeEffects?.swappedWith, meta?.questionIndex, meta?.phase]);
 
     const useItem = (item, slotIndex) => {
-      if(isFrozen) return;
-      setSelectedItem({...item, slotIndex});
+      if(isFrozen || isActivatingItem) return;
+      setIsActivatingItem(true);
+      
       if(item.needsTarget) {
+        setSelectedItem({...item, slotIndex});
         setTargetModalOpen(true);
       } else {
         activateItem(item, slotIndex, null);
@@ -1545,11 +1566,19 @@
           setScannedAnswers(prev => ({...prev, [targetId]: targetPlayer.currentAnswer}));
         }
       } else if(item.id === 'platztauscher') {
-        updates[`games/${gameId}/players/${playerId}/activeEffects/swapPoints`] = true;
+        // Find random other player to swap with
+        const otherPlayers = Object.keys(game.players || {}).filter(pid => pid !== playerId);
+        if(otherPlayers.length > 0) {
+          const randomTarget = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
+          
+          // Perform the swap at results phase
+          updates[`games/${gameId}/players/${playerId}/activeEffects/swapPointsWith`] = randomTarget;
+          updates[`games/${gameId}/players/${randomTarget}/activeEffects/swappedWith`] = playerId;
+        }
       }
 
       // Log action
-      if(targetId || item.id === 'turbo' || item.id === 'magnet') {
+      if(targetId || item.id === 'turbo' || item.id === 'magnet' || item.id === 'platztauscher') {
         await db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).once('value', s => {
            const arr = s.val() || [];
            arr.push({ type: item.effect, from: playerId, to: targetId || playerId, itemId: item.id.toUpperCase() });
@@ -1558,6 +1587,9 @@
       }
 
       await db.ref().update(updates);
+      
+      // Reset activation lock after a short delay
+      setTimeout(() => setIsActivatingItem(false), 500);
     };
 
     const pickCategory = async (cat) => {
@@ -1603,14 +1635,21 @@
        
        return (
          <div className="min-h-screen p-4" style={{overflowY:'auto', position:'relative'}}>
-           {/* Info Button */}
-           <div className="info-button" onClick={() => setShowItemsInfo(true)}>
-             ℹ️
-           </div>
+           {/* Round Start Screen */}
+           {showRoundStart && (
+             <div className="round-start-overlay">
+               <div className="round-start-content">
+                 <h2>Runde {meta.round}</h2>
+                 <div className="points-label">Punkte für richtige Antwort</div>
+                 <div className="points-info">{ROUND_POINTS[meta.round || 1]} Punkte</div>
+                 <div style={{fontSize: 14, color: 'var(--muted)'}}>Viel Erfolg</div>
+               </div>
+             </div>
+           )}
 
            {isFrozen && (
               <div className="frozen-overlay">
-                ❄️ EINGEFROREN {freezeTimeLeft}s ❄️
+                EINGEFROREN {freezeTimeLeft}s
               </div>
            )}
            
@@ -1644,17 +1683,12 @@
                   return (
                     <div 
                       key={slotIdx}
-                      className={`item-slot ${item ? `rarity-${item.rarity}` : 'empty'} ${isFrozen ? '' : ''}`}
-                      onMouseDown={(e) => item && handleItemPressStart(item, slotIdx, e)}
-                      onMouseUp={() => item && handleItemPressEnd(item, slotIdx)}
-                      onMouseLeave={handleItemPressCancel}
-                      onTouchStart={(e) => item && handleItemPressStart(item, slotIdx, e)}
-                      onTouchEnd={() => item && handleItemPressEnd(item, slotIdx)}
-                      onTouchCancel={handleItemPressCancel}
+                      className={`item-slot ${item ? `rarity-${item.rarity}` : 'empty'}`}
+                      onClick={() => item && !isFrozen && !isActivatingItem && useItem(item, slotIdx)}
                       title={item ? item.name : 'Leer'}
-                      style={{cursor: item && !isFrozen ? 'pointer' : 'default'}}
+                      style={{cursor: item && !isFrozen && !isActivatingItem ? 'pointer' : 'default'}}
                     >
-                      {item ? item.icon : '?'}
+                      {item ? item.icon : '❓'}
                     </div>
                   );
                })}
@@ -1728,7 +1762,7 @@
                               {p.name}
                             </button>
                          ))}
-                         <button className="btn" style={{background:'rgba(255,255,255,0.1)'}} onClick={()=>{setTargetModalOpen(false); setSelectedItem(null);}}>Abbrechen</button>
+                         <button className="btn" style={{background:'rgba(255,255,255,0.1)'}} onClick={()=>{setTargetModalOpen(false); setSelectedItem(null); setIsActivatingItem(false);}}>Abbrechen</button>
                        </div>
                    </div>
                </div>
@@ -2007,7 +2041,6 @@
   </script>
 </body>
 </html>
-
 
 
 
