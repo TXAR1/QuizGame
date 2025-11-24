@@ -677,26 +677,6 @@
           
           // Give item box if slot available
           const itemSlots = p.itemSlots || [];
-
-    // Spiegelglas: meistgewählte Antwort bestimmen
-    let mostChosenIndex = null;
-    if (player?.activeEffects?.mirror && game?.players) {
-      const counts = {};
-      Object.values(game.players || {}).forEach(pl => {
-        if (typeof pl.currentAnswer === 'number') {
-          const idx = pl.currentAnswer;
-          counts[idx] = (counts[idx] || 0) + 1;
-        }
-      });
-      let bestIdx = null, bestCount = 0;
-      Object.entries(counts).forEach(([idx,count])=>{
-        if(count>bestCount){
-          bestCount=count; bestIdx=parseInt(idx,10);
-        }
-      });
-      mostChosenIndex = bestIdx;
-    }
-
           if(itemSlots.length < ITEM_SLOTS) {
             const allScores = Object.values(playerObj).map(pl => pl.score || 0);
             const position = getPlayerPosition(p.score || 0, allScores);
@@ -1298,7 +1278,8 @@
    ****************************************/
   function PlayerView({ gameId, playerId }){
     const [game,setGame] = useState(null);
-    const [meta,setMeta] = useState(null);
+      const [isActivatingItem, setIsActivatingItem] = useState(false);
+const [meta,setMeta] = useState(null);
     const [player,setPlayer] = useState(null);
     const [timeLeft,setTimeLeft] = useState(0);
     const [itemModalOpen, setItemModalOpen] = useState(false);
@@ -1727,7 +1708,7 @@
                           padding:15,
                           background:player.currentAnswer===i?'var(--rtl-orange)':(is5050Eliminated ? '#333' : 'white'), 
                           color:player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : '#0b0b0b'),
-                          border: player.currentAnswer===i ? '1px solid var(--rtl-orange)' : ((isMostChosen ? '3px solid orange' : (isScanned ? '3px solid #2196F3' : '1px solid #e0e0e0'))),
+                          border: player.currentAnswer===i ? '1px solid var(--rtl-orange)' : (isScanned ? '3px solid #2196F3' : '1px solid #e0e0e0'),
                           textAlign:'left', 
                           fontSize:18,
                           display:'flex',
