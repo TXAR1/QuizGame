@@ -366,6 +366,202 @@
       50% { opacity: 0.7; transform: scale(1.05); }
     }
 
+    /* FIX: Round Start Overlay */
+    .round-start-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .round-start-content {
+      text-align: center;
+      padding: 60px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+      border: 3px solid var(--rtl-orange);
+      box-shadow: 0 0 80px rgba(255, 102, 0, 0.4);
+    }
+
+    .round-start-content h2 {
+      font-size: 72px;
+      font-weight: 900;
+      color: var(--rtl-orange);
+      margin: 0 0 20px 0;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+    }
+
+    .points-label {
+      font-size: 18px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .points-info {
+      font-size: 56px;
+      font-weight: 900;
+      color: white;
+      text-shadow: 0 0 30px rgba(255, 102, 0, 0.6);
+    }
+
+    /* FIX: Attack Notification */
+    .attack-notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      background: linear-gradient(135deg, #ff6600 0%, #ff3300 100%);
+      color: white;
+      padding: 20px 40px;
+      border: 3px solid white;
+      box-shadow: 0 10px 40px rgba(255, 102, 0, 0.6);
+      text-align: center;
+      animation: slideDown 0.5s ease-out, pulse 1s ease-in-out infinite;
+      min-width: 300px;
+    }
+
+    .attack-notification h3 {
+      margin: 0 0 10px 0;
+      font-size: 24px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .attack-notification p {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+      to { transform: translateX(-50%) translateY(0); opacity: 1; }
+    }
+
+    /* FIX: Item Tooltip */
+    .item-tooltip {
+      position: fixed;
+      background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+      border: 2px solid var(--rtl-orange);
+      padding: 20px;
+      z-index: 9999;
+      min-width: 250px;
+      max-width: 300px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      pointer-events: none;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .item-tooltip h4 {
+      margin: 0 0 10px 0;
+      font-size: 20px;
+      font-weight: 900;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .item-tooltip p {
+      margin: 10px 0 0 0;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .rarity-mini {
+      display: inline-block;
+      padding: 4px 10px;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-radius: 3px !important;
+    }
+
+    .rarity-mini.common { background: #888; color: white; }
+    .rarity-mini.uncommon { background: #4CAF50; color: white; }
+    .rarity-mini.rare { background: #2196F3; color: white; }
+    .rarity-mini.legendary { background: linear-gradient(45deg, #FFD700, #FFA500); color: #000; }
+
+    /* FIX: Items Info Modal */
+    .items-info-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .items-info-content {
+      background: #000;
+      border: 3px solid var(--rtl-orange);
+      padding: 40px;
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 0 80px rgba(255, 102, 0, 0.3);
+    }
+
+    .items-info-content h2 {
+      margin: 0 0 30px 0;
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--rtl-orange);
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+    }
+
+    .item-info-card {
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 4px solid rgba(255, 255, 255, 0.2);
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: all 0.2s;
+    }
+
+    .item-info-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(5px);
+    }
+
+    .item-info-card.common { border-left-color: #888; }
+    .item-info-card.uncommon { border-left-color: #4CAF50; }
+    .item-info-card.rare { border-left-color: #2196F3; }
+    .item-info-card.legendary { border-left-color: #FFD700; }
+
+    .item-info-card h4 {
+      margin: 0 0 10px 0;
+      font-size: 20px;
+      font-weight: 900;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .item-info-card p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
   </style>
 </head>
 <body>
@@ -622,7 +818,7 @@
       try{
         const snap = await db.ref(`games/${gameId}`).get();
         const g = snap.val();
-        if(!g || g.meta.phase === 'results') return;
+        if(!g || !g.meta || g.meta.phase === 'results') return;
         const qIndex = g.meta?.questionIndex || 0;
         const q = (g.questions || [])[qIndex];
         if(!q) return;
@@ -1278,8 +1474,7 @@
    ****************************************/
   function PlayerView({ gameId, playerId }){
     const [game,setGame] = useState(null);
-      const [isActivatingItem, setIsActivatingItem] = useState(false);
-const [meta,setMeta] = useState(null);
+    const [meta,setMeta] = useState(null);
     const [player,setPlayer] = useState(null);
     const [timeLeft,setTimeLeft] = useState(0);
     const [itemModalOpen, setItemModalOpen] = useState(false);
@@ -1292,28 +1487,35 @@ const [meta,setMeta] = useState(null);
     const [scannedAnswers, setScannedAnswers] = useState({});
     const [isFrozen, setIsFrozen] = useState(false);
     const [freezeTimeLeft, setFreezeTimeLeft] = useState(0);
-    
+
     // NEW: Item Box Roulette States
     const [showItemRoulette, setShowItemRoulette] = useState(false);
     const [rouletteItems, setRouletteItems] = useState([]);
     const [finalRouletteItem, setFinalRouletteItem] = useState(null);
     const [roulettePhase, setRoulettePhase] = useState('spinning'); // spinning, slowing, stopping, revealed
     const [pendingNewItem, setPendingNewItem] = useState(null);
-    
+
     // NEW: Item Tooltip States
     const [showItemTooltip, setShowItemTooltip] = useState(false);
     const [tooltipItem, setTooltipItem] = useState(null);
     const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
     const longPressTimer = useRef(null);
-    
+
     // NEW: Attack Notification
     const [attackNotification, setAttackNotification] = useState(null);
-    
+
     // NEW: Items Info Modal
     const [showItemsInfo, setShowItemsInfo] = useState(false);
-    
+
     // NEW: Time reduction tracking
     const [timeReductionApplied, setTimeReductionApplied] = useState(false);
+
+    // FIX: Missing state variables
+    const [showRoundStart, setShowRoundStart] = useState(false);
+    const [isActivatingItem, setIsActivatingItem] = useState(false);
+
+    // NEW: Mirror effect state
+    const [mirrorAnswer, setMirrorAnswer] = useState(null);
 
     useEffect(() => { if(playerId && gameId) { sessionStorage.setItem(`quiz_pid_${gameId}`, playerId); } }, [playerId, gameId]);
 
@@ -1332,6 +1534,7 @@ const [meta,setMeta] = useState(null);
         setScannedAnswers({});
         setTimeReductionApplied(false);
         setIsActivatingItem(false);
+        setMirrorAnswer(null);
     }, [meta?.questionIndex]);
 
     // Show round start screen
@@ -1350,18 +1553,27 @@ const [meta,setMeta] = useState(null);
       }
     }, [meta?.phase, meta?.questionStartTime]);
 
+    // FIX: Time reduction tracking - store actual start time
+    const effectiveStartTimeRef = useRef(null);
+
     useEffect(()=>{
       if(!meta){ setTimeLeft(0); return; }
       if(meta.phase === 'question' && meta.questionStartTime){
-        const tick = ()=>{ 
-          let elapsed = Math.floor((Date.now() - meta.questionStartTime)/1000);
-          
-          // Apply time reduction if active
+        // Reset effective start time when question changes
+        if(!effectiveStartTimeRef.current || effectiveStartTimeRef.current !== meta.questionStartTime) {
+          effectiveStartTimeRef.current = meta.questionStartTime;
+          setTimeReductionApplied(false);
+        }
+
+        const tick = ()=>{
+          let startTime = effectiveStartTimeRef.current;
+
+          // Apply time reduction once if active
           if(player?.activeEffects?.timeReduced && !timeReductionApplied) {
-            // Skip ahead by half the total time
-            elapsed += Math.floor(QUESTION_TIME / 2);
+            // Adjust start time to make it seem like half the time has passed
+            effectiveStartTimeRef.current = startTime - (QUESTION_TIME * 1000 / 2);
             setTimeReductionApplied(true);
-            
+
             // Show notification
             setAttackNotification({
               icon: '⏱️',
@@ -1370,8 +1582,9 @@ const [meta,setMeta] = useState(null);
             });
             setTimeout(() => setAttackNotification(null), 3000);
           }
-          
-          setTimeLeft(Math.max(0, QUESTION_TIME - elapsed)); 
+
+          const elapsed = Math.floor((Date.now() - effectiveStartTimeRef.current)/1000);
+          setTimeLeft(Math.max(0, QUESTION_TIME - elapsed));
         };
         tick(); const t = setInterval(tick, 500); return ()=> clearInterval(t);
       } else if(meta.phase === 'finalQuestion' && meta.finalQuestionStartTime){
@@ -1485,20 +1698,28 @@ const [meta,setMeta] = useState(null);
       }
       
       if(player?.activeEffects?.swappedWith && meta?.phase === 'results') {
+        // FIX: Add null check for game object
         const swappedPlayer = game?.players?.[player.activeEffects.swappedWith];
-        setAttackNotification({
-          icon: '🔄',
-          title: 'PLATZTAUSCHER',
-          message: `Punkte getauscht mit ${swappedPlayer?.name || 'einem Spieler'}`
-        });
-        setTimeout(() => setAttackNotification(null), 4000);
+        if(swappedPlayer) {
+          setAttackNotification({
+            icon: '🔄',
+            title: 'PLATZTAUSCHER',
+            message: `Punkte getauscht mit ${swappedPlayer.name || 'einem Spieler'}`
+          });
+          setTimeout(() => setAttackNotification(null), 4000);
+        }
       }
     }, [player?.activeEffects?.poisoned, player?.activeEffects?.frozen, player?.activeEffects?.swappedWith, meta?.questionIndex, meta?.phase]);
 
     const useItem = (item, slotIndex) => {
-      if(isFrozen || isActivatingItem) return;
+      // FIX: Prevent race conditions with double-click protection
+      if(isFrozen || isActivatingItem) {
+        console.log('Item activation blocked: frozen or already activating');
+        return;
+      }
+
       setIsActivatingItem(true);
-      
+
       if(item.needsTarget) {
         setSelectedItem({...item, slotIndex});
         setTargetModalOpen(true);
@@ -1508,13 +1729,14 @@ const [meta,setMeta] = useState(null);
     };
 
     const activateItem = async (item, slotIndex, targetId) => {
-      setItemModalOpen(false);
-      setTargetModalOpen(false);
-      
-      const updates = {};
-      const currentSlots = player.itemSlots || [];
-      const newSlots = currentSlots.filter((_, idx) => idx !== slotIndex);
-      updates[`games/${gameId}/players/${playerId}/itemSlots`] = newSlots;
+      try {
+        setItemModalOpen(false);
+        setTargetModalOpen(false);
+
+        const updates = {};
+        const currentSlots = player.itemSlots || [];
+        const newSlots = currentSlots.filter((_, idx) => idx !== slotIndex);
+        updates[`games/${gameId}/players/${playerId}/itemSlots`] = newSlots;
 
       // Apply item effects
       if(item.id === 'schild') {
@@ -1525,34 +1747,67 @@ const [meta,setMeta] = useState(null);
         updates[`games/${gameId}/players/${playerId}/activeEffects/magnet`] = true;
       } else if(item.id === 'spiegelglas') {
         updates[`games/${gameId}/players/${playerId}/activeEffects/mirror`] = true;
+
+        // FIX: Calculate most chosen answer
+        const currentQuestion = meta.questionIndex || 0;
+        const allPlayers = game.players || {};
+        const answerCounts = {};
+
+        Object.values(allPlayers).forEach(p => {
+          if(p.currentAnswer !== null && p.currentAnswer !== undefined) {
+            answerCounts[p.currentAnswer] = (answerCounts[p.currentAnswer] || 0) + 1;
+          }
+        });
+
+        // Find most common answer
+        let mostCommon = null;
+        let maxCount = 0;
+        Object.entries(answerCounts).forEach(([ans, count]) => {
+          if(count > maxCount) {
+            maxCount = count;
+            mostCommon = parseInt(ans);
+          }
+        });
+
+        if(mostCommon !== null) {
+          setMirrorAnswer(mostCommon);
+        }
       } else if(item.id === 'giftpfeil' && targetId) {
-        // Check if target has shield
-        const targetPlayer = game.players?.[targetId];
-        if(targetPlayer?.activeEffects?.shield) {
-          // Reflected back!
-          updates[`games/${gameId}/players/${playerId}/activeEffects/poisoned`] = true;
-        } else {
-          updates[`games/${gameId}/players/${targetId}/activeEffects/poisoned`] = true;
+        // FIX: Add null checks for target player
+        const targetPlayer = game?.players?.[targetId];
+        if(targetPlayer) {
+          if(targetPlayer.activeEffects?.shield) {
+            // Reflected back!
+            updates[`games/${gameId}/players/${playerId}/activeEffects/poisoned`] = true;
+          } else {
+            updates[`games/${gameId}/players/${targetId}/activeEffects/poisoned`] = true;
+          }
         }
       } else if(item.id === 'freeze' && targetId) {
-        const targetPlayer = game.players?.[targetId];
-        if(targetPlayer?.activeEffects?.shield) {
-          // Reflected - freeze yourself
-          const frozenUntil = Date.now() + 8000;
-          updates[`games/${gameId}/players/${playerId}/activeEffects/frozen`] = true;
-          updates[`games/${gameId}/players/${playerId}/activeEffects/frozenUntil`] = frozenUntil;
-        } else {
-          const frozenUntil = Date.now() + 8000;
-          updates[`games/${gameId}/players/${targetId}/activeEffects/frozen`] = true;
-          updates[`games/${gameId}/players/${targetId}/activeEffects/frozenUntil`] = frozenUntil;
+        // FIX: Add null checks for target player
+        const targetPlayer = game?.players?.[targetId];
+        if(targetPlayer) {
+          if(targetPlayer.activeEffects?.shield) {
+            // Reflected - freeze yourself
+            const frozenUntil = Date.now() + 8000;
+            updates[`games/${gameId}/players/${playerId}/activeEffects/frozen`] = true;
+            updates[`games/${gameId}/players/${playerId}/activeEffects/frozenUntil`] = frozenUntil;
+          } else {
+            const frozenUntil = Date.now() + 8000;
+            updates[`games/${gameId}/players/${targetId}/activeEffects/frozen`] = true;
+            updates[`games/${gameId}/players/${targetId}/activeEffects/frozenUntil`] = frozenUntil;
+          }
         }
       } else if(item.id === 'zeitschnapper' && targetId) {
-        const targetPlayer = game.players?.[targetId];
-        if(targetPlayer?.activeEffects?.shield) {
-          // Reflected
-          updates[`games/${gameId}/players/${playerId}/activeEffects/timeReduced`] = true;
-        } else {
-          updates[`games/${gameId}/players/${targetId}/activeEffects/timeReduced`] = true;
+        // FIX: Add null checks for target player
+        const targetPlayer = game?.players?.[targetId];
+        if(targetPlayer) {
+          if(targetPlayer.activeEffects?.shield) {
+            // Reflected
+            updates[`games/${gameId}/players/${playerId}/activeEffects/timeReduced`] = true;
+          } else {
+            updates[`games/${gameId}/players/${targetId}/activeEffects/timeReduced`] = true;
+          }
         }
       } else if(item.id === 'zapfer') {
         const q = (game.questions || [])[meta.questionIndex || 0];
@@ -1567,14 +1822,16 @@ const [meta,setMeta] = useState(null);
           setScannedAnswers(prev => ({...prev, [targetId]: targetPlayer.currentAnswer}));
         }
       } else if(item.id === 'platztauscher') {
-        // Find random other player to swap with
-        const otherPlayers = Object.keys(game.players || {}).filter(pid => pid !== playerId);
-        if(otherPlayers.length > 0) {
-          const randomTarget = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
-          
-          // Perform the swap at results phase
-          updates[`games/${gameId}/players/${playerId}/activeEffects/swapPointsWith`] = randomTarget;
-          updates[`games/${gameId}/players/${randomTarget}/activeEffects/swappedWith`] = playerId;
+        // FIX: Add null checks and validate players exist
+        if(game?.players) {
+          const otherPlayers = Object.keys(game.players).filter(pid => pid !== playerId);
+          if(otherPlayers.length > 0) {
+            const randomTarget = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
+
+            // Perform the swap at results phase
+            updates[`games/${gameId}/players/${playerId}/activeEffects/swapPointsWith`] = randomTarget;
+            updates[`games/${gameId}/players/${randomTarget}/activeEffects/swappedWith`] = playerId;
+          }
         }
       }
 
@@ -1587,18 +1844,28 @@ const [meta,setMeta] = useState(null);
         });
       }
 
-      await db.ref().update(updates);
-      
-      // Reset activation lock after a short delay
-      setTimeout(() => setIsActivatingItem(false), 500);
+        await db.ref().update(updates);
+
+        // Reset activation lock after a short delay
+        setTimeout(() => setIsActivatingItem(false), 500);
+      } catch(error) {
+        console.error('Error activating item:', error);
+        setIsActivatingItem(false);
+        alert('Fehler beim Aktivieren des Items');
+      }
     };
 
     const pickCategory = async (cat) => {
-        await db.ref(`games/${gameId}/meta`).update({ 
-            nextCategory: cat, 
-            categoryChooserForRound: playerId 
-        });
-        setBonusCategoryModalOpen(false);
+        try {
+          await db.ref(`games/${gameId}/meta`).update({
+              nextCategory: cat,
+              categoryChooserForRound: playerId
+          });
+          setBonusCategoryModalOpen(false);
+        } catch(error) {
+          console.error('Error picking category:', error);
+          alert('Fehler beim Wählen der Kategorie');
+        }
     };
 
     if(!game || !meta || !player) return <div className="min-h-screen flex items-center justify-center">Warte auf Spiel...</div>;
@@ -1699,28 +1966,31 @@ const [meta,setMeta] = useState(null);
                {question?.answers.map((a,i)=>{
                  const is5050Eliminated = eliminated5050.includes(i);
                  const isScanned = Object.values(scannedAnswers).includes(i);
+                 const isMirrorAnswer = mirrorAnswer === i;
                  return (
-                   <button 
-                      key={i} 
-                      disabled={hasAnswered||timeLeft<=0||isFrozen||is5050Eliminated} 
-                      onClick={()=>!isFrozen && db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i)} 
+                   <button
+                      key={i}
+                      disabled={hasAnswered||timeLeft<=0||isFrozen||is5050Eliminated}
+                      onClick={()=>!isFrozen && db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i)}
                       style={{
                           padding:15,
-                          background:player.currentAnswer===i?'var(--rtl-orange)':(is5050Eliminated ? '#333' : 'white'), 
+                          background:player.currentAnswer===i?'var(--rtl-orange)':(is5050Eliminated ? '#333' : 'white'),
                           color:player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : '#0b0b0b'),
-                          border: player.currentAnswer===i ? '1px solid var(--rtl-orange)' : (isScanned ? '3px solid #2196F3' : '1px solid #e0e0e0'),
-                          textAlign:'left', 
+                          border: player.currentAnswer===i ? '1px solid var(--rtl-orange)' : (isMirrorAnswer ? '3px solid var(--rtl-purple)' : (isScanned ? '3px solid #2196F3' : '1px solid #e0e0e0')),
+                          textAlign:'left',
                           fontSize:18,
                           display:'flex',
                           alignItems:'center',
                           gap: '10px',
                           transition: 'all 0.2s',
                           opacity: is5050Eliminated ? 0.3 : 1,
-                          position: 'relative'
+                          position: 'relative',
+                          boxShadow: isMirrorAnswer ? '0 0 20px rgba(123, 44, 191, 0.5)' : 'none'
                       }}>
                       <span style={{fontWeight:900, color: player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : 'var(--rtl-orange)'), marginRight: '10px'}}>{String.fromCharCode(65+i)}.</span>
                       {a}
                       {isScanned && <span style={{marginLeft:'auto', color:'#2196F3'}}>👁️</span>}
+                      {isMirrorAnswer && <span style={{marginLeft:'auto', color:'var(--rtl-purple)', fontSize: 20}}>🔮</span>}
                    </button>
                  )
                })}
@@ -1778,7 +2048,19 @@ const [meta,setMeta] = useState(null);
             const used = meta.categoryState?.used || [];
             const available = CATEGORY_LIST.filter(c => !used.includes(c));
             const displayCats = available.length > 0 ? available : CATEGORY_LIST;
-            
+
+            // FIX: Ensure we have categories to display
+            if(!displayCats || displayCats.length === 0) {
+              return (
+                <div className="min-h-screen flex items-center justify-center p-4">
+                  <div className="card" style={{textAlign:'center'}}>
+                    <h2>Fehler</h2>
+                    <p>Keine Kategorien verfügbar</p>
+                  </div>
+                </div>
+              );
+            }
+
             return (
                 <div className="min-h-screen flex items-center justify-center p-4">
                     <div className="card" style={{width:'100%'}}>
@@ -2027,13 +2309,17 @@ const [meta,setMeta] = useState(null);
     
     const handleJoin = async (name, code)=>{
         try {
+            if(!name || !code) {
+              alert('Bitte Name und Code eingeben');
+              return;
+            }
             const snap = await db.ref(`games/${code}`).get();
             if(!snap.exists()) { alert('Spiel nicht gefunden!'); return; }
             const pid = makePlayerId();
             await db.ref(`games/${code}/players/${pid}`).set({ name, score: 0, itemSlots: [] });
             sessionStorage.setItem(`quiz_pid_${code}`, pid);
             setGameId(code); setPlayerId(pid); setPlayerName(name); setMode('playerGame');
-        } catch(e) { console.error(e); alert('Fehler beim Beitreten'); }
+        } catch(e) { console.error('Error joining game:', e); alert('Fehler beim Beitreten'); }
     };
     
     const handlePlayerJoined = (code,pid,name) => { sessionStorage.setItem(`quiz_pid_${code}`, pid); setGameId(code); setPlayerId(pid); setPlayerName(name); setMode('playerGame'); };
