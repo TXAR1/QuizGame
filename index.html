@@ -870,10 +870,12 @@
           
           updates[`games/${gameId}/players/${pid}/score`] = currentTotal + finalPoints;
           updates[`games/${gameId}/players/${pid}/lastPoints`] = finalPoints;
-          
-          // Give item box if slot available
+
+          // FIX: Give item box only after every second question (at round end)
           const itemSlots = p.itemSlots || [];
-          if(itemSlots.length < ITEM_SLOTS) {
+          const isRoundEnd = (qIndex + 1) % QUESTIONS_PER_ROUND === 0;
+
+          if(itemSlots.length < ITEM_SLOTS && isRoundEnd) {
             const allScores = Object.values(playerObj).map(pl => pl.score || 0);
             const position = getPlayerPosition(p.score || 0, allScores);
             const newItem = getRandomItem(position);
@@ -972,28 +974,51 @@
          await db.ref(`games/${gameId}/meta/nextCategory`).remove();
          await db.ref(`games/${gameId}/meta/categoryChooserCandidate`).remove();
 
-         const safeStartIndex = currentQuestions.length; 
-         await proceedToQuestion(safeStartIndex, finalCat, chooser);
+         const safeStartIndex = currentQuestions.length;
+         await proceedToQuestion(safeStartIndex, finalCat, chooser, true); // Show round start after round summary
       }
     };
 
-    const proceedToQuestion = async (index, category, chooser) => {
+    const proceedToQuestion = async (index, category, chooser, showRoundStart = false) => {
       const pSnap = await db.ref(`games/${gameId}/players`).get();
       const updates = {};
       Object.keys(pSnap.val() || {}).forEach(pid => {
         updates[`games/${gameId}/players/${pid}/currentAnswer`] = null;
         updates[`games/${gameId}/players/${pid}/activeEffects`] = {};
         updates[`games/${gameId}/players/${pid}/hasNewItem`] = false;
+        updates[`games/${gameId}/players/${pid}/usedItemThisQuestion`] = false;
       });
       await db.ref().update(updates);
 
+      const currentRound = Math.floor(index / QUESTIONS_PER_ROUND) + 1;
+
+      // FIX: Only show round start at beginning of complete new round (after roundSummary)
+      if(showRoundStart) {
+        // Show round start screen first
+        await db.ref(`games/${gameId}/meta`).update({
+            questionIndex: index,
+            phase: 'roundStart',
+            currentCategory: category,
+            categoryChooserForRound: chooser || null,
+            round: currentRound
+        });
+      } else {
+        // Go directly to question
+        await db.ref(`games/${gameId}/meta`).update({
+            questionIndex: index,
+            phase: 'question',
+            questionStartTime: Date.now(),
+            currentCategory: category,
+            categoryChooserForRound: chooser || null,
+            round: currentRound
+        });
+      }
+    };
+
+    const startQuestionFromRoundStart = async () => {
       await db.ref(`games/${gameId}/meta`).update({
-          questionIndex: index,
           phase: 'question',
-          questionStartTime: Date.now(),
-          currentCategory: category,
-          categoryChooserForRound: chooser || null,
-          round: Math.floor(index / QUESTIONS_PER_ROUND) + 1
+          questionStartTime: Date.now()
       });
     };
 
@@ -1125,7 +1150,7 @@
           </div>
         ) : (
           <div className="host-main">
-            {meta.phase !== 'finalIntro' && meta.phase !== 'finished' && (
+            {meta.phase !== 'finalIntro' && meta.phase !== 'finished' && meta.phase !== 'roundStart' && (
                 <div className="game-top-bar">
                      {meta.phase === 'roundSummary' ? (
                         <div style={{display:'flex', alignItems:'center', width:'100%'}}>
@@ -1142,7 +1167,7 @@
                             </div>
                         </div>
                      )}
-                     
+
                      <div style={{display:'flex', alignItems:'center', gap:20}}>
                         {meta.phase === 'question' && <button className="btn btn-show-results" onClick={showResultsNow}>Lösung anzeigen ▶</button>}
                         {meta.phase === 'results' && <button className="btn btn-host" onClick={startNextRound}>Weiter ▶</button>}
@@ -1153,6 +1178,30 @@
             )}
 
             <div className="host-main-inner">
+                {/* NEW: Round Start Screen for Host */}
+                {meta.phase === 'roundStart' && (
+                  <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', textAlign:'center'}}>
+                    <div style={{fontSize:'8rem', fontWeight:900, color:'var(--rtl-orange)', marginBottom:40, textTransform:'uppercase', letterSpacing:8}}>
+                      RUNDE {meta.round}
+                    </div>
+                    <div style={{fontSize:'2.5rem', color:'var(--muted)', marginBottom:20, textTransform:'uppercase', letterSpacing:3}}>
+                      Kategorie
+                    </div>
+                    <div style={{fontSize:'5rem', fontWeight:900, color:'white', marginBottom:60}}>
+                      {meta.currentCategory || 'Allgemein'}
+                    </div>
+                    <div style={{fontSize:'2rem', color:'var(--muted)', marginBottom:15, textTransform:'uppercase', letterSpacing:2}}>
+                      Punkte für richtige Antwort
+                    </div>
+                    <div style={{fontSize:'6rem', fontWeight:900, color:'var(--rtl-orange)', textShadow:'0 0 40px rgba(255, 102, 0, 0.6)', marginBottom:80}}>
+                      {ROUND_POINTS[meta.round || 1]} Punkte
+                    </div>
+                    <button className="btn btn-host" onClick={startQuestionFromRoundStart} style={{fontSize:32, padding:'25px 60px', marginTop:40}}>
+                      FRAGE STARTEN ▶
+                    </button>
+                  </div>
+                )}
+
                 {meta.phase === 'question' && question && (
                   <>
                     <div className="question-area">
@@ -1511,7 +1560,6 @@
     const [timeReductionApplied, setTimeReductionApplied] = useState(false);
 
     // FIX: Missing state variables
-    const [showRoundStart, setShowRoundStart] = useState(false);
     const [isActivatingItem, setIsActivatingItem] = useState(false);
 
     // NEW: Mirror effect state
@@ -1537,21 +1585,7 @@
         setMirrorAnswer(null);
     }, [meta?.questionIndex]);
 
-    // Show round start screen
-    useEffect(() => {
-      if(meta?.phase === 'question' && meta?.questionStartTime) {
-        const elapsed = Date.now() - meta.questionStartTime;
-        if(elapsed < 100) { // Just started
-          const currentRound = meta.round || 1;
-          const points = ROUND_POINTS[currentRound] || 100;
-          setShowRoundStart(true);
-          
-          setTimeout(() => {
-            setShowRoundStart(false);
-          }, 3000);
-        }
-      }
-    }, [meta?.phase, meta?.questionStartTime]);
+    // FIX: Removed automatic round start screen - now using separate phase
 
     // FIX: Time reduction tracking - store actual start time
     const effectiveStartTimeRef = useRef(null);
@@ -1718,6 +1752,12 @@
         return;
       }
 
+      // FIX: Only allow one item per question
+      if(player?.usedItemThisQuestion) {
+        alert('Du kannst nur ein Item pro Frage verwenden!');
+        return;
+      }
+
       setIsActivatingItem(true);
 
       if(item.needsTarget) {
@@ -1835,14 +1875,15 @@
         }
       }
 
-      // Log action
-      if(targetId || item.id === 'turbo' || item.id === 'magnet' || item.id === 'platztauscher') {
-        await db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).once('value', s => {
-           const arr = s.val() || [];
-           arr.push({ type: item.effect, from: playerId, to: targetId || playerId, itemId: item.id.toUpperCase() });
-           db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).set(arr);
-        });
-      }
+      // FIX: Log ALL items in actions panel
+      await db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).once('value', s => {
+         const arr = s.val() || [];
+         arr.push({ type: item.effect, from: playerId, to: targetId || playerId, itemId: item.id.toUpperCase() });
+         db.ref(`games/${gameId}/meta/actions/${meta.questionIndex||0}`).set(arr);
+      });
+
+        // FIX: Mark that player has used an item this question
+        updates[`games/${gameId}/players/${playerId}/usedItemThisQuestion`] = true;
 
         await db.ref().update(updates);
 
@@ -1869,6 +1910,26 @@
     };
 
     if(!game || !meta || !player) return <div className="min-h-screen flex items-center justify-center">Warte auf Spiel...</div>;
+
+    // NEW: Round Start Screen for Players
+    if(meta.phase === 'roundStart') {
+        return (
+            <div className="round-start-overlay">
+              <div className="round-start-content">
+                <h2>Runde {meta.round}</h2>
+                <div style={{fontSize:'2rem', color:'var(--muted)', marginBottom:15, textTransform:'uppercase', letterSpacing:2}}>
+                  Kategorie
+                </div>
+                <div style={{fontSize:'3.5rem', fontWeight:900, color:'white', marginBottom:30}}>
+                  {meta.currentCategory || 'Allgemein'}
+                </div>
+                <div className="points-label">Punkte für richtige Antwort</div>
+                <div className="points-info">{ROUND_POINTS[meta.round || 1]} Punkte</div>
+                <div style={{fontSize: 16, color: 'var(--muted)', marginTop:30}}>Warte auf den Host...</div>
+              </div>
+            </div>
+        );
+    }
 
     if(meta.phase === 'finalIntro') {
         if(!player.isFinalist) return <div className="min-h-screen flex items-center justify-center p-4"><div className="card"><h2>Finale</h2><p>Du bist Zuschauer.</p></div></div>;
@@ -1903,18 +1964,6 @@
        
        return (
          <div className="min-h-screen p-4" style={{overflowY:'auto', position:'relative'}}>
-           {/* Round Start Screen */}
-           {showRoundStart && (
-             <div className="round-start-overlay">
-               <div className="round-start-content">
-                 <h2>Runde {meta.round}</h2>
-                 <div className="points-label">Punkte für richtige Antwort</div>
-                 <div className="points-info">{ROUND_POINTS[meta.round || 1]} Punkte</div>
-                 <div style={{fontSize: 14, color: 'var(--muted)'}}>Viel Erfolg</div>
-               </div>
-             </div>
-           )}
-
            {isFrozen && (
               <div className="frozen-overlay">
                 EINGEFROREN {freezeTimeLeft}s
@@ -1944,22 +1993,43 @@
              <div style={{display:'flex',justifyContent:'space-between'}}><span>Zeit:</span><span style={{fontWeight:900,color:'var(--rtl-orange)'}}>{timeLeft}s</span></div>
              <h3 style={{fontSize:20,fontWeight:900,marginTop:12}}>{question?.question}</h3>
              
-             {/* Item Slots */}
-             <div style={{display:'flex', gap:10, marginTop:15, justifyContent:'center'}}>
+             {/* Item Slots with Info Button */}
+             <div style={{display:'flex', gap:10, marginTop:15, justifyContent:'center', alignItems:'center', position:'relative'}}>
                {[0, 1].map(slotIdx => {
                   const item = itemSlots[slotIdx];
+                  const isDisabled = isFrozen || isActivatingItem || player?.usedItemThisQuestion;
                   return (
-                    <div 
+                    <div
                       key={slotIdx}
                       className={`item-slot ${item ? `rarity-${item.rarity}` : 'empty'}`}
-                      onClick={() => item && !isFrozen && !isActivatingItem && useItem(item, slotIdx)}
-                      title={item ? item.name : 'Leer'}
-                      style={{cursor: item && !isFrozen && !isActivatingItem ? 'pointer' : 'default'}}
+                      onClick={() => item && !isDisabled && useItem(item, slotIdx)}
+                      title={item ? (player?.usedItemThisQuestion ? item.name + ' (Bereits ein Item verwendet)' : item.name) : 'Leer'}
+                      style={{
+                        cursor: item && !isDisabled ? 'pointer' : 'default',
+                        opacity: item && player?.usedItemThisQuestion ? 0.4 : 1,
+                        filter: item && player?.usedItemThisQuestion ? 'grayscale(100%)' : 'none'
+                      }}
                     >
                       {item ? item.icon : '❓'}
                     </div>
                   );
                })}
+
+               {/* NEW: Items Info Button */}
+               <button
+                 className="btn"
+                 onClick={() => setShowItemsInfo(true)}
+                 style={{
+                   padding:'8px 16px',
+                   fontSize:14,
+                   background:'rgba(255,255,255,0.1)',
+                   border:'1px solid rgba(255,255,255,0.2)',
+                   marginLeft:10
+                 }}
+                 title="Alle Items anzeigen"
+               >
+                 ℹ️ Items Info
+               </button>
              </div>
 
              <div style={{display:'grid', gap:10, marginTop:20}}>
@@ -2038,6 +2108,9 @@
                    </div>
                </div>
            )}
+
+           {/* NEW: Items Info Modal */}
+           {showItemsInfo && <ItemsInfoModal onClose={() => setShowItemsInfo(false)} />}
          </div>
        );
     }
@@ -2246,7 +2319,7 @@
 
   function PlayerJoin({ joinGameId, onJoined }){
     const [name,setName] = useState('');
-    
+
     const handleJoin = async ()=>{
       if(!name) return;
       const snap = await db.ref(`games/${joinGameId}`).get();
@@ -2257,24 +2330,72 @@
     };
 
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6" style={{background:'var(--bg)'}}>
-        <div style={{marginBottom: 40, display:'flex', flexDirection:'column', alignItems:'center'}}>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{background:'var(--bg)'}}>
+        <div style={{marginBottom: 30, display:'flex', flexDirection:'column', alignItems:'center'}}>
             <RTLLogo size="md" />
-            <h1 style={{marginTop:15, fontSize:24, fontWeight:900, color:'var(--tile)', letterSpacing:1}}>AdAlliance Quiz</h1>
+            <h1 style={{marginTop:15, fontSize:'clamp(20px, 5vw, 24px)', fontWeight:900, color:'var(--tile)', letterSpacing:1}}>AdAlliance Quiz</h1>
         </div>
-        <div className="card" style={{width:'100%', maxWidth:400, textAlign:'center'}}>
-          <h2 style={{fontSize:20, fontWeight:900, color:'var(--rtl-orange)', marginBottom:20, textTransform:'uppercase'}}>Spieler Login</h2>
-          <div style={{marginBottom:20}}>
-             <label style={{display:'block', textAlign:'left', marginBottom:8, fontSize:14, color:'var(--muted)', fontWeight:700}}>DEIN NAME</label>
-             <input 
-                value={name} 
-                onChange={e=>setName(e.target.value)} 
-                placeholder="z.B. Max Power" 
-                className="w-full"
+        <div className="card" style={{width:'100%', maxWidth:480, textAlign:'center'}}>
+          <h2 style={{fontSize:'clamp(18px, 4vw, 22px)', fontWeight:900, color:'var(--rtl-orange)', marginBottom:25, textTransform:'uppercase', letterSpacing:2}}>
+            Spieler Login
+          </h2>
+          <div style={{marginBottom:25}}>
+             <label style={{
+               display:'block',
+               textAlign:'left',
+               marginBottom:12,
+               fontSize:'clamp(13px, 3vw, 15px)',
+               color:'var(--muted)',
+               fontWeight:700,
+               textTransform:'uppercase',
+               letterSpacing:1
+             }}>
+               Dein Name
+             </label>
+             <input
+                value={name}
+                onChange={e=>setName(e.target.value)}
+                onKeyPress={e => e.key === 'Enter' && name && handleJoin()}
+                placeholder="z.B. Max Power"
                 maxLength={12}
+                autoFocus
+                style={{
+                  width:'100%',
+                  padding:'16px 20px',
+                  fontSize:'clamp(16px, 4vw, 20px)',
+                  fontWeight:700,
+                  border:'3px solid rgba(255,255,255,0.15)',
+                  borderRadius:8,
+                  background:'rgba(255,255,255,0.05)',
+                  color:'white',
+                  textAlign:'center',
+                  transition:'all 0.2s ease',
+                  outline:'none'
+                }}
+                onFocus={(e) => {
+                  e.target.style.border = '3px solid var(--rtl-orange)';
+                  e.target.style.background = 'rgba(255,102,0,0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.border = '3px solid rgba(255,255,255,0.15)';
+                  e.target.style.background = 'rgba(255,255,255,0.05)';
+                }}
              />
           </div>
-          <button className="btn btn-host w-full" onClick={handleJoin} disabled={!name} style={{fontSize:20, padding:18}}>
+          <button
+            className="btn btn-host w-full"
+            onClick={handleJoin}
+            disabled={!name}
+            style={{
+              fontSize:'clamp(18px, 4vw, 22px)',
+              padding:'18px 24px',
+              fontWeight:900,
+              letterSpacing:2,
+              boxShadow: name ? '0 8px 30px rgba(255,102,0,0.4)' : 'none',
+              transform: name ? 'scale(1)' : 'scale(0.98)',
+              transition:'all 0.2s ease'
+            }}
+          >
             BEITRETEN ▶
           </button>
         </div>
@@ -2343,3 +2464,4 @@
   </script>
 </body>
 </html>
+
