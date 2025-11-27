@@ -1,0 +1,110 @@
+{
+  "questions": [
+    {
+      "question": "Welches Land hat die längste Küstenlinie der Welt?",
+      "answers": ["USA", "Kanada", "Australien", "Indonesien"],
+      "correct": 1,
+      "category": "Geografie"
+    },
+    {
+      "question": "Welche Stadt liegt am Bosporus?",
+      "answers": ["Belgrad", "Istanbul", "Athen", "Sofia"],
+      "correct": 1,
+      "category": "Geografie"
+    },
+    {
+      "question": "Wie viele Chromosomen hat der Mensch normalerweise?",
+      "answers": ["42", "44", "46", "48"],
+      "correct": 2,
+      "category": "Wissenschaft"
+    },
+    {
+      "question": "Welches Gas atmen wir hauptsächlich ein?",
+      "answers": ["Sauerstoff", "Stickstoff", "Kohlendioxid", "Helium"],
+      "correct": 1,
+      "category": "Wissenschaft"
+    },
+    {
+      "question": "Wer war der erste Kanzler der Bundesrepublik Deutschland?",
+      "answers": ["Brandt", "Schmidt", "Adenauer", "Kohl"],
+      "correct": 2,
+      "category": "Geschichte"
+    },
+    {
+      "question": "In welchem Jahr begann der Zweite Weltkrieg?",
+      "answers": ["1938", "1939", "1940", "1941"],
+      "correct": 1,
+      "category": "Geschichte"
+    },
+    {
+      "question": "Wer komponierte die 9. Sinfonie?",
+      "answers": ["Beethoven", "Mozart", "Bach", "Haydn"],
+      "correct": 0,
+      "category": "Kultur & Kunst"
+    },
+    {
+      "question": "Welcher Künstler schuf die 'Sternennacht'?",
+      "answers": ["Monet", "Van Gogh", "Gauguin", "Da Vinci"],
+      "correct": 1,
+      "category": "Kultur & Kunst"
+    },
+    {
+      "question": "Wie viele Spieler hat eine Fußballmannschaft auf dem Feld?",
+      "answers": ["9", "10", "11", "12"],
+      "correct": 2,
+      "category": "Sport"
+    },
+    {
+      "question": "Wer gewann die Fußball-WM 2014?",
+      "answers": ["Brasilien", "Deutschland", "Spanien", "Argentinien"],
+      "correct": 1,
+      "category": "Sport"
+    },
+    {
+      "question": "Was bedeutet die Abkürzung 'CPU'?",
+      "answers": ["Central Performance Unit", "Central Processing Unit", "Computer Personal Unit", "Control Processing Unit"],
+      "correct": 1,
+      "category": "Technik & Digitalisierung"
+    },
+    {
+      "question": "Welche Firma entwickelte das erste iPhone?",
+      "answers": ["Samsung", "Apple", "Nokia", "Motorola"],
+      "correct": 1,
+      "category": "Technik & Digitalisierung"
+    }
+  ],
+  "finalQuestions": [
+    {
+      "question": "In welchem Jahr wurde die Berliner Mauer errichtet?",
+      "answer": "1961"
+    },
+    {
+      "question": "Wie heißt der höchste Berg Deutschlands?",
+      "answer": "Zugspitze"
+    },
+    {
+      "question": "Welches chemische Element hat das Symbol 'Au'?",
+      "answer": "Gold"
+    },
+    {
+      "question": "Wie viele Bundesländer hat Deutschland?",
+      "answer": "16"
+    },
+    {
+      "question": "In welcher Stadt steht die Freiheitsstatue?",
+      "answer": "New York"
+    },
+    {
+      "question": "Welcher Planet ist der Sonne am nächsten?",
+      "answer": "Merkur"
+    },
+    {
+      "question": "Wie viele Tasten hat ein Standardklavier?",
+      "answer": "88"
+    },
+    {
+      "question": "Welches Jahr markiert den Beginn des Ersten Weltkriegs?",
+      "answer": "1914"
+    }
+  ]
+}
