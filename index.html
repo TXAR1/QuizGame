@@ -567,15 +567,8 @@
 
       /* Question text on mobile */
       h3 {
-        font-size: 19px !important;
+        font-size: 18px !important;
         line-height: 1.35 !important;
-      }
-
-      /* Answer buttons - equal height distribution */
-      button[style*="flex: 1 1 0"] {
-        padding: 16px 14px !important;
-        font-size: 16px !important;
-        min-height: 70px !important;
       }
 
       /* Item slots on mobile */
@@ -698,13 +691,6 @@
 
       h3 {
         font-size: 17px !important;
-      }
-
-      /* Answer buttons on extra small screens */
-      button[style*="flex: 1 1 0"] {
-        padding: 14px 12px !important;
-        font-size: 15px !important;
-        min-height: 65px !important;
       }
 
       .item-slot {
@@ -833,7 +819,7 @@
       alert('Fehler beim Laden der Fragen. Bitte Seite neu laden.');
     });
 
-  function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[i],a[j]];} return a; }
+  function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
   function randomGameID(){ return Math.random().toString(36).substr(2,6).toUpperCase(); }
   function makePlayerId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2,4); }
 
@@ -2268,33 +2254,33 @@
            )}
            
            <div className="card" style={{display:'flex', flexDirection:'column', height:'calc(100vh - 32px)'}}>
-             {/* Compact Header */}
+             {/* Header */}
              <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20, flexShrink:0}}>
-                 <div style={{display:'flex', alignItems:'center', gap:12}}>
-                   <img src="Logo.png" alt="Logo" style={{height:32, width:'auto'}} />
+                 <div style={{display:'flex', alignItems:'center', gap:8}}>
+                   <img src="Logo.png" alt="Logo" style={{height:28, width:'auto'}} />
                    <div style={{display:'flex', flexDirection:'column', gap:2}}>
-                     <span style={{fontWeight:900, fontSize:13, color:'var(--muted)', letterSpacing:1}}>RUNDE {meta.round}</span>
-                     <span style={{fontWeight:900, fontSize:18, color:'var(--tile)'}}>Score: {player.score}</span>
+                     <span style={{fontWeight:900, fontSize:11, color:'var(--muted)', letterSpacing:1}}>RUNDE {meta.round}</span>
+                     <span style={{fontWeight:900, fontSize:16, color:'var(--tile)'}}>Score: {player.score}</span>
                    </div>
                  </div>
                  <div style={{textAlign:'right'}}>
-                   <div style={{fontSize:13, color:'var(--muted)', marginBottom:4}}>Zeit</div>
-                   <div style={{fontWeight:900, color:'var(--rtl-orange)', fontSize:28}}>{timeLeft}s</div>
+                   <div style={{fontSize:12, color:'var(--muted)', marginBottom:4}}>Zeit</div>
+                   <div style={{fontWeight:900, color:'var(--rtl-orange)', fontSize:24}}>{timeLeft}s</div>
                  </div>
              </div>
 
              {player.hasNewItem && (
-                <div style={{background:'var(--rtl-orange)', color:'#000', padding:14, marginBottom:20, fontWeight:900, textAlign:'center', fontSize:15, flexShrink:0}}>
+                <div style={{background:'var(--rtl-orange)', color:'#000', padding:12, marginBottom:20, fontWeight:900, textAlign:'center', fontSize:14, flexShrink:0}}>
                   📦 NEUES ITEM ERHALTEN!
                 </div>
              )}
 
-             {/* Question - grows to fill available space */}
-             <div style={{flex:'0 0 auto', marginBottom:20}}>
-               <h3 style={{fontSize:24, fontWeight:900, lineHeight:1.4, margin:0}}>{question?.question}</h3>
+             {/* Question */}
+             <div style={{marginBottom:20, flexShrink:0}}>
+               <h3 style={{fontSize:28, fontWeight:900, lineHeight:1.4, margin:0}}>{question?.question}</h3>
              </div>
 
-             {/* Item Slots and Info - Compact Layout */}
+             {/* Item Slots */}
              <div style={{display:'flex', gap:10, marginBottom:20, alignItems:'center', justifyContent:'space-between', flexShrink:0}}>
                <div style={{display:'flex', gap:10}}>
                  {[0, 1].map(slotIdx => {
@@ -2307,8 +2293,8 @@
                         onClick={() => item && !isDisabled && useItem(item, slotIdx)}
                         title={item ? (player?.usedItemThisQuestion ? item.name + ' (Bereits ein Item verwendet)' : item.name) : 'Leer'}
                         style={{
-                          width: 70,
-                          height: 70,
+                          width: 65,
+                          height: 65,
                           cursor: item && !isDisabled ? 'pointer' : 'default',
                           opacity: item && player?.usedItemThisQuestion ? 0.4 : 1,
                           filter: item && player?.usedItemThisQuestion ? 'grayscale(100%)' : 'none'
@@ -2320,7 +2306,7 @@
                  })}
                </div>
 
-               {/* Compact Items Info Button */}
+               {/* Items Info Button */}
                <button
                  className="btn"
                  onClick={() => setShowItemsInfo(true)}
@@ -2328,8 +2314,7 @@
                    padding:'8px 14px',
                    fontSize:13,
                    background:'rgba(255,255,255,0.1)',
-                   border:'1px solid rgba(255,255,255,0.2)',
-                   flexShrink:0
+                   border:'1px solid rgba(255,255,255,0.2)'
                  }}
                  title="Alle Items anzeigen"
                >
@@ -2337,7 +2322,7 @@
                </button>
              </div>
 
-             {/* Answer Buttons - takes remaining space */}
+             {/* Answer Buttons */}
              <div style={{display:'flex', flexDirection:'column', gap:12, flex:1, minHeight:0}}>
                {question?.answers.map((a,i)=>{
                  const is5050Eliminated = eliminated5050.includes(i);
@@ -2354,7 +2339,7 @@
                           color:player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : '#0b0b0b'),
                           border: player.currentAnswer===i ? '3px solid var(--rtl-orange)' : (isMirrorAnswer ? '3px solid var(--rtl-purple)' : (isScanned ? '3px solid #2196F3' : 'none')),
                           textAlign:'left',
-                          fontSize:18,
+                          fontSize:22,
                           fontWeight:700,
                           display:'flex',
                           alignItems:'center',
@@ -2366,7 +2351,7 @@
                           flex: '1 1 0',
                           minHeight: 60
                       }}>
-                      <span style={{fontWeight:900, color: player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : 'var(--rtl-orange)'), fontSize:20, flexShrink:0}}>{String.fromCharCode(65+i)}</span>
+                      <span style={{fontWeight:900, color: player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : 'var(--rtl-orange)'), fontSize:24, flexShrink:0}}>{String.fromCharCode(65+i)}</span>
                       <span style={{flex:1}}>{a}</span>
                       {isScanned && <span style={{color:'#2196F3', fontSize:20, flexShrink:0}}>👁️</span>}
                       {isMirrorAnswer && <span style={{color:'var(--rtl-purple)', fontSize:22, flexShrink:0}}>🔮</span>}
@@ -2787,4 +2772,5 @@
   </script>
 </body>
 </html>
+
 
