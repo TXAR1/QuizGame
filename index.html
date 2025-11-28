@@ -503,6 +503,180 @@
       line-height: 1.5;
     }
 
+    /* Mobile Optimizations for Player View */
+    @media (max-width: 768px) {
+      html, body, #root {
+        overflow-y: auto;
+        overflow-x: hidden;
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .card {
+        padding: 16px;
+        margin: 8px;
+      }
+
+      .min-h-screen {
+        min-height: 100vh;
+        height: auto;
+        padding: 8px !important;
+      }
+
+      /* Question text smaller on mobile */
+      h3 {
+        font-size: 18px !important;
+        line-height: 1.3 !important;
+      }
+
+      /* Answer buttons more touch-friendly */
+      button[style*="padding:15px"] {
+        padding: 18px 12px !important;
+        font-size: 16px !important;
+      }
+
+      /* Item slots larger and more spaced */
+      .item-slot {
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 32px !important;
+      }
+
+      /* Info button smaller on mobile */
+      .btn {
+        font-size: 14px !important;
+        padding: 10px 16px !important;
+      }
+
+      /* Modal optimizations */
+      .modal-card {
+        width: 90% !important;
+        padding: 20px !important;
+        max-width: none !important;
+      }
+
+      .modal-card h3 {
+        font-size: 20px !important;
+      }
+
+      /* Items info modal */
+      .items-info-content {
+        padding: 20px !important;
+        max-height: 85vh !important;
+      }
+
+      .items-info-content h2 {
+        font-size: 24px !important;
+        margin-bottom: 20px !important;
+      }
+
+      .item-info-card {
+        padding: 12px !important;
+        margin-bottom: 10px !important;
+      }
+
+      .item-info-card h4 {
+        font-size: 16px !important;
+        gap: 8px !important;
+      }
+
+      .item-info-card p {
+        font-size: 13px !important;
+      }
+
+      /* Roulette overlay mobile */
+      .item-box-container {
+        width: 90% !important;
+        max-width: 350px !important;
+      }
+
+      .item-box-display {
+        width: 150px !important;
+        height: 150px !important;
+      }
+
+      .item-box-text {
+        font-size: 20px !important;
+      }
+
+      .item-box-info h3 {
+        font-size: 24px !important;
+      }
+
+      /* Attack notification smaller */
+      .attack-notification {
+        min-width: 250px !important;
+        padding: 15px 20px !important;
+      }
+
+      .attack-notification h3 {
+        font-size: 18px !important;
+      }
+
+      .attack-notification p {
+        font-size: 14px !important;
+      }
+
+      /* Results view */
+      div[style*="fontSize:80"] {
+        font-size: 50px !important;
+      }
+
+      div[style*="fontSize:60"] {
+        font-size: 40px !important;
+      }
+
+      div[style*="fontSize:32"] {
+        font-size: 24px !important;
+      }
+
+      /* Frozen overlay text */
+      .frozen-overlay {
+        font-size: 32px !important;
+      }
+
+      /* Player join screen */
+      input[style*="fontSize"] {
+        font-size: 18px !important;
+      }
+
+      /* Pause/Finished screen optimizations */
+      div[style*="fontSize:48"] {
+        font-size: 28px !important;
+      }
+    }
+
+    /* Extra small devices */
+    @media (max-width: 480px) {
+      .card {
+        padding: 12px;
+        margin: 4px;
+      }
+
+      h3 {
+        font-size: 16px !important;
+      }
+
+      button[style*="padding"] {
+        font-size: 14px !important;
+        padding: 14px 10px !important;
+      }
+
+      .item-slot {
+        width: 60px !important;
+        height: 60px !important;
+      }
+
+      .item-box-display {
+        width: 120px !important;
+        height: 120px !important;
+      }
+
+      .items-info-content h2 {
+        font-size: 20px !important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -513,7 +687,7 @@
 
   /************ CONFIG ************/
   const TOTAL_ROUNDS = 4;
-  const QUESTIONS_PER_ROUND = 2;
+  const QUESTIONS_PER_ROUND = 10;
   const QUESTION_TIME = 60; // CHANGED: 60 seconds
   
   const ROUND_POINTS = { 1: 100, 2: 200, 3: 400, 4: 800 };
@@ -527,13 +701,13 @@
 
   const ITEM_TYPES = {
     // OFFENSIVE
-    GIFTPFEIL: { id: 'giftpfeil', name: 'Giftpfeil', icon: 'icons/Attacke.png', rarity: 'common', effect: 'poison', needsTarget: true, description: 'Reduziert die Punkte eines Gegners um 25%' },
-    FREEZE: { id: 'freeze', name: 'Eisschock', icon: 'icons/Stillmacher.png', rarity: 'uncommon', effect: 'freeze', needsTarget: true, description: 'Friert einen Gegner für 8 Sekunden ein' },
+    GIFTPFEIL: { id: 'giftpfeil', name: 'Attacke', icon: 'icons/Attacke.png', rarity: 'common', effect: 'poison', needsTarget: true, description: 'Reduziert die Punkte eines Gegners um 25%' },
+    FREEZE: { id: 'freeze', name: 'Stillmacher', icon: 'icons/Stillmacher.png', rarity: 'uncommon', effect: 'freeze', needsTarget: true, description: 'Friert einen Gegner für 8 Sekunden ein' },
     ZEITSCHNAPPER: { id: 'zeitschnapper', name: 'Zeitschnapper', icon: 'icons/Zeitschnapper.png', rarity: 'rare', effect: 'time_reduce', needsTarget: true, description: 'Halbiert die verbleibende Zeit eines Gegners' },
 
     // DEFENSIVE
     SCHILD: { id: 'schild', name: 'Schild', icon: 'icons/Schild.png', rarity: 'uncommon', effect: 'shield', needsTarget: false, description: 'Schützt dich vor allen Angriffen und reflektiert sie' },
-    SPIEGELGLAS: { id: 'spiegelglas', name: 'Spiegelglas', icon: 'icons/Geistesblitz.png', rarity: 'rare', effect: 'mirror', needsTarget: false, description: 'Zeigt die meistgewählte Antwort' },
+    SPIEGELGLAS: { id: 'spiegelglas', name: 'Geistesblitz', icon: 'icons/Geistesblitz.png', rarity: 'rare', effect: 'mirror', needsTarget: false, description: 'Zeigt die meistgewählte Antwort' },
 
     // BOOST
     TURBO: { id: 'turbo', name: 'Turbo-Boost', icon: 'icons/Boost.png', rarity: 'common', effect: 'boost', needsTarget: false, description: 'Erhöht deine Punkte bei richtiger Antwort um 50%' },
@@ -845,11 +1019,12 @@
           updates[`games/${gameId}/players/${pid}/score`] = currentTotal + finalPoints;
           updates[`games/${gameId}/players/${pid}/lastPoints`] = finalPoints;
 
-          // FIX: Give item box only after every second question (at round end)
+          // Give item box only after every second question, but stop after question 8
           const itemSlots = p.itemSlots || [];
-          const isRoundEnd = (qIndex + 1) % QUESTIONS_PER_ROUND === 0;
+          const isRoundEnd = (qIndex + 1) % 2 === 0;
+          const questionNumber = (qIndex % QUESTIONS_PER_ROUND) + 1;
 
-          if(itemSlots.length < ITEM_SLOTS && isRoundEnd) {
+          if(itemSlots.length < ITEM_SLOTS && isRoundEnd && questionNumber <= 8) {
             const allScores = Object.values(playerObj).map(pl => pl.score || 0);
             const position = getPlayerPosition(p.score || 0, allScores);
             const newItem = getRandomItem(position);
@@ -1105,7 +1280,10 @@
              
              <div style={{flex:1, background:'#0a0a0a', display:'flex', flexDirection:'column'}}>
                 <div style={{display:'flex', justifyContent:'space-between', padding:'20px 40px', borderBottom:'1px solid rgba(255,255,255,0.1)', background:'#111'}}>
-                    <div style={{fontSize:24, fontWeight:900, color:'var(--rtl-orange)'}}>LOBBY</div>
+                    <div style={{display:'flex', alignItems:'center', gap:20}}>
+                        <RTLLogo size="sm" />
+                        <div style={{fontSize:24, fontWeight:900, color:'var(--rtl-orange)'}}>LOBBY</div>
+                    </div>
                     <div style={{display:'flex', alignItems:'center', gap:30}}>
                         <div style={{fontSize:24, fontWeight:700}}>Spieler: {playersArr.length}</div>
                          <div style={{display:'flex', alignItems:'center', gap:10, padding:'5px 15px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)'}}>
@@ -1133,11 +1311,13 @@
             {meta.phase !== 'finalIntro' && meta.phase !== 'finished' && meta.phase !== 'roundStart' && (
                 <div className="game-top-bar">
                      {meta.phase === 'roundSummary' ? (
-                        <div style={{display:'flex', alignItems:'center', width:'100%'}}>
+                        <div style={{display:'flex', alignItems:'center', width:'100%', gap:20}}>
+                            <RTLLogo size="sm" />
                             <div style={{fontSize:'3rem', fontWeight:900, color:'white', letterSpacing:2}}>ZWISCHENSTAND</div>
                         </div>
                      ) : (
                         <div style={{display:'flex', alignItems:'center', gap:20}}>
+                            <RTLLogo size="sm" />
                             <div className={`countdown-badge ${countdownClass}`}>{timeLeft}</div>
                             <div>
                               <div style={{color:'var(--muted)', fontSize:'1rem', textTransform:'uppercase'}}>
@@ -1161,24 +1341,47 @@
                 {/* NEW: Round Start Screen for Host */}
                 {meta.phase === 'roundStart' && (
                   <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', textAlign:'center'}}>
-                    <div style={{fontSize:'8rem', fontWeight:900, color:'var(--rtl-orange)', marginBottom:40, textTransform:'uppercase', letterSpacing:8}}>
-                      RUNDE {meta.round}
+                    <div style={{display:'flex', flexDirection:'column', alignItems:'center', padding:'60px', background:'rgba(0,0,0,0.6)', border:'4px solid var(--rtl-orange)', maxWidth:'90%'}}>
+                      <RTLLogo size="md" style={{marginBottom:40}} />
+
+                      <div style={{fontSize:'10rem', fontWeight:900, color:'var(--rtl-orange)', marginBottom:30, textTransform:'uppercase', letterSpacing:12}}>
+                        RUNDE {meta.round}
+                      </div>
+
+                      <div style={{width:'100%', height:'2px', background:'linear-gradient(90deg, transparent, var(--rtl-orange), transparent)', marginBottom:40}}></div>
+
+                      <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:15, marginBottom:50, padding:'30px 60px', background:'rgba(255,102,0,0.1)', border:'2px solid rgba(255,102,0,0.3)', width:'100%'}}>
+                        <div style={{fontSize:'1.8rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:4, fontWeight:700}}>
+                          Kategorie
+                        </div>
+                        <div style={{fontSize:'4.5rem', fontWeight:900, color:'white', letterSpacing:2}}>
+                          {meta.currentCategory || 'Allgemein'}
+                        </div>
+                      </div>
+
+                      <div style={{display:'flex', alignItems:'center', gap:30, marginBottom:50}}>
+                        <div style={{textAlign:'center', padding:'20px 40px', background:'rgba(0,0,0,0.5)', border:'2px solid rgba(255,255,255,0.1)'}}>
+                          <div style={{fontSize:'1.2rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:10}}>
+                            Punkte pro Antwort
+                          </div>
+                          <div style={{fontSize:'5rem', fontWeight:900, color:'var(--rtl-orange)', lineHeight:1}}>
+                            {ROUND_POINTS[meta.round || 1]}
+                          </div>
+                        </div>
+                        <div style={{textAlign:'center', padding:'20px 40px', background:'rgba(0,0,0,0.5)', border:'2px solid rgba(255,255,255,0.1)'}}>
+                          <div style={{fontSize:'1.2rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:10}}>
+                            Fragen
+                          </div>
+                          <div style={{fontSize:'5rem', fontWeight:900, color:'white', lineHeight:1}}>
+                            {QUESTIONS_PER_ROUND}
+                          </div>
+                        </div>
+                      </div>
+
+                      <button className="btn btn-host" onClick={startQuestionFromRoundStart} style={{fontSize:36, padding:'30px 80px', marginTop:20}}>
+                        FRAGE STARTEN ▶
+                      </button>
                     </div>
-                    <div style={{fontSize:'2.5rem', color:'var(--muted)', marginBottom:20, textTransform:'uppercase', letterSpacing:3}}>
-                      Kategorie
-                    </div>
-                    <div style={{fontSize:'5rem', fontWeight:900, color:'white', marginBottom:60}}>
-                      {meta.currentCategory || 'Allgemein'}
-                    </div>
-                    <div style={{fontSize:'2rem', color:'var(--muted)', marginBottom:15, textTransform:'uppercase', letterSpacing:2}}>
-                      Punkte für richtige Antwort
-                    </div>
-                    <div style={{fontSize:'6rem', fontWeight:900, color:'var(--rtl-orange)', marginBottom:80}}>
-                      {ROUND_POINTS[meta.round || 1]} Punkte
-                    </div>
-                    <button className="btn btn-host" onClick={startQuestionFromRoundStart} style={{fontSize:32, padding:'25px 60px', marginTop:40}}>
-                      FRAGE STARTEN ▶
-                    </button>
                   </div>
                 )}
 
@@ -1291,7 +1494,10 @@
 
                 {meta.phase === 'roundSummary' && (
                    <div style={{width:'100%', height:'100%', display:'flex', flexDirection:'column'}}>
-                      <h2 style={{textAlign:'center', fontSize:48, fontWeight:900, color:'var(--rtl-orange)', marginBottom:20}}>Stand nach Runde {meta.round - 1}</h2>
+                      <div style={{display:'flex', justifyContent:'center', alignItems:'center', gap:20, marginBottom:20}}>
+                        <RTLLogo size="sm" />
+                        <h2 style={{textAlign:'center', fontSize:48, fontWeight:900, color:'var(--rtl-orange)', margin:0}}>Stand nach Runde {meta.round - 1}</h2>
+                      </div>
                       <div style={{textAlign:'center', color:'var(--muted)', marginBottom:30, fontSize:20, display:'flex', flexDirection:'column', gap:10, alignItems:'center'}}>
                          <div>Der Spieler auf dem letzten Platz wählt die nächste Kategorie.</div>
                          {meta.categoryChooserCandidate && (
@@ -1342,6 +1548,7 @@
                         {meta.phase === 'finished' && (
                            <div style={{width:'100%', height:'100%', position:'relative', display:'flex', flexDirection:'column', alignItems:'center'}}>
                               <div style={{zIndex:10, textAlign:'center', paddingTop:40}}>
+                                  <RTLLogo size="lg" style={{marginBottom:30}} />
                                   <h1 style={{fontSize:80, fontWeight:900, margin:0, color:'var(--rtl-orange)', textTransform:'uppercase', letterSpacing:4}}>Siegerehrung</h1>
                               </div>
                               <div className="podium-container" style={{zIndex:10}}>
@@ -1405,6 +1612,7 @@
     const allReady = finalists.every(f => f.finalistReady === true);
     return (
       <div style={{textAlign:'center', width:'100%'}}>
+        <RTLLogo size="lg" style={{marginBottom:40}} />
         <h2 style={{fontSize:60, fontWeight:900, color:'var(--rtl-orange)', marginBottom:50}}>FINALE</h2>
         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:60, width:'100%', maxWidth:1200, margin:'0 auto'}}>
           {finalists.map((f, idx) => (
@@ -1433,11 +1641,12 @@
     const question = (game.finalQuestions || [])[finalQIndex];
     const finalists = (meta.finalists || []).map(pid => ({ pid, ...(game.players?.[pid] || {}) }));
     const allAnswered = finalists.every(f => f.finalAnswers?.[finalQIndex]);
-    
+
     const buttonText = finalQIndex + 1 >= FINAL_QUESTIONS ? 'ZUR AUSWERTUNG' : 'NÄCHSTE FRAGE';
 
     return (
       <div style={{textAlign:'center', width:'100%', maxWidth:1400}}>
+        <RTLLogo size="sm" style={{marginBottom:30}} />
         <h2 style={{fontSize:50, fontWeight:900, lineHeight:1.3}}>{question?.question}</h2>
         <div style={{display:'flex', gap:40, marginTop:80}}>
           {finalists.map(f => (
@@ -1466,6 +1675,7 @@
     return (
       <div className="results-split-view" style={{width:'100%'}}>
         <div className="results-col" style={{justifyContent:'center', padding:40}}>
+           <RTLLogo size="sm" style={{marginBottom:20}} />
            <h3 style={{color:'var(--muted)', textTransform:'uppercase', fontWeight:900, fontSize:20}}>Frage {reviewIndex+1}</h3>
            <div style={{fontSize:40, fontWeight:900, marginBottom:40, lineHeight:1.2}}>{question?.question}</div>
            <div style={{padding:40, background:'#fff', color:'#000'}}>
@@ -1633,20 +1843,12 @@
     }, [player?.hasNewItem, meta?.phase, playerReveal]);
 
     const startItemRoulette = (finalItem) => {
-      // Generate roulette items with mystery boxes until reveal
+      // Generate roulette items - all mystery boxes until reveal
       const randomItems = [];
-      
-      // Add 15 mystery boxes
-      for(let i = 0; i < 15; i++) {
-        randomItems.push({ icon: '❓', key: `mystery-${i}`, isMystery: true });
-      }
-      
-      // Add the final item at position that will be centered when animation stops
-      randomItems.push({...finalItem, key: 'final-item'});
-      
-      // Add a few more mystery boxes after
-      for(let i = 0; i < 5; i++) {
-        randomItems.push({ icon: '❓', key: `mystery-after-${i}`, isMystery: true });
+
+      // Add 20 mystery boxes - all items appear as mystery until revealed
+      for(let i = 0; i < 20; i++) {
+        randomItems.push({ icon: 'icons/Fragezeichen.png', key: `mystery-${i}`, isMystery: true });
       }
       
       setRouletteItems(randomItems);
@@ -1908,16 +2110,43 @@
         return (
             <div className="round-start-overlay">
               <div className="round-start-content">
+                <RTLLogo size="md" style={{marginBottom:30}} />
+
                 <h2>Runde {meta.round}</h2>
-                <div style={{fontSize:'2rem', color:'var(--muted)', marginBottom:15, textTransform:'uppercase', letterSpacing:2}}>
-                  Kategorie
+
+                <div style={{width:'100%', height:'2px', background:'linear-gradient(90deg, transparent, var(--rtl-orange), transparent)', margin:'30px 0'}}></div>
+
+                <div style={{padding:'25px 40px', background:'rgba(255,102,0,0.1)', border:'2px solid rgba(255,102,0,0.3)', marginBottom:30}}>
+                  <div style={{fontSize:'1.5rem', color:'var(--muted)', marginBottom:10, textTransform:'uppercase', letterSpacing:3, fontWeight:700}}>
+                    Kategorie
+                  </div>
+                  <div style={{fontSize:'3rem', fontWeight:900, color:'white', letterSpacing:1}}>
+                    {meta.currentCategory || 'Allgemein'}
+                  </div>
                 </div>
-                <div style={{fontSize:'3.5rem', fontWeight:900, color:'white', marginBottom:30}}>
-                  {meta.currentCategory || 'Allgemein'}
+
+                <div style={{display:'flex', justifyContent:'center', gap:20, marginBottom:30}}>
+                  <div style={{textAlign:'center', padding:'15px 30px', background:'rgba(0,0,0,0.5)', border:'2px solid rgba(255,255,255,0.1)', flex:1}}>
+                    <div style={{fontSize:'0.9rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:1.5, marginBottom:8}}>
+                      Punkte
+                    </div>
+                    <div style={{fontSize:'3rem', fontWeight:900, color:'var(--rtl-orange)', lineHeight:1}}>
+                      {ROUND_POINTS[meta.round || 1]}
+                    </div>
+                  </div>
+                  <div style={{textAlign:'center', padding:'15px 30px', background:'rgba(0,0,0,0.5)', border:'2px solid rgba(255,255,255,0.1)', flex:1}}>
+                    <div style={{fontSize:'0.9rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:1.5, marginBottom:8}}>
+                      Fragen
+                    </div>
+                    <div style={{fontSize:'3rem', fontWeight:900, color:'white', lineHeight:1}}>
+                      {QUESTIONS_PER_ROUND}
+                    </div>
+                  </div>
                 </div>
-                <div className="points-label">Punkte für richtige Antwort</div>
-                <div className="points-info">{ROUND_POINTS[meta.round || 1]} Punkte</div>
-                <div style={{fontSize: 16, color: 'var(--muted)', marginTop:30}}>Warte auf den Host...</div>
+
+                <div style={{fontSize: 16, color: 'var(--muted)', marginTop:40, padding:'15px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)'}}>
+                  ⏳ Warte auf den Host...
+                </div>
               </div>
             </div>
         );
@@ -1928,6 +2157,7 @@
         return (
             <div className="min-h-screen p-4 flex items-center justify-center">
                 <div className="card" style={{textAlign:'center', width:'100%'}}>
+                    <RTLLogo size="md" style={{marginBottom:30}} />
                     <h2 style={{fontSize:30, marginBottom:20}}>FINALE!</h2>
                     <p style={{marginBottom:30}}>Bist du bereit?</p>
                     {!player.finalistReady ? (
@@ -1944,7 +2174,7 @@
        if(!player.isFinalist) return <div className="min-h-screen flex items-center justify-center p-4"><div className="card"><h2>Finale läuft...</h2></div></div>;
        const hasAnswered = player.finalAnswers && player.finalAnswers[meta.finalQuestionIndex||0];
        return (
-          <div className="min-h-screen p-4"><div className="card"><h2>Frage {meta.finalQuestionIndex+1}</h2><p>{question?.question}</p>
+          <div className="min-h-screen p-4"><div className="card"><RTLLogo size="sm" style={{marginBottom:20}} /><h2>Frage {meta.finalQuestionIndex+1}</h2><p>{question?.question}</p>
           {!hasAnswered ? <><input className="w-full p-3 mt-4" value={finalAnswer} onChange={e=>setFinalAnswer(e.target.value)}/><button className="btn btn-host w-full mt-2" onClick={()=>{db.ref(`games/${gameId}/players/${playerId}/finalAnswers/${meta.finalQuestionIndex}`).set(finalAnswer); setFinalAnswer('');}}>Senden</button></> : <p>Antwort gesendet.</p>}</div></div>
        );
     }
@@ -1971,8 +2201,11 @@
            )}
            
            <div className="card">
-             <div style={{display:'flex', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.1)', paddingBottom:10, marginBottom:15}}>
-                 <span style={{fontWeight:700, color:'var(--muted)'}}>Runde {meta.round}</span>
+             <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px solid rgba(255,255,255,0.1)', paddingBottom:10, marginBottom:15}}>
+                 <div style={{display:'flex', alignItems:'center', gap:10}}>
+                   <RTLLogo size="xs" />
+                   <span style={{fontWeight:700, color:'var(--muted)'}}>Runde {meta.round}</span>
+                 </div>
                  <span style={{fontWeight:900, color:'var(--tile)'}}>Gesamt: {player.score}</span>
              </div>
              
@@ -2002,7 +2235,7 @@
                         filter: item && player?.usedItemThisQuestion ? 'grayscale(100%)' : 'none'
                       }}
                     >
-                      {item ? <img src={item.icon} alt={item.name} style={{width: '100%', height: '100%', objectFit: 'contain'}} /> : '❓'}
+                      {item ? <img src={item.icon} alt={item.name} style={{width: '100%', height: '100%', objectFit: 'contain'}} /> : <img src="icons/Fragezeichen.png" alt="Leer" style={{width: '70%', height: '70%', objectFit: 'contain', opacity: 0.3}} />}
                     </div>
                   );
                })}
@@ -2038,7 +2271,7 @@
                           padding:15,
                           background:player.currentAnswer===i?'var(--rtl-orange)':(is5050Eliminated ? '#333' : 'white'),
                           color:player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : '#0b0b0b'),
-                          border: player.currentAnswer===i ? '1px solid var(--rtl-orange)' : (isMirrorAnswer ? '3px solid var(--rtl-purple)' : (isScanned ? '3px solid #2196F3' : '1px solid #e0e0e0')),
+                          border: player.currentAnswer===i ? '1px solid var(--rtl-orange)' : (isMirrorAnswer ? '3px solid var(--rtl-purple)' : (isScanned ? '3px solid #2196F3' : 'none')),
                           textAlign:'left',
                           fontSize:18,
                           display:'flex',
@@ -2046,8 +2279,7 @@
                           gap: '10px',
                           transition: 'all 0.2s',
                           opacity: is5050Eliminated ? 0.3 : 1,
-                          position: 'relative',
-                          boxShadow: isMirrorAnswer ? '0 0 20px rgba(123, 44, 191, 0.5)' : 'none'
+                          position: 'relative'
                       }}>
                       <span style={{fontWeight:900, color: player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : 'var(--rtl-orange)'), marginRight: '10px'}}>{String.fromCharCode(65+i)}.</span>
                       {a}
@@ -2129,6 +2361,9 @@
             return (
                 <div className="min-h-screen flex items-center justify-center p-4">
                     <div className="card" style={{width:'100%'}}>
+                        <div style={{display:'flex', justifyContent:'center', marginBottom:20}}>
+                          <RTLLogo size="sm" />
+                        </div>
                         <h3 style={{textAlign:'center', marginBottom:20, fontSize:24, fontWeight:900, color:'var(--rtl-orange)'}}>DU WÄHLST DIE KATEGORIE</h3>
                         <p style={{textAlign:'center', marginBottom:20, color:'var(--muted)'}}>Als Letztplatzierter darfst du die nächste Kategorie bestimmen.</p>
                         <div style={{display:'flex', flexDirection:'column', gap:10}}>
@@ -2144,6 +2379,7 @@
         return (
             <div className="min-h-screen flex items-center justify-center p-4">
                 <div className="card" style={{textAlign:'center'}}>
+                    <RTLLogo size="sm" style={{marginBottom:20}} />
                     <h2 style={{fontSize:28, fontWeight:900, color:'var(--rtl-orange)', marginBottom:20}}>ZWISCHENSTAND</h2>
                     <p style={{fontSize:18, color:'var(--muted)'}}>Warte auf Kategoriewahl...</p>
                     <div style={{marginTop:30, padding:20, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)'}}>
@@ -2159,6 +2395,7 @@
       return (
         <div className="min-h-screen flex items-center justify-center p-4">
           <div className="card" style={{textAlign:'center'}}>
+            <RTLLogo size="md" style={{marginBottom:30}} />
             <h2 style={{fontSize:32, fontWeight:900, color:'var(--rtl-orange)', marginBottom:20}}>SPIEL BEENDET</h2>
             <p style={{fontSize:18, color:'var(--muted)'}}>Danke fürs Spielen</p>
             <div style={{marginTop:30, padding:20, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)'}}>
@@ -2189,7 +2426,8 @@
             <>
               <div className="min-h-screen flex items-center justify-center p-4" style={{background:'var(--bg)'}}>
                   <div className="card" style={{textAlign:'center', width:'100%'}}>
-                      <div style={{display:'flex', justifyContent:'flex-end', borderBottom:'1px solid rgba(255,255,255,0.1)', paddingBottom:10, marginBottom:20}}>
+                      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px solid rgba(255,255,255,0.1)', paddingBottom:10, marginBottom:20}}>
+                           <RTLLogo size="xs" />
                            <span style={{fontWeight:900, color:'var(--tile)'}}>Gesamt: {player.score}</span>
                       </div>
 
@@ -2224,7 +2462,7 @@
                         <div className={`item-roulette-strip ${roulettePhase}`}>
                           {rouletteItems.map((item, idx) => (
                             <div key={item.key || idx} className={`roulette-item ${item.isMystery ? 'mystery' : ''}`}>
-                              {item.isMystery ? '❓' : <img src={item.icon} alt={item.name} style={{width: 60, height: 60, objectFit: 'contain'}} />}
+                              <img src={item.icon} alt={item.isMystery ? 'Mystery' : item.name} style={{width: 60, height: 60, objectFit: 'contain'}} />
                             </div>
                           ))}
                         </div>
