@@ -555,7 +555,7 @@
       }
 
       .card {
-        padding: 16px;
+        padding: 12px !important;
         margin: 8px;
       }
 
@@ -565,22 +565,23 @@
         padding: 8px !important;
       }
 
-      /* Question text smaller on mobile */
+      /* Question text on mobile */
       h3 {
-        font-size: 18px !important;
-        line-height: 1.3 !important;
+        font-size: 19px !important;
+        line-height: 1.35 !important;
       }
 
-      /* Answer buttons more touch-friendly */
-      button[style*="padding:15px"] {
-        padding: 18px 12px !important;
+      /* Answer buttons - equal height distribution */
+      button[style*="flex: 1 1 0"] {
+        padding: 16px 14px !important;
         font-size: 16px !important;
+        min-height: 70px !important;
       }
 
-      /* Item slots larger and more spaced */
+      /* Item slots on mobile */
       .item-slot {
-        width: 70px !important;
-        height: 70px !important;
+        width: 60px !important;
+        height: 60px !important;
         font-size: 32px !important;
       }
 
@@ -691,22 +692,24 @@
     /* Extra small devices */
     @media (max-width: 480px) {
       .card {
-        padding: 12px;
+        padding: 10px !important;
         margin: 4px;
       }
 
       h3 {
-        font-size: 16px !important;
+        font-size: 17px !important;
       }
 
-      button[style*="padding"] {
-        font-size: 14px !important;
-        padding: 14px 10px !important;
+      /* Answer buttons on extra small screens */
+      button[style*="flex: 1 1 0"] {
+        padding: 14px 12px !important;
+        font-size: 15px !important;
+        min-height: 65px !important;
       }
 
       .item-slot {
-        width: 60px !important;
-        height: 60px !important;
+        width: 55px !important;
+        height: 55px !important;
       }
 
       .item-box-display {
@@ -2264,33 +2267,36 @@
              </div>
            )}
            
-           <div className="card">
+           <div className="card" style={{display:'flex', flexDirection:'column', height:'calc(100vh - 32px)'}}>
              {/* Compact Header */}
-             <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:15}}>
+             <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20, flexShrink:0}}>
                  <div style={{display:'flex', alignItems:'center', gap:12}}>
-                   <img src="Logo.png" alt="Logo" style={{height:28, width:'auto'}} />
+                   <img src="Logo.png" alt="Logo" style={{height:32, width:'auto'}} />
                    <div style={{display:'flex', flexDirection:'column', gap:2}}>
-                     <span style={{fontWeight:900, fontSize:12, color:'var(--muted)', letterSpacing:1}}>RUNDE {meta.round}</span>
-                     <span style={{fontWeight:900, fontSize:16, color:'var(--tile)'}}>Score: {player.score}</span>
+                     <span style={{fontWeight:900, fontSize:13, color:'var(--muted)', letterSpacing:1}}>RUNDE {meta.round}</span>
+                     <span style={{fontWeight:900, fontSize:18, color:'var(--tile)'}}>Score: {player.score}</span>
                    </div>
                  </div>
                  <div style={{textAlign:'right'}}>
-                   <div style={{fontSize:12, color:'var(--muted)', marginBottom:2}}>Zeit</div>
-                   <div style={{fontWeight:900, color:'var(--rtl-orange)', fontSize:24}}>{timeLeft}s</div>
+                   <div style={{fontSize:13, color:'var(--muted)', marginBottom:4}}>Zeit</div>
+                   <div style={{fontWeight:900, color:'var(--rtl-orange)', fontSize:28}}>{timeLeft}s</div>
                  </div>
              </div>
 
              {player.hasNewItem && (
-                <div style={{background:'var(--rtl-orange)', color:'#000', padding:12, marginBottom:15, fontWeight:900, textAlign:'center', fontSize:14}}>
+                <div style={{background:'var(--rtl-orange)', color:'#000', padding:14, marginBottom:20, fontWeight:900, textAlign:'center', fontSize:15, flexShrink:0}}>
                   📦 NEUES ITEM ERHALTEN!
                 </div>
              )}
 
-             <h3 style={{fontSize:20, fontWeight:900, marginBottom:15, lineHeight:1.3}}>{question?.question}</h3>
-             
+             {/* Question - grows to fill available space */}
+             <div style={{flex:'0 0 auto', marginBottom:20}}>
+               <h3 style={{fontSize:24, fontWeight:900, lineHeight:1.4, margin:0}}>{question?.question}</h3>
+             </div>
+
              {/* Item Slots and Info - Compact Layout */}
-             <div style={{display:'flex', gap:8, marginTop:0, marginBottom:15, alignItems:'center', justifyContent:'space-between'}}>
-               <div style={{display:'flex', gap:8}}>
+             <div style={{display:'flex', gap:10, marginBottom:20, alignItems:'center', justifyContent:'space-between', flexShrink:0}}>
+               <div style={{display:'flex', gap:10}}>
                  {[0, 1].map(slotIdx => {
                     const item = itemSlots[slotIdx];
                     const isDisabled = isFrozen || isActivatingItem || player?.usedItemThisQuestion;
@@ -2301,8 +2307,8 @@
                         onClick={() => item && !isDisabled && useItem(item, slotIdx)}
                         title={item ? (player?.usedItemThisQuestion ? item.name + ' (Bereits ein Item verwendet)' : item.name) : 'Leer'}
                         style={{
-                          width: 65,
-                          height: 65,
+                          width: 70,
+                          height: 70,
                           cursor: item && !isDisabled ? 'pointer' : 'default',
                           opacity: item && player?.usedItemThisQuestion ? 0.4 : 1,
                           filter: item && player?.usedItemThisQuestion ? 'grayscale(100%)' : 'none'
@@ -2319,8 +2325,8 @@
                  className="btn"
                  onClick={() => setShowItemsInfo(true)}
                  style={{
-                   padding:'6px 12px',
-                   fontSize:12,
+                   padding:'8px 14px',
+                   fontSize:13,
                    background:'rgba(255,255,255,0.1)',
                    border:'1px solid rgba(255,255,255,0.2)',
                    flexShrink:0
@@ -2331,7 +2337,8 @@
                </button>
              </div>
 
-             <div style={{display:'grid', gap:8}}>
+             {/* Answer Buttons - takes remaining space */}
+             <div style={{display:'flex', flexDirection:'column', gap:12, flex:1, minHeight:0}}>
                {question?.answers.map((a,i)=>{
                  const is5050Eliminated = eliminated5050.includes(i);
                  const isScanned = Object.values(scannedAnswers).includes(i);
@@ -2342,25 +2349,27 @@
                       disabled={hasAnswered||timeLeft<=0||isFrozen||is5050Eliminated}
                       onClick={()=>!isFrozen && db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i)}
                       style={{
-                          padding:'12px 14px',
+                          padding:'18px 16px',
                           background:player.currentAnswer===i?'var(--rtl-orange)':(is5050Eliminated ? '#333' : 'white'),
                           color:player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : '#0b0b0b'),
-                          border: player.currentAnswer===i ? '2px solid var(--rtl-orange)' : (isMirrorAnswer ? '3px solid var(--rtl-purple)' : (isScanned ? '3px solid #2196F3' : 'none')),
+                          border: player.currentAnswer===i ? '3px solid var(--rtl-orange)' : (isMirrorAnswer ? '3px solid var(--rtl-purple)' : (isScanned ? '3px solid #2196F3' : 'none')),
                           textAlign:'left',
-                          fontSize:16,
+                          fontSize:18,
                           fontWeight:700,
                           display:'flex',
                           alignItems:'center',
-                          gap: '8px',
+                          gap: '10px',
                           transition: 'all 0.2s',
                           opacity: is5050Eliminated ? 0.3 : 1,
                           position: 'relative',
-                          lineHeight:1.3
+                          lineHeight:1.4,
+                          flex: '1 1 0',
+                          minHeight: 60
                       }}>
-                      <span style={{fontWeight:900, color: player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : 'var(--rtl-orange)'), fontSize:18, flexShrink:0}}>{String.fromCharCode(65+i)}</span>
+                      <span style={{fontWeight:900, color: player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : 'var(--rtl-orange)'), fontSize:20, flexShrink:0}}>{String.fromCharCode(65+i)}</span>
                       <span style={{flex:1}}>{a}</span>
-                      {isScanned && <span style={{color:'#2196F3', fontSize:18, flexShrink:0}}>👁️</span>}
-                      {isMirrorAnswer && <span style={{color:'var(--rtl-purple)', fontSize:20, flexShrink:0}}>🔮</span>}
+                      {isScanned && <span style={{color:'#2196F3', fontSize:20, flexShrink:0}}>👁️</span>}
+                      {isMirrorAnswer && <span style={{color:'var(--rtl-purple)', fontSize:22, flexShrink:0}}>🔮</span>}
                    </button>
                  )
                })}
