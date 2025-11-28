@@ -1311,13 +1311,12 @@
             {meta.phase !== 'finalIntro' && meta.phase !== 'finished' && meta.phase !== 'roundStart' && (
                 <div className="game-top-bar">
                      {meta.phase === 'roundSummary' ? (
-                        <div style={{display:'flex', alignItems:'center', width:'100%', gap:20}}>
-                            <RTLLogo size="sm" />
+                        <div style={{display:'flex', alignItems:'center', justifyContent:'center', width:'100%', gap:20}}>
                             <div style={{fontSize:'3rem', fontWeight:900, color:'white', letterSpacing:2}}>ZWISCHENSTAND</div>
                         </div>
                      ) : (
-                        <div style={{display:'flex', alignItems:'center', gap:20}}>
-                            <RTLLogo size="sm" />
+                        <>
+                          <div style={{display:'flex', alignItems:'center', gap:20}}>
                             <div className={`countdown-badge ${countdownClass}`}>{timeLeft}</div>
                             <div>
                               <div style={{color:'var(--muted)', fontSize:'1rem', textTransform:'uppercase'}}>
@@ -1325,7 +1324,12 @@
                               </div>
                               <div style={{fontWeight:900, fontSize:'1.8rem', color: displayCategoryColor}}>{displayCategory}</div>
                             </div>
-                        </div>
+                          </div>
+
+                          <div style={{position:'absolute', left:'50%', transform:'translateX(-50%)'}}>
+                            <RTLLogo size="sm" />
+                          </div>
+                        </>
                      )}
 
                      <div style={{display:'flex', alignItems:'center', gap:20}}>
@@ -1340,48 +1344,47 @@
             <div className="host-main-inner">
                 {/* NEW: Round Start Screen for Host */}
                 {meta.phase === 'roundStart' && (
-                  <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', textAlign:'center'}}>
-                    <div style={{display:'flex', flexDirection:'column', alignItems:'center', padding:'60px', background:'rgba(0,0,0,0.6)', border:'4px solid var(--rtl-orange)', maxWidth:'90%'}}>
-                      <RTLLogo size="md" style={{marginBottom:40}} />
+                  <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', textAlign:'center', padding:'40px'}}>
+                    <RTLLogo size="lg" style={{marginBottom:60}} />
 
-                      <div style={{fontSize:'10rem', fontWeight:900, color:'var(--rtl-orange)', marginBottom:30, textTransform:'uppercase', letterSpacing:12}}>
-                        RUNDE {meta.round}
-                      </div>
-
-                      <div style={{width:'100%', height:'2px', background:'linear-gradient(90deg, transparent, var(--rtl-orange), transparent)', marginBottom:40}}></div>
-
-                      <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:15, marginBottom:50, padding:'30px 60px', background:'rgba(255,102,0,0.1)', border:'2px solid rgba(255,102,0,0.3)', width:'100%'}}>
-                        <div style={{fontSize:'1.8rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:4, fontWeight:700}}>
-                          Kategorie
-                        </div>
-                        <div style={{fontSize:'4.5rem', fontWeight:900, color:'white', letterSpacing:2}}>
-                          {meta.currentCategory || 'Allgemein'}
-                        </div>
-                      </div>
-
-                      <div style={{display:'flex', alignItems:'center', gap:30, marginBottom:50}}>
-                        <div style={{textAlign:'center', padding:'20px 40px', background:'rgba(0,0,0,0.5)', border:'2px solid rgba(255,255,255,0.1)'}}>
-                          <div style={{fontSize:'1.2rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:10}}>
-                            Punkte pro Antwort
-                          </div>
-                          <div style={{fontSize:'5rem', fontWeight:900, color:'var(--rtl-orange)', lineHeight:1}}>
-                            {ROUND_POINTS[meta.round || 1]}
-                          </div>
-                        </div>
-                        <div style={{textAlign:'center', padding:'20px 40px', background:'rgba(0,0,0,0.5)', border:'2px solid rgba(255,255,255,0.1)'}}>
-                          <div style={{fontSize:'1.2rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:10}}>
-                            Fragen
-                          </div>
-                          <div style={{fontSize:'5rem', fontWeight:900, color:'white', lineHeight:1}}>
-                            {QUESTIONS_PER_ROUND}
-                          </div>
-                        </div>
-                      </div>
-
-                      <button className="btn btn-host" onClick={startQuestionFromRoundStart} style={{fontSize:36, padding:'30px 80px', marginTop:20}}>
-                        FRAGE STARTEN ▶
-                      </button>
+                    <div style={{fontSize:'12rem', fontWeight:900, color:'white', marginBottom:20, textTransform:'uppercase', letterSpacing:20}}>
+                      RUNDE {meta.round}
                     </div>
+
+                    <div style={{width:'80%', height:'3px', background:'var(--rtl-orange)', marginBottom:60}}></div>
+
+                    <div style={{marginBottom:60, padding:'40px 80px', border:'3px solid var(--rtl-orange)'}}>
+                      <div style={{fontSize:'2rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:4, fontWeight:700, marginBottom:20}}>
+                        Kategorie
+                      </div>
+                      <div style={{fontSize:'5rem', fontWeight:900, color:'var(--rtl-orange)', letterSpacing:3}}>
+                        {meta.currentCategory || 'Allgemein'}
+                      </div>
+                    </div>
+
+                    <div style={{display:'flex', alignItems:'center', gap:60, marginBottom:60}}>
+                      <div style={{textAlign:'center'}}>
+                        <div style={{fontSize:'1.4rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:15}}>
+                          Punkte pro Antwort
+                        </div>
+                        <div style={{fontSize:'6rem', fontWeight:900, color:'white', lineHeight:1}}>
+                          {ROUND_POINTS[meta.round || 1]}
+                        </div>
+                      </div>
+                      <div style={{width:'2px', height:'100px', background:'rgba(255,255,255,0.2)'}}></div>
+                      <div style={{textAlign:'center'}}>
+                        <div style={{fontSize:'1.4rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:15}}>
+                          Fragen
+                        </div>
+                        <div style={{fontSize:'6rem', fontWeight:900, color:'white', lineHeight:1}}>
+                          {QUESTIONS_PER_ROUND}
+                        </div>
+                      </div>
+                    </div>
+
+                    <button className="btn btn-host" onClick={startQuestionFromRoundStart} style={{fontSize:40, padding:'35px 90px', marginTop:20}}>
+                      FRAGE STARTEN ▶
+                    </button>
                   </div>
                 )}
 
@@ -1466,7 +1469,7 @@
                                            const from = game.players[act.from]?.name || '???';
                                            const to = game.players[act.to]?.name || '???';
                                            const itemInfo = ITEM_TYPES[act.itemId];
-                                           return <div key={idx} className={`action-log-item ${act.type}`}>{itemInfo?.icon} <b>{from}</b> → {to}: {itemInfo?.name}</div>;
+                                           return <div key={idx} className={`action-log-item ${act.type}`}><img src={itemInfo?.icon} alt="" style={{width:20, height:20, display:'inline-block', marginRight:8, verticalAlign:'middle'}} /> <b>{from}</b> → {to}: {itemInfo?.name}</div>;
                                         });
                                      })()}
                                    </div>
@@ -1494,7 +1497,7 @@
 
                 {meta.phase === 'roundSummary' && (
                    <div style={{width:'100%', height:'100%', display:'flex', flexDirection:'column'}}>
-                      <div style={{display:'flex', justifyContent:'center', alignItems:'center', gap:20, marginBottom:20}}>
+                      <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:15, marginBottom:20}}>
                         <RTLLogo size="sm" />
                         <h2 style={{textAlign:'center', fontSize:48, fontWeight:900, color:'var(--rtl-orange)', margin:0}}>Stand nach Runde {meta.round - 1}</h2>
                       </div>
@@ -2147,6 +2150,18 @@
                 <div style={{fontSize: 16, color: 'var(--muted)', marginTop:40, padding:'15px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)'}}>
                   ⏳ Warte auf den Host...
                 </div>
+
+                <button
+                  className="btn"
+                  onClick={() => {
+                    if(document.documentElement.requestFullscreen) {
+                      document.documentElement.requestFullscreen();
+                    }
+                  }}
+                  style={{marginTop:20, fontSize:14, padding:'10px 20px', background:'rgba(255,255,255,0.1)'}}
+                >
+                  📱 Vollbild
+                </button>
               </div>
             </div>
         );
@@ -2201,12 +2216,12 @@
            )}
            
            <div className="card">
-             <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px solid rgba(255,255,255,0.1)', paddingBottom:10, marginBottom:15}}>
-                 <div style={{display:'flex', alignItems:'center', gap:10}}>
+             <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px solid rgba(255,255,255,0.1)', paddingBottom:8, marginBottom:12}}>
+                 <div style={{display:'flex', alignItems:'center', gap:6}}>
                    <RTLLogo size="xs" />
-                   <span style={{fontWeight:700, color:'var(--muted)'}}>Runde {meta.round}</span>
+                   <span style={{fontWeight:700, color:'var(--muted)', fontSize:14}}>R{meta.round}</span>
                  </div>
-                 <span style={{fontWeight:900, color:'var(--tile)'}}>Gesamt: {player.score}</span>
+                 <span style={{fontWeight:900, color:'var(--tile)', fontSize:16}}>Gesamt: {player.score}</span>
              </div>
              
              {player.hasNewItem && (
@@ -2431,8 +2446,7 @@
                            <span style={{fontWeight:900, color:'var(--tile)'}}>Gesamt: {player.score}</span>
                       </div>
 
-                      <div style={{fontSize:80, marginBottom:10}}>{isCorrect ? '😎' : '🫤'}</div>
-                      <h2 style={{fontSize:32, fontWeight:900, color: 'var(--rtl-orange)', marginBottom:20}}>
+                      <h2 style={{fontSize:48, fontWeight:900, color: isCorrect ? 'var(--rtl-orange)' : 'white', marginBottom:20, marginTop:40}}>
                           {isCorrect ? 'RICHTIG' : 'FALSCH'}
                       </h2>
                       <div style={{background:'rgba(255,255,255,0.05)', padding:30, border:'1px solid rgba(255,255,255,0.1)'}}>
@@ -2506,39 +2520,46 @@
 
     return (
       <div className="items-info-modal" onClick={onClose}>
-        <div className="items-info-content" onClick={(e) => e.stopPropagation()}>
-          <h2>Alle Items</h2>
-          
+        <div style={{
+          background:'#000',
+          border:'2px solid rgba(255,255,255,0.2)',
+          padding:'20px',
+          maxWidth:'400px',
+          width:'90%',
+          maxHeight:'80vh',
+          overflowY:'auto'
+        }} onClick={(e) => e.stopPropagation()}>
+          <h2 style={{margin:'0 0 20px 0', fontSize:22, fontWeight:900, color:'white', textAlign:'center'}}>Alle Items</h2>
+
           {Object.entries(categories).map(([category, itemIds]) => (
-            <div key={category}>
-              <h3 style={{fontSize: 20, fontWeight: 900, color: 'var(--rtl-orange)', marginTop: 25, marginBottom: 15}}>
+            <div key={category} style={{marginBottom:20}}>
+              <h3 style={{fontSize:16, fontWeight:900, color:'var(--rtl-orange)', marginBottom:10, textTransform:'uppercase'}}>
                 {category}
               </h3>
               {itemIds.map(itemId => {
                 const item = ITEM_TYPES[itemId];
                 return (
-                  <div key={item.id} className={`item-info-card ${item.rarity}`}>
-                    <h4>
-                      <img src={item.icon} alt={item.name} style={{width: 28, height: 28, objectFit: 'contain'}} />
-                      {item.name}
-                      <span className={`rarity-mini ${item.rarity}`} style={{marginLeft: 'auto', fontSize: 10}}>
-                        {translateRarity(item.rarity)}
-                      </span>
-                    </h4>
-                    <p>{item.description}</p>
-                    <p style={{fontSize: 12, marginTop: 5, color: item.needsTarget ? '#ff9800' : '#4caf50'}}>
-                      {item.needsTarget ? 'Benötigt Ziel' : 'Auf dich selbst'}
-                    </p>
+                  <div key={item.id} style={{
+                    background:'rgba(255,255,255,0.03)',
+                    borderLeft:'3px solid rgba(255,255,255,0.2)',
+                    padding:'12px',
+                    marginBottom:'8px'
+                  }}>
+                    <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:6}}>
+                      <img src={item.icon} alt={item.name} style={{width:24, height:24, objectFit:'contain'}} />
+                      <span style={{fontSize:15, fontWeight:900, color:'white'}}>{item.name}</span>
+                    </div>
+                    <p style={{margin:0, fontSize:13, color:'var(--muted)', lineHeight:1.4}}>{item.description}</p>
                   </div>
                 );
               })}
             </div>
           ))}
 
-          <button 
-            className="btn btn-host w-full" 
+          <button
+            className="btn btn-host w-full"
             onClick={onClose}
-            style={{marginTop: 30, fontSize: 18, padding: '15px'}}
+            style={{marginTop:15, fontSize:16, padding:'12px'}}
           >
             SCHLIESSEN
           </button>
