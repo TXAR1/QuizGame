@@ -146,8 +146,7 @@
     }
 
     .answers-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:24px; height: 35vh; margin-top: auto; }
-    .answer-btn{ background: #e0e0e0; color:#0b0b0b; padding:30px; font-size:1.8rem; font-weight:800; height: 100%; display:flex; align-items: center; gap:24px; border: 4px solid #ccc; }
-    .answer-btn:hover { background: #fff; }
+    .answer-btn{ background: #fff; color:#0b0b0b; padding:30px; font-size:1.8rem; font-weight:800; height: 100%; display:flex; align-items: center; gap:24px; border: none; }
     
     .results-split-view { display: grid; grid-template-columns: 4fr 3fr; gap: 40px; height: 100%; overflow: hidden; }
     .results-col { display: flex; flex-direction: column; gap: 16px; overflow: hidden; max-height: 100%; }
@@ -185,10 +184,10 @@
     .item-slot.empty { opacity: 0.3; cursor: default; }
     .item-slot.active { border-color: var(--rtl-orange); }
     
-    .rarity-common { border-color: #888; }
-    .rarity-uncommon { border-color: #4CAF50; }
-    .rarity-rare { border-color: #2196F3; }
-    .rarity-legendary { border-color: #FFD700; }
+    .rarity-common { border-color: rgba(255,255,255,0.3); }
+    .rarity-uncommon { border-color: rgba(255,255,255,0.3); }
+    .rarity-rare { border-color: rgba(255,255,255,0.3); }
+    .rarity-legendary { border-color: rgba(255,255,255,0.3); }
 
     .lobby-grid {
         display: grid;
@@ -319,10 +318,10 @@
       margin-bottom: 15px;
     }
 
-    .item-box-info .rarity-badge.common { background: #888; color: white; }
-    .item-box-info .rarity-badge.uncommon { background: #4CAF50; color: white; }
-    .item-box-info .rarity-badge.rare { background: #2196F3; color: white; }
-    .item-box-info .rarity-badge.legendary { background: #FFD700; color: #000; }
+    .item-box-info .rarity-badge.common { background: rgba(255,255,255,0.2); color: white; }
+    .item-box-info .rarity-badge.uncommon { background: rgba(255,255,255,0.2); color: white; }
+    .item-box-info .rarity-badge.rare { background: rgba(255,255,255,0.2); color: white; }
+    .item-box-info .rarity-badge.legendary { background: rgba(255,255,255,0.2); color: white; }
 
     /* Round Start Overlay */
     .round-start-overlay {
@@ -433,10 +432,10 @@
       border-radius: 3px !important;
     }
 
-    .rarity-mini.common { background: #888; color: white; }
-    .rarity-mini.uncommon { background: #4CAF50; color: white; }
-    .rarity-mini.rare { background: #2196F3; color: white; }
-    .rarity-mini.legendary { background: #FFD700; color: #000; }
+    .rarity-mini.common { background: rgba(255,255,255,0.2); color: white; }
+    .rarity-mini.uncommon { background: rgba(255,255,255,0.2); color: white; }
+    .rarity-mini.rare { background: rgba(255,255,255,0.2); color: white; }
+    .rarity-mini.legendary { background: rgba(255,255,255,0.2); color: white; }
 
     /* Items Info Modal */
     .items-info-modal {
@@ -482,10 +481,10 @@
       background: rgba(255, 255, 255, 0.08);
     }
 
-    .item-info-card.common { border-left-color: #888; }
-    .item-info-card.uncommon { border-left-color: #4CAF50; }
-    .item-info-card.rare { border-left-color: #2196F3; }
-    .item-info-card.legendary { border-left-color: #FFD700; }
+    .item-info-card.common { border-left-color: rgba(255,255,255,0.3); }
+    .item-info-card.uncommon { border-left-color: rgba(255,255,255,0.3); }
+    .item-info-card.rare { border-left-color: rgba(255,255,255,0.3); }
+    .item-info-card.legendary { border-left-color: rgba(255,255,255,0.3); }
 
     .item-info-card h4 {
       margin: 0 0 10px 0;
@@ -514,7 +513,7 @@
 
   /************ CONFIG ************/
   const TOTAL_ROUNDS = 4;
-  const QUESTIONS_PER_ROUND = 10;
+  const QUESTIONS_PER_ROUND = 2;
   const QUESTION_TIME = 60; // CHANGED: 60 seconds
   
   const ROUND_POINTS = { 1: 100, 2: 200, 3: 400, 4: 800 };
@@ -649,6 +648,17 @@
   function qrUrlForGame(gameId){
     const url = `${window.location.origin}${window.location.pathname}?join=${gameId}`;
     return `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=500&margin=1&dark=000000&light=ffffff`;
+  }
+
+  // Translate rarity names to German
+  function translateRarity(rarity) {
+    const translations = {
+      'common': 'Häufig',
+      'uncommon': 'Ungewöhnlich',
+      'rare': 'Selten',
+      'legendary': 'Legendär'
+    };
+    return translations[rarity] || rarity;
   }
 
   // Confetti removed for simpler 2D design
@@ -1087,7 +1097,7 @@
                     </div>
                     <div style={{display:'flex', flexDirection:'column', gap:10}}>
                         <RTLLogo size="lg" />
-                        <div style={{fontSize:'2rem', color:'var(--muted)', letterSpacing:2, marginTop:20}}>JOIN CODE:</div>
+                        <div style={{fontSize:'2rem', color:'var(--muted)', letterSpacing:2, marginTop:20}}>SPIEL-CODE:</div>
                         <div style={{fontSize:'8rem', fontWeight:900, lineHeight:1, color:'white', letterSpacing:10}}>{gameId}</div>
                     </div>
                 </div>
@@ -1313,7 +1323,7 @@
                                <div style={{display:'flex', alignItems:'center', gap:40}}>
                                   <div style={{fontSize:20, color:'var(--muted)', display:'flex', gap:10}}>
                                     {(p.itemSlots || []).map((item, idx) => (
-                                      <span key={idx}>{item.icon}</span>
+                                      <img key={idx} src={item.icon} alt={item.name} style={{width: 32, height: 32}} />
                                     ))}
                                   </div>
                                   <div style={{fontSize:36, fontWeight:900, color:'var(--tile)'}}>{p.score}</div>
@@ -1372,7 +1382,7 @@
               <h3 style={{fontWeight:900, fontSize:32, marginBottom:10, color:'var(--rtl-orange)'}}>PAUSE</h3>
               
               <div style={{marginBottom: 30, padding: 20, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)'}}>
-                  <div style={{fontSize: 16, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 5}}>Game Code</div>
+                  <div style={{fontSize: 16, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 5}}>Spiel-Code</div>
                   <div style={{fontSize: 60, fontWeight: 900, color: 'white', letterSpacing: 8, fontFamily: 'monospace'}}>{gameId}</div>
               </div>
 
@@ -1992,7 +2002,7 @@
                         filter: item && player?.usedItemThisQuestion ? 'grayscale(100%)' : 'none'
                       }}
                     >
-                      {item ? item.icon : '❓'}
+                      {item ? <img src={item.icon} alt={item.name} style={{width: '100%', height: '100%', objectFit: 'contain'}} /> : '❓'}
                     </div>
                   );
                })}
@@ -2060,11 +2070,11 @@
                }}
              >
                <h4>
-                 <span style={{fontSize: 28}}>{tooltipItem.icon}</span>
+                 <img src={tooltipItem.icon} alt={tooltipItem.name} style={{width: 28, height: 28, objectFit: 'contain'}} />
                  {tooltipItem.name}
                </h4>
                <div className={`rarity-mini ${tooltipItem.rarity}`}>
-                 {tooltipItem.rarity}
+                 {translateRarity(tooltipItem.rarity)}
                </div>
                <p>{tooltipItem.description}</p>
                <div style={{fontSize: 11, color: 'var(--rtl-orange)', marginTop: 10, fontWeight: 700}}>
@@ -2207,14 +2217,14 @@
                     
                     <div className="item-box-display">
                       {roulettePhase === 'revealed' ? (
-                        <div className="item-revealed" style={{fontSize: 100}}>
-                          {finalRouletteItem?.icon}
+                        <div className="item-revealed">
+                          <img src={finalRouletteItem?.icon} alt={finalRouletteItem?.name} style={{width: 100, height: 100, objectFit: 'contain'}} />
                         </div>
                       ) : (
                         <div className={`item-roulette-strip ${roulettePhase}`}>
                           {rouletteItems.map((item, idx) => (
                             <div key={item.key || idx} className={`roulette-item ${item.isMystery ? 'mystery' : ''}`}>
-                              {item.icon}
+                              {item.isMystery ? '❓' : <img src={item.icon} alt={item.name} style={{width: 60, height: 60, objectFit: 'contain'}} />}
                             </div>
                           ))}
                         </div>
@@ -2225,7 +2235,7 @@
                       <div className="item-box-info">
                         <h3>{finalRouletteItem?.name}</h3>
                         <div className={`rarity-badge ${finalRouletteItem?.rarity}`}>
-                          {finalRouletteItem?.rarity.toUpperCase()}
+                          {translateRarity(finalRouletteItem?.rarity)}
                         </div>
                         <p style={{marginBottom: 20}}>{finalRouletteItem?.description}</p>
                         <button 
@@ -2250,10 +2260,10 @@
   // Items Info Modal Component
   function ItemsInfoModal({ onClose }) {
     const categories = {
-      'Offensive Items': ['GIFTPFEIL', 'FREEZE', 'ZEITSCHNAPPER'],
-      'Defensive Items': ['SCHILD', 'SPIEGELGLAS'],
-      'Boost Items': ['TURBO', 'MAGNET', 'ZAPFER'],
-      'Chaos Items': ['PLATZTAUSCHER', 'SCANNER']
+      'Angriff': ['GIFTPFEIL', 'FREEZE', 'ZEITSCHNAPPER'],
+      'Verteidigung': ['SCHILD', 'SPIEGELGLAS'],
+      'Verstärkung': ['TURBO', 'MAGNET', 'ZAPFER'],
+      'Chaos': ['PLATZTAUSCHER', 'SCANNER']
     };
 
     return (
@@ -2271,10 +2281,10 @@
                 return (
                   <div key={item.id} className={`item-info-card ${item.rarity}`}>
                     <h4>
-                      <span style={{fontSize: 28}}>{item.icon}</span>
+                      <img src={item.icon} alt={item.name} style={{width: 28, height: 28, objectFit: 'contain'}} />
                       {item.name}
                       <span className={`rarity-mini ${item.rarity}`} style={{marginLeft: 'auto', fontSize: 10}}>
-                        {item.rarity.toUpperCase()}
+                        {translateRarity(item.rarity)}
                       </span>
                     </h4>
                     <p>{item.description}</p>
