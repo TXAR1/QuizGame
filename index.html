@@ -207,16 +207,64 @@
         font-weight: 700;
     }
 
-    .podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 40px; height: 50vh; margin-top: 50px; }
-    .podium-place { display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
-    .podium-bar { width: 180px; background: rgba(255,255,255,0.1); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20px; font-size: 80px; font-weight: 900; color: rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.2); position: relative; overflow: hidden;}
-    
-    .podium-1 .podium-bar { height: 350px; background: #FFD700; border-color: #FFD700; color: rgba(0,0,0,0.5); border: 4px solid #000; }
-    .podium-2 .podium-bar { height: 250px; background: #C0C0C0; border-color: #C0C0C0; color: rgba(0,0,0,0.5); border: 4px solid #000; }
-    .podium-3 .podium-bar { height: 180px; background: #CD7F32; border-color: #CD7F32; color: rgba(0,0,0,0.5); border: 4px solid #000; }
+    .podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 60px; margin-top: 80px; padding: 0 40px; }
+    .podium-place { display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; animation: podiumRise 0.8s ease-out; }
 
-    .winner-name { font-size: 32px; fontWeight: 900; margin-bottom: 15px; }
-    .winner-score { font-size: 24px; color: var(--muted); margin-bottom: 5px; }
+    @keyframes podiumRise {
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .podium-bar {
+      width: 220px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 30px;
+      font-size: 120px;
+      font-weight: 900;
+      border-radius: 8px 8px 0 0;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .podium-1 .podium-bar {
+      height: 400px;
+      background: linear-gradient(180deg, #FFD700, #FFA500);
+      color: rgba(0,0,0,0.3);
+      border: 6px solid #FFD700;
+      box-shadow: 0 0 60px rgba(255,215,0,0.6), 0 10px 40px rgba(0,0,0,0.5);
+    }
+    .podium-2 .podium-bar {
+      height: 300px;
+      background: linear-gradient(180deg, #E8E8E8, #A0A0A0);
+      color: rgba(0,0,0,0.3);
+      border: 5px solid #C0C0C0;
+      box-shadow: 0 0 40px rgba(192,192,192,0.4), 0 10px 40px rgba(0,0,0,0.5);
+    }
+    .podium-3 .podium-bar {
+      height: 220px;
+      background: linear-gradient(180deg, #CD853F, #8B4513);
+      color: rgba(0,0,0,0.3);
+      border: 5px solid #CD7F32;
+      box-shadow: 0 0 40px rgba(205,127,50,0.4), 0 10px 40px rgba(0,0,0,0.5);
+    }
+
+    .winner-name { font-size: 2.5rem; font-weight: 900; margin-bottom: 15px; text-shadow: 2px 2px 8px rgba(0,0,0,0.5); }
+    .winner-score {
+      font-size: 2rem;
+      color: white;
+      margin-bottom: 20px;
+      padding: 8px 20px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 20px;
+      font-weight: 700;
+    }
+
+    .podium-1 .winner-name { color: #FFD700; font-size: 3rem; }
+    .podium-2 .winner-name { color: #E8E8E8; }
+    .podium-3 .winner-name { color: #CD853F; }
 
     .reveal-correct {
         background: #fff !important;
@@ -733,7 +781,7 @@
   const ITEM_TYPES = {
     // OFFENSIVE
     GIFTPFEIL: { id: 'giftpfeil', name: 'Attacke', icon: 'icons/Attacke.png', rarity: 'common', effect: 'poison', needsTarget: true, description: 'Reduziert die Punkte eines Gegners um 25%' },
-    FREEZE: { id: 'freeze', name: 'Stillmacher', icon: 'icons/Stillmacher.png', rarity: 'uncommon', effect: 'freeze', needsTarget: true, description: 'Friert einen Gegner für 8 Sekunden ein' },
+    FREEZE: { id: 'freeze', name: 'Stillmacher', icon: 'icons/Stillmacher.png', rarity: 'common', effect: 'freeze', needsTarget: true, description: 'Friert einen Gegner für 8 Sekunden ein' },
     ZEITSCHNAPPER: { id: 'zeitschnapper', name: 'Zeitschnapper', icon: 'icons/Zeitschnapper.png', rarity: 'rare', effect: 'time_reduce', needsTarget: true, description: 'Halbiert die verbleibende Zeit eines Gegners' },
 
     // DEFENSIVE
@@ -747,14 +795,15 @@
 
     // CHAOS
     PLATZTAUSCHER: { id: 'platztauscher', name: 'Platztauscher', icon: 'icons/Punktetausch.png', rarity: 'legendary', effect: 'swap_points', needsTarget: false, description: 'Tauscht deine Punkte mit einem zufälligen Spieler' },
-    SCANNER: { id: 'scanner', name: 'Antwort-Scanner', icon: 'icons/Antwort-Scanner.png', rarity: 'rare', effect: 'scanner', needsTarget: true, description: 'Zeigt dir die Antwort eines anderen Spielers' }
+    SCANNER: { id: 'scanner', name: 'Antwort-Scanner', icon: 'icons/Antwort-Scanner.png', rarity: 'rare', effect: 'scanner', needsTarget: true, description: 'Zeigt dir die Antwort eines anderen Spielers' },
+    NEHMER: { id: 'nehmer', name: 'Nehmer', icon: 'icons/Fragezeichen.png', rarity: 'rare', effect: 'steal_item', needsTarget: true, description: 'Stiehlt ein zufälliges Item von einem Gegner (keine legendären)' }
   };
 
   // Rarity weights for item distribution (catch-up mechanic)
   const RARITY_WEIGHTS = {
-    top: { common: 65, uncommon: 25, rare: 8, legendary: 2 },
-    mid: { common: 45, uncommon: 35, rare: 15, legendary: 5 },
-    low: { common: 25, uncommon: 30, rare: 30, legendary: 15 }
+    top: { common: 75, uncommon: 20, rare: 5, legendary: 0 },
+    mid: { common: 55, uncommon: 30, rare: 13, legendary: 2 },
+    low: { common: 35, uncommon: 35, rare: 25, legendary: 5 }
   };
 
   function getRandomItem(playerPosition) {
@@ -1167,6 +1216,7 @@
         updates[`games/${gameId}/players/${pid}/activeEffects`] = {};
         updates[`games/${gameId}/players/${pid}/hasNewItem`] = false;
         updates[`games/${gameId}/players/${pid}/usedItemThisQuestion`] = false;
+        updates[`games/${gameId}/players/${pid}/readyForNext`] = false;
       });
       await db.ref().update(updates);
 
@@ -1375,52 +1425,58 @@
             <div className="host-main-inner">
                 {/* NEW: Round Start Screen for Host - 16:9 TV optimized */}
                 {meta.phase === 'roundStart' && (
-                  <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', textAlign:'center', padding:'40px'}}>
+                  <div style={{display:'flex', alignItems:'center', justifyContent:'center', height:'100%', padding:'60px'}}>
 
-                    {/* Logo */}
-                    <RTLLogo size="lg" style={{marginBottom:40}} />
-
-                    {/* Round Number */}
-                    <div style={{fontSize:'6rem', fontWeight:900, color:'white', textTransform:'uppercase', letterSpacing:10, marginBottom:50}}>
-                      RUNDE {meta.round}
-                    </div>
-
-                    <div style={{width:'80%', height:'2px', background:'linear-gradient(90deg, transparent, var(--rtl-orange), transparent)', marginBottom:50}}></div>
-
-                    {/* Category */}
-                    <div style={{padding:'40px 70px', border:'4px solid var(--rtl-orange)', marginBottom:50, minWidth:'400px'}}>
-                      <div style={{fontSize:'1.5rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:3, fontWeight:700, marginBottom:15}}>
-                        Kategorie
-                      </div>
-                      <div style={{fontSize:'3.5rem', fontWeight:900, color:'var(--rtl-orange)', letterSpacing:2}}>
-                        {meta.currentCategory || 'Allgemein'}
+                    {/* Left Side: Logo + Round Number */}
+                    <div style={{flex:'0 0 35%', display:'flex', flexDirection:'column', alignItems:'center', gap:40}}>
+                      <RTLLogo size="lg" />
+                      <div style={{fontSize:'8rem', fontWeight:900, color:'white', textTransform:'uppercase', letterSpacing:12, lineHeight:1}}>
+                        RUNDE<br/>{meta.round}
                       </div>
                     </div>
 
-                    {/* Points and Questions */}
-                    <div style={{display:'flex', gap:40, marginBottom:50}}>
-                      <div style={{textAlign:'center', padding:'30px 40px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)', minWidth:'200px'}}>
-                        <div style={{fontSize:'1.1rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:12}}>
-                          Punkte pro Antwort
+                    {/* Divider */}
+                    <div style={{width:'3px', height:'70%', background:'linear-gradient(180deg, transparent, var(--rtl-orange), transparent)', margin:'0 60px'}}></div>
+
+                    {/* Right Side: Category + Info */}
+                    <div style={{flex:'0 0 50%', display:'flex', flexDirection:'column', gap:50}}>
+
+                      {/* Category Box */}
+                      <div style={{padding:'50px 60px', border:'4px solid var(--rtl-orange)', textAlign:'center'}}>
+                        <div style={{fontSize:'1.3rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:3, fontWeight:700, marginBottom:20}}>
+                          Kategorie
                         </div>
-                        <div style={{fontSize:'4rem', fontWeight:900, color:'white', lineHeight:1}}>
-                          {ROUND_POINTS[meta.round || 1]}
-                        </div>
-                      </div>
-                      <div style={{textAlign:'center', padding:'30px 40px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)', minWidth:'200px'}}>
-                        <div style={{fontSize:'1.1rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:12}}>
-                          Fragen
-                        </div>
-                        <div style={{fontSize:'4rem', fontWeight:900, color:'white', lineHeight:1}}>
-                          {QUESTIONS_PER_ROUND}
+                        <div style={{fontSize:'4rem', fontWeight:900, color:'var(--rtl-orange)', letterSpacing:3}}>
+                          {meta.currentCategory || 'Allgemein'}
                         </div>
                       </div>
+
+                      {/* Points and Questions - Horizontal */}
+                      <div style={{display:'flex', gap:30}}>
+                        <div style={{flex:1, textAlign:'center', padding:'35px 30px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)'}}>
+                          <div style={{fontSize:'1rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:15}}>
+                            Punkte pro Antwort
+                          </div>
+                          <div style={{fontSize:'4.5rem', fontWeight:900, color:'white', lineHeight:1}}>
+                            {ROUND_POINTS[meta.round || 1]}
+                          </div>
+                        </div>
+                        <div style={{flex:1, textAlign:'center', padding:'35px 30px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)'}}>
+                          <div style={{fontSize:'1rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:15}}>
+                            Fragen
+                          </div>
+                          <div style={{fontSize:'4.5rem', fontWeight:900, color:'white', lineHeight:1}}>
+                            {QUESTIONS_PER_ROUND}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Start Button */}
+                      <button className="btn btn-host" onClick={startQuestionFromRoundStart} style={{fontSize:28, padding:'22px 60px', width:'100%'}}>
+                        FRAGE STARTEN ▶
+                      </button>
                     </div>
 
-                    {/* Start Button */}
-                    <button className="btn btn-host" onClick={startQuestionFromRoundStart} style={{fontSize:32, padding:'25px 70px'}}>
-                      FRAGE STARTEN ▶
-                    </button>
                   </div>
                 )}
 
@@ -1455,7 +1511,7 @@
                                         display:'flex', alignItems:'center', gap:6
                                     }}>
                                         {p.name}
-                                        {hasAnswered && <span>✓</span>}
+                                        {hasAnswered && <span>●</span>}
                                     </div>
                                 )
                             })}
@@ -1511,18 +1567,26 @@
                                    </div>
                                 </div>
                                 <div style={{flex:1, display:'flex', flexDirection:'column', background:'rgba(255,255,255,0.02)', padding:20, border:'1px solid rgba(255,255,255,0.05)'}}>
-                                    <h3 style={{color:'var(--rtl-orange)', fontWeight:900, marginBottom:15, fontSize:22}}>Score (Frage)</h3>
+                                    <h3 style={{color:'var(--rtl-orange)', fontWeight:900, marginBottom:15, fontSize:22}}>Score & Status</h3>
                                     <div className="scroll-area" style={{flex:1}}>
-                                      {resultsRanking.map((p,i)=>(
-                                        <div key={p.pid} style={{display:'flex', justifyContent:'space-between', padding:'12px', background:i<3?'rgba(255,255,255,0.05)':'transparent', marginBottom:4}}>
-                                          <div style={{display:'flex', gap:8}}>
-                                            <span style={{fontWeight:700, fontSize:18}}>{p.name}</span>
+                                      {resultsRanking.map((p,i)=>{
+                                        const isReady = p.readyForNext === true;
+                                        return (
+                                          <div key={p.pid} style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px', background:i<3?'rgba(255,255,255,0.05)':'transparent', marginBottom:4}}>
+                                            <div style={{display:'flex', gap:10, alignItems:'center'}}>
+                                              <span style={{fontWeight:700, fontSize:18}}>{p.name}</span>
+                                              {isReady && (
+                                                <div style={{background:'var(--rtl-orange)', color:'#000', padding:'4px 10px', fontSize:12, fontWeight:900, letterSpacing:0.5}}>
+                                                  BEREIT
+                                                </div>
+                                              )}
+                                            </div>
+                                            <div style={{fontWeight:900, color: p.lastPoints>0 ? 'var(--rtl-orange)' : (p.lastPoints<0 ? 'var(--rtl-orange)' : 'var(--muted)'), fontSize:18}}>
+                                              {p.lastPoints > 0 ? '+' : ''}{p.lastPoints}
+                                            </div>
                                           </div>
-                                          <div style={{fontWeight:900, color: p.lastPoints>0 ? 'var(--rtl-orange)' : (p.lastPoints<0 ? 'var(--rtl-orange)' : 'var(--muted)'), fontSize:18}}>
-                                             {p.lastPoints > 0 ? '+' : ''}{p.lastPoints}
-                                          </div>
-                                        </div>
-                                      ))}
+                                        );
+                                      })}
                                     </div>
                                 </div>
                             </>
@@ -1585,35 +1649,36 @@
                         {meta.phase === 'finalQuestion' && <FinalQuestionHostView game={game} meta={meta} timeLeft={timeLeft} onNext={nextFinalQuestion} />}
                         {meta.phase === 'finalReview' && <FinalReviewHostView game={game} meta={meta} onJudge={judgeFinalAnswer} onNext={nextFinalReview} />}
                         {meta.phase === 'finished' && (
-                           <div style={{width:'100%', height:'100%', position:'relative', display:'flex', flexDirection:'column', alignItems:'center'}}>
-                              <div style={{zIndex:10, textAlign:'center', paddingTop:40}}>
-                                  <RTLLogo size="lg" style={{marginBottom:30}} />
-                                  <h1 style={{fontSize:80, fontWeight:900, margin:0, color:'var(--rtl-orange)', textTransform:'uppercase', letterSpacing:4}}>Siegerehrung</h1>
+                           <div style={{width:'100%', height:'100%', position:'relative', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'space-between', padding:'60px 40px'}}>
+                              <div style={{zIndex:10, textAlign:'center'}}>
+                                  <RTLLogo size="xl" style={{marginBottom:50}} />
+                                  <h1 style={{fontSize:'6rem', fontWeight:900, margin:0, color:'var(--rtl-orange)', textTransform:'uppercase', letterSpacing:8, textShadow:'0 0 40px rgba(255,119,0,0.5)'}}>SIEGEREHRUNG</h1>
                               </div>
                               <div className="podium-container" style={{zIndex:10}}>
                                   {playersArr[1] && (
-                                      <div className="podium-place podium-2">
-                                          <div className="winner-score">{playersArr[1].score}</div>
+                                      <div className="podium-place podium-2" style={{animationDelay:'0.2s'}}>
                                           <div className="winner-name">{playersArr[1].name}</div>
+                                          <div className="winner-score">{playersArr[1].score} Punkte</div>
                                           <div className="podium-bar">2</div>
                                       </div>
                                   )}
                                   {playersArr[0] && (
-                                      <div className="podium-place podium-1">
-                                          <div className="winner-score">{playersArr[0].score}</div>
-                                          <div className="winner-name">👑 {playersArr[0].name}</div>
+                                      <div className="podium-place podium-1" style={{animationDelay:'0s'}}>
+                                          <div style={{fontSize:'5rem', marginBottom:20}}>👑</div>
+                                          <div className="winner-name">{playersArr[0].name}</div>
+                                          <div className="winner-score">{playersArr[0].score} Punkte</div>
                                           <div className="podium-bar">1</div>
                                       </div>
                                   )}
                                   {playersArr[2] && (
-                                      <div className="podium-place podium-3">
-                                          <div className="winner-score">{playersArr[2].score}</div>
+                                      <div className="podium-place podium-3" style={{animationDelay:'0.4s'}}>
                                           <div className="winner-name">{playersArr[2].name}</div>
+                                          <div className="winner-score">{playersArr[2].score} Punkte</div>
                                           <div className="podium-bar">3</div>
                                       </div>
                                   )}
                               </div>
-                              <button className="btn btn-host" style={{zIndex:10, marginTop:'auto', marginBottom:40, fontSize:24, padding:'20px 50px'}} onClick={backToLobby}>Zurück zur Lobby</button>
+                              <button className="btn btn-host" style={{zIndex:10, fontSize:'1.8rem', padding:'25px 60px', background:'var(--rtl-orange)', color:'#000', fontWeight:900}} onClick={backToLobby}>ZURÜCK ZUR LOBBY</button>
                            </div>
                         )}
                     </div>
@@ -1685,17 +1750,16 @@
 
     return (
       <div style={{textAlign:'center', width:'100%', maxWidth:1400}}>
-        <RTLLogo size="sm" style={{marginBottom:30}} />
-        <h2 style={{fontSize:50, fontWeight:900, lineHeight:1.3}}>{question?.question}</h2>
-        <div style={{display:'flex', gap:40, marginTop:80}}>
+        <h2 style={{fontSize:'4.5rem', fontWeight:900, lineHeight:1.3, marginBottom:80}}>{question?.question}</h2>
+        <div style={{display:'flex', gap:40}}>
           {finalists.map(f => (
-             <div key={f.pid} style={{flex:1, padding:40, background:'rgba(255,255,255,0.05)', 
+             <div key={f.pid} style={{flex:1, padding:40, background:'rgba(255,255,255,0.05)',
                  border: f.finalAnswers?.[finalQIndex] ? '5px solid var(--rtl-orange)' : '2px solid rgba(255,255,255,0.1)'
              }}>
                 <div style={{fontWeight:900, fontSize:36}}>{f.name}</div>
-                <div style={{marginTop:20, fontSize:24, 
+                <div style={{marginTop:20, fontSize:24,
                     color: f.finalAnswers?.[finalQIndex] ? 'var(--rtl-orange)' : 'var(--muted)'}}>
-                   {f.finalAnswers?.[finalQIndex] ? '✓ ANTWORT DA' : 'Tippt...'}
+                   {f.finalAnswers?.[finalQIndex] ? 'ANTWORT DA' : 'Tippt...'}
                 </div>
              </div>
           ))}
@@ -1714,9 +1778,8 @@
     return (
       <div className="results-split-view" style={{width:'100%'}}>
         <div className="results-col" style={{justifyContent:'center', padding:40}}>
-           <RTLLogo size="sm" style={{marginBottom:20}} />
-           <h3 style={{color:'var(--muted)', textTransform:'uppercase', fontWeight:900, fontSize:20}}>Frage {reviewIndex+1}</h3>
-           <div style={{fontSize:40, fontWeight:900, marginBottom:40, lineHeight:1.2}}>{question?.question}</div>
+           <h3 style={{color:'var(--muted)', textTransform:'uppercase', fontWeight:900, fontSize:24, marginBottom:30}}>Frage {reviewIndex+1}</h3>
+           <div style={{fontSize:'3.5rem', fontWeight:900, marginBottom:50, lineHeight:1.2}}>{question?.question}</div>
            <div style={{padding:40, background:'#fff', color:'#000'}}>
               <div style={{fontSize:18, fontWeight:900, color:'var(--rtl-orange)'}}>LÖSUNG</div>
               <div style={{fontSize:36, fontWeight:900}}>{question?.answer}</div>
@@ -1732,8 +1795,8 @@
                  <div style={{fontSize:28, padding:20, background:'rgba(0,0,0,0.5)', marginBottom:20, fontStyle:'italic'}}>"{f.finalAnswers?.[reviewIndex] || '---'}"</div>
                  {judged[f.pid] === undefined ? (
                     <div style={{display:'flex', gap:20}}>
-                       <button className="btn" style={{flex:1, background:'white', color:'black', border:'2px solid white', fontSize:20}} onClick={()=>handleJudge(f.pid, true)}>✓ KORREKT</button>
-                       <button className="btn" style={{flex:1, background:'transparent', border:'2px solid rgba(255,255,255,0.2)', color:'white'}} onClick={()=>handleJudge(f.pid, false)}>✗ FALSCH</button>
+                       <button className="btn" style={{flex:1, background:'white', color:'black', border:'2px solid white', fontSize:20}} onClick={()=>handleJudge(f.pid, true)}>KORREKT</button>
+                       <button className="btn" style={{flex:1, background:'transparent', border:'2px solid rgba(255,255,255,0.2)', color:'white'}} onClick={()=>handleJudge(f.pid, false)}>FALSCH</button>
                     </div>
                  ) : (
                     <div style={{textAlign:'center', fontWeight:900, color: judged[f.pid] ? 'var(--rtl-orange)' : 'var(--rtl-orange)', fontSize:20}}>{judged[f.pid] ? 'PUNKTE VERGEBEN' : 'ALS FALSCH GEWERTET'}</div>
@@ -1828,37 +1891,51 @@
         }
 
         const tick = ()=>{
-          let startTime = effectiveStartTimeRef.current;
+          const currentTime = Date.now();
+          let elapsedNormal = Math.floor((currentTime - meta.questionStartTime) / 1000);
 
-          // Apply time reduction once if active
-          if(player?.activeEffects?.timeReduced && !timeReductionApplied) {
-            // Adjust start time to make it seem like half the time has passed
-            effectiveStartTimeRef.current = startTime - (QUESTION_TIME * 1000 / 2);
-            setTimeReductionApplied(true);
+          // Check if time was reduced
+          if(player?.activeEffects?.timeReducedAt) {
+            const reductionTime = player.activeEffects.timeReducedAt;
 
-            // Show notification
-            setAttackNotification({
-              icon: '⏱️',
-              title: 'ZEIT HALBIERT',
-              message: 'Ein Gegner hat deine Zeit reduziert'
-            });
-            setTimeout(() => setAttackNotification(null), 3000);
+            // Show notification once
+            if(!timeReductionApplied) {
+              setTimeReductionApplied(true);
+              setAttackNotification({
+                icon: '',
+                title: 'ZEIT HALBIERT',
+                message: 'Ein Gegner hat deine Zeit reduziert'
+              });
+              setTimeout(() => setAttackNotification(null), 3000);
+            }
+
+            // Calculate time before reduction happened
+            const elapsedBeforeReduction = Math.floor((reductionTime - meta.questionStartTime) / 1000);
+            // Calculate time after reduction (runs 2x faster)
+            const elapsedAfterReduction = Math.floor((currentTime - reductionTime) / 1000) * 2;
+            // Total effective elapsed time
+            elapsedNormal = elapsedBeforeReduction + elapsedAfterReduction;
           }
 
-          const elapsed = Math.floor((Date.now() - effectiveStartTimeRef.current)/1000);
-          setTimeLeft(Math.max(0, QUESTION_TIME - elapsed));
+          setTimeLeft(Math.max(0, QUESTION_TIME - elapsedNormal));
         };
         tick(); const t = setInterval(tick, 500); return ()=> clearInterval(t);
       } else if(meta.phase === 'finalQuestion' && meta.finalQuestionStartTime){
         const tick = ()=>{ const elapsed = Math.floor((Date.now() - meta.finalQuestionStartTime)/1000); setTimeLeft(Math.max(0, FINAL_TIME - elapsed)); };
         tick(); const t = setInterval(tick, 500); return ()=> clearInterval(t);
       } else { setTimeLeft(0); }
-    },[meta?.questionStartTime, meta?.finalQuestionStartTime, meta?.phase, player?.activeEffects?.timeReduced, timeReductionApplied]);
+    },[meta?.questionStartTime, meta?.finalQuestionStartTime, meta?.phase, player?.activeEffects?.timeReducedAt, timeReductionApplied]);
 
     useEffect(() => {
         if (meta?.phase === 'results') {
             setPlayerReveal(false);
-            const t = setTimeout(() => setPlayerReveal(true), 3000); 
+            const t = setTimeout(() => {
+              setPlayerReveal(true);
+              // Mark player as ready if they don't have a new item
+              if(!player?.hasNewItem) {
+                db.ref(`games/${gameId}/players/${playerId}/readyForNext`).set(true);
+              }
+            }, 3000);
             return () => clearTimeout(t);
         } else {
             setPlayerReveal(false);
@@ -1901,10 +1978,12 @@
       setTimeout(() => setRoulettePhase('revealed'), 3800);
     };
 
-    const closeItemRoulette = () => {
+    const closeItemRoulette = async () => {
       setShowItemRoulette(false);
       setPendingNewItem(null);
-      db.ref(`games/${gameId}/players/${playerId}/hasNewItem`).set(false);
+      await db.ref(`games/${gameId}/players/${playerId}/hasNewItem`).set(false);
+      // Mark player as ready for next question
+      await db.ref(`games/${gameId}/players/${playerId}/readyForNext`).set(true);
     };
 
     // Item Tooltip handlers removed - no longer needed
@@ -1935,17 +2014,17 @@
     useEffect(() => {
       if(player?.activeEffects?.poisoned && meta?.phase === 'question') {
         setAttackNotification({
-          icon: '☠️',
-          title: 'VERGIFTET',
+          icon: '',
+          title: 'ATTACKE',
           message: 'Du erhältst 25% weniger Punkte'
         });
         setTimeout(() => setAttackNotification(null), 3000);
       }
-      
+
       if(player?.activeEffects?.frozen && meta?.phase === 'question') {
         setAttackNotification({
-          icon: '❄️',
-          title: 'EINGEFROREN',
+          icon: '',
+          title: 'ATTACKE',
           message: 'Du bist für 8 Sekunden blockiert'
         });
         setTimeout(() => setAttackNotification(null), 3000);
@@ -2039,6 +2118,13 @@
           if(targetPlayer.activeEffects?.shield) {
             // Reflected back!
             updates[`games/${gameId}/players/${playerId}/activeEffects/poisoned`] = true;
+            // Show reflection notification
+            setAttackNotification({
+              icon: '',
+              title: 'REFLEKTIERT',
+              message: 'Deine Attacke wurde reflektiert! Du bekommst 25% weniger Punkte'
+            });
+            setTimeout(() => setAttackNotification(null), 3000);
           } else {
             updates[`games/${gameId}/players/${targetId}/activeEffects/poisoned`] = true;
           }
@@ -2052,6 +2138,13 @@
             const frozenUntil = Date.now() + 8000;
             updates[`games/${gameId}/players/${playerId}/activeEffects/frozen`] = true;
             updates[`games/${gameId}/players/${playerId}/activeEffects/frozenUntil`] = frozenUntil;
+            // Show reflection notification
+            setAttackNotification({
+              icon: '',
+              title: 'REFLEKTIERT',
+              message: 'Deine Attacke wurde reflektiert! Du bist jetzt blockiert'
+            });
+            setTimeout(() => setAttackNotification(null), 3000);
           } else {
             const frozenUntil = Date.now() + 8000;
             updates[`games/${gameId}/players/${targetId}/activeEffects/frozen`] = true;
@@ -2062,11 +2155,19 @@
         // FIX: Add null checks for target player
         const targetPlayer = game?.players?.[targetId];
         if(targetPlayer) {
+          const currentTime = Date.now();
           if(targetPlayer.activeEffects?.shield) {
-            // Reflected
-            updates[`games/${gameId}/players/${playerId}/activeEffects/timeReduced`] = true;
+            // Reflected - reduce own time
+            updates[`games/${gameId}/players/${playerId}/activeEffects/timeReducedAt`] = currentTime;
+            // Show reflection notification
+            setAttackNotification({
+              icon: '',
+              title: 'REFLEKTIERT',
+              message: 'Deine Attacke wurde reflektiert! Deine Zeit wurde halbiert'
+            });
+            setTimeout(() => setAttackNotification(null), 3000);
           } else {
-            updates[`games/${gameId}/players/${targetId}/activeEffects/timeReduced`] = true;
+            updates[`games/${gameId}/players/${targetId}/activeEffects/timeReducedAt`] = currentTime;
           }
         }
       } else if(item.id === 'zapfer') {
@@ -2081,16 +2182,52 @@
         if(targetPlayer && targetPlayer.currentAnswer !== null && targetPlayer.currentAnswer !== undefined) {
           setScannedAnswers(prev => ({...prev, [targetId]: targetPlayer.currentAnswer}));
         }
+      } else if(item.id === 'nehmer' && targetId) {
+        const targetPlayer = game.players?.[targetId];
+        if(targetPlayer) {
+          const targetSlots = targetPlayer.itemSlots || [];
+          // Filter out legendary items
+          const stealableItems = targetSlots.filter(itm => itm.rarity !== 'legendary');
+
+          if(stealableItems.length > 0) {
+            // Pick random item to steal
+            const stolenItem = stealableItems[Math.floor(Math.random() * stealableItems.length)];
+            const stolenIndex = targetSlots.findIndex(itm => itm.id === stolenItem.id);
+
+            // Remove from target
+            const newTargetSlots = targetSlots.filter((_, idx) => idx !== stolenIndex);
+            updates[`games/${gameId}/players/${targetId}/itemSlots`] = newTargetSlots;
+
+            // Add to own slots (if space available)
+            const mySlots = player.itemSlots || [];
+            if(mySlots.length < ITEM_SLOTS) {
+              updates[`games/${gameId}/players/${playerId}/itemSlots`] = [...mySlots, stolenItem];
+            }
+          }
+        }
       } else if(item.id === 'platztauscher') {
         // FIX: Add null checks and validate players exist
         if(game?.players) {
           const otherPlayers = Object.keys(game.players).filter(pid => pid !== playerId);
           if(otherPlayers.length > 0) {
             const randomTarget = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
+            const targetPlayer = game.players[randomTarget];
 
-            // Perform the swap at results phase
-            updates[`games/${gameId}/players/${playerId}/activeEffects/swapPointsWith`] = randomTarget;
-            updates[`games/${gameId}/players/${randomTarget}/activeEffects/swappedWith`] = playerId;
+            // Check if target has shield
+            if(targetPlayer?.activeEffects?.shield) {
+              // Shield blocks Platztauscher - nothing happens
+              // Show notification to user
+              setAttackNotification({
+                icon: '',
+                title: 'BLOCKIERT',
+                message: 'Dein Platztauscher wurde von einem Schild blockiert'
+              });
+              setTimeout(() => setAttackNotification(null), 3000);
+            } else {
+              // Perform the swap at results phase
+              updates[`games/${gameId}/players/${playerId}/activeEffects/swapPointsWith`] = randomTarget;
+              updates[`games/${gameId}/players/${randomTarget}/activeEffects/swappedWith`] = playerId;
+            }
           }
         }
       }
@@ -2167,7 +2304,7 @@
                 </div>
 
                 <div style={{display:'flex', justifyContent:'center', gap:20, marginBottom:30}}>
-                  <div style={{textAlign:'center', padding:'20px 35px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)', flex:1}}>
+                  <div style={{textAlign:'center', padding:'20px 35px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)', flex:1, display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
                     <div style={{fontSize:'0.9rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:10}}>
                       Punkte pro Antwort
                     </div>
@@ -2175,7 +2312,7 @@
                       {ROUND_POINTS[meta.round || 1]}
                     </div>
                   </div>
-                  <div style={{textAlign:'center', padding:'20px 35px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)', flex:1}}>
+                  <div style={{textAlign:'center', padding:'20px 35px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)', flex:1, display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
                     <div style={{fontSize:'0.9rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:10}}>
                       Fragen
                     </div>
@@ -2186,7 +2323,7 @@
                 </div>
 
                 <div style={{fontSize: 16, color: 'var(--muted)', marginTop:40, padding:'15px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)'}}>
-                  ⏳ Warte auf den Host...
+                  Warte auf den Host...
                 </div>
 
                 <button
@@ -2209,14 +2346,14 @@
         if(!player.isFinalist) return <div className="min-h-screen flex items-center justify-center p-4"><div className="card"><h2>Finale</h2><p>Du bist Zuschauer.</p></div></div>;
         return (
             <div className="min-h-screen p-4 flex items-center justify-center">
-                <div className="card" style={{textAlign:'center', width:'100%'}}>
-                    <RTLLogo size="md" style={{marginBottom:30}} />
-                    <h2 style={{fontSize:30, marginBottom:20}}>FINALE!</h2>
-                    <p style={{marginBottom:30}}>Bist du bereit?</p>
+                <div className="card" style={{textAlign:'center', width:'100%', maxWidth:'600px', display:'flex', flexDirection:'column', justifyContent:'center', padding:'60px 40px'}}>
+                    <RTLLogo size="lg" style={{marginBottom:50}} />
+                    <h2 style={{fontSize:'4rem', marginBottom:40, fontWeight:900, letterSpacing:4}}>FINALE!</h2>
+                    <p style={{marginBottom:50, fontSize:'1.5rem'}}>Bist du bereit?</p>
                     {!player.finalistReady ? (
-                        <button className="btn btn-host w-full" style={{padding:30, fontSize:24}} onClick={()=>db.ref(`games/${gameId}/players/${playerId}/finalistReady`).set(true)}>ICH BIN BEREIT</button>
+                        <button className="btn btn-host w-full" style={{padding:'40px 30px', fontSize:'2rem', fontWeight:900}} onClick={()=>db.ref(`games/${gameId}/players/${playerId}/finalistReady`).set(true)}>ICH BIN BEREIT</button>
                     ) : (
-                        <div style={{color:'var(--rtl-orange)', fontSize:20, fontWeight:900}}>WARTEN AUF GEGNER...</div>
+                        <div style={{color:'var(--rtl-orange)', fontSize:'2rem', fontWeight:900, padding:'40px 0'}}>WARTEN AUF GEGNER...</div>
                     )}
                 </div>
             </div>
@@ -2337,7 +2474,7 @@
                           padding:'18px 16px',
                           background:player.currentAnswer===i?'var(--rtl-orange)':(is5050Eliminated ? '#333' : 'white'),
                           color:player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : '#0b0b0b'),
-                          border: player.currentAnswer===i ? '3px solid var(--rtl-orange)' : (isMirrorAnswer ? '3px solid var(--rtl-purple)' : (isScanned ? '3px solid #2196F3' : 'none')),
+                          border: player.currentAnswer===i ? '3px solid var(--rtl-orange)' : (isMirrorAnswer ? '3px solid var(--rtl-purple)' : (isScanned ? '3px solid var(--rtl-orange)' : 'none')),
                           textAlign:'left',
                           fontSize:22,
                           fontWeight:700,
@@ -2353,7 +2490,7 @@
                       }}>
                       <span style={{fontWeight:900, color: player.currentAnswer===i?'white':(is5050Eliminated ? '#666' : 'var(--rtl-orange)'), fontSize:24, flexShrink:0}}>{String.fromCharCode(65+i)}</span>
                       <span style={{flex:1}}>{a}</span>
-                      {isScanned && <span style={{color:'#2196F3', fontSize:20, flexShrink:0}}>👁️</span>}
+                      {isScanned && <span style={{color:'var(--rtl-orange)', fontSize:20, flexShrink:0}}>👁️</span>}
                       {isMirrorAnswer && <span style={{color:'var(--rtl-purple)', fontSize:22, flexShrink:0}}>🔮</span>}
                    </button>
                  )
@@ -2451,7 +2588,7 @@
                 <div className="card" style={{textAlign:'center'}}>
                     <img src="Logo.png" alt="Logo" style={{height:40, width:'auto', margin:'0 auto 25px'}} />
                     <h2 style={{fontSize:26, fontWeight:900, color:'var(--rtl-orange)', marginBottom:15, letterSpacing:1}}>ZWISCHENSTAND</h2>
-                    <p style={{fontSize:16, color:'var(--muted)', marginBottom:25}}>⏳ Warte auf Kategoriewahl...</p>
+                    <p style={{fontSize:16, color:'var(--muted)', marginBottom:25}}>Warte auf Kategoriewahl...</p>
                     <div style={{marginTop:20, padding:20, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)'}}>
                         <div style={{fontSize:14, color:'var(--muted)', marginBottom:8, textTransform:'uppercase', letterSpacing:1}}>Dein Score</div>
                         <div style={{fontSize:44, fontWeight:900}}>{player.score}</div>
@@ -2504,7 +2641,7 @@
                       </div>
 
                       <h2 style={{fontSize:48, fontWeight:900, color: isCorrect ? 'var(--rtl-orange)' : 'white', marginBottom:25, marginTop:0}}>
-                          {isCorrect ? '✓ RICHTIG' : '✗ FALSCH'}
+                          {isCorrect ? 'RICHTIG' : 'FALSCH'}
                       </h2>
                       <div style={{background:'rgba(255,255,255,0.05)', padding:25, border:'1px solid rgba(255,255,255,0.1)'}}>
                           <div style={{fontSize:14, color:'var(--muted)', textTransform:'uppercase', fontWeight:700, letterSpacing:1}}>Punkte diese Runde</div>
@@ -2512,9 +2649,27 @@
                               {pointsEarned > 0 ? '+' : ''}{pointsEarned}
                           </div>
                       </div>
-                      <div style={{marginTop:25, fontSize:14, color:'var(--muted)'}}>⏳ Warte auf nächste Frage...</div>
+                      <div style={{marginTop:25, fontSize:14, color:'var(--muted)'}}>Warte auf nächste Frage...</div>
+
+                      {/* Items Info Button */}
+                      <button
+                        className="btn"
+                        onClick={() => setShowItemsInfo(true)}
+                        style={{
+                          marginTop:20,
+                          fontSize:14,
+                          padding:'10px 20px',
+                          background:'rgba(255,255,255,0.1)',
+                          border:'1px solid rgba(255,255,255,0.2)'
+                        }}
+                      >
+                        ℹ️ Items Info
+                      </button>
                   </div>
               </div>
+
+              {/* Items Info Modal */}
+              {showItemsInfo && <ItemsInfoModal onClose={() => setShowItemsInfo(false)} />}
 
               {/* Item Box Roulette Animation */}
               {showItemRoulette && (
@@ -2572,7 +2727,7 @@
       'Angriff': ['GIFTPFEIL', 'FREEZE', 'ZEITSCHNAPPER'],
       'Verteidigung': ['SCHILD', 'SPIEGELGLAS'],
       'Verstärkung': ['TURBO', 'MAGNET', 'ZAPFER'],
-      'Chaos': ['PLATZTAUSCHER', 'SCANNER']
+      'Chaos': ['PLATZTAUSCHER', 'SCANNER', 'NEHMER']
     };
 
     return (
