@@ -1435,11 +1435,8 @@
                       </div>
                     </div>
 
-                    {/* Divider */}
-                    <div style={{width:'3px', height:'70%', background:'linear-gradient(180deg, transparent, var(--rtl-orange), transparent)', margin:'0 60px'}}></div>
-
                     {/* Right Side: Category + Info */}
-                    <div style={{flex:'0 0 50%', display:'flex', flexDirection:'column', gap:50}}>
+                    <div style={{flex:'0 0 50%', display:'flex', flexDirection:'column', gap:50, marginLeft:60}}>
 
                       {/* Category Box */}
                       <div style={{padding:'50px 60px', border:'4px solid var(--rtl-orange)', textAlign:'center'}}>
@@ -2288,38 +2285,25 @@
               <div className="round-start-content">
                 <RTLLogo size="md" style={{marginBottom:30}} />
 
-                <div style={{fontSize:'3.5rem', fontWeight:900, color:'white', textTransform:'uppercase', letterSpacing:8, marginBottom:40}}>
+                <h2 style={{fontSize:72, fontWeight:900, color:'var(--rtl-orange)', margin:'0 0 20px 0', textTransform:'uppercase', letterSpacing:4}}>
                   RUNDE {meta.round}
-                </div>
-
-                <div style={{width:'100%', height:'2px', background:'linear-gradient(90deg, transparent, var(--rtl-orange), transparent)', margin:'30px 0'}}></div>
+                </h2>
 
                 <div style={{padding:'30px 50px', border:'4px solid var(--rtl-orange)', marginBottom:30}}>
-                  <div style={{fontSize:'1.2rem', color:'var(--muted)', marginBottom:12, textTransform:'uppercase', letterSpacing:3, fontWeight:700}}>
-                    Kategorie
-                  </div>
+                  <div className="points-label">Kategorie</div>
                   <div style={{fontSize:'2.5rem', fontWeight:900, color:'var(--rtl-orange)', letterSpacing:2}}>
                     {meta.currentCategory || 'Allgemein'}
                   </div>
                 </div>
 
-                <div style={{display:'flex', justifyContent:'center', gap:20, marginBottom:30}}>
-                  <div style={{textAlign:'center', padding:'20px 35px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)', flex:1, display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
-                    <div style={{fontSize:'0.9rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:10}}>
-                      Punkte pro Antwort
-                    </div>
-                    <div style={{fontSize:'3rem', fontWeight:900, color:'white', lineHeight:1}}>
-                      {ROUND_POINTS[meta.round || 1]}
-                    </div>
-                  </div>
-                  <div style={{textAlign:'center', padding:'20px 35px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)', flex:1, display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
-                    <div style={{fontSize:'0.9rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:10}}>
-                      Fragen
-                    </div>
-                    <div style={{fontSize:'3rem', fontWeight:900, color:'white', lineHeight:1}}>
-                      {QUESTIONS_PER_ROUND}
-                    </div>
-                  </div>
+                <div style={{marginBottom:30}}>
+                  <div className="points-label">Punkte pro Antwort</div>
+                  <div className="points-info">{ROUND_POINTS[meta.round || 1]}</div>
+                </div>
+
+                <div style={{marginBottom:30}}>
+                  <div className="points-label">Fragen</div>
+                  <div className="points-info">{QUESTIONS_PER_ROUND}</div>
                 </div>
 
                 <div style={{fontSize: 16, color: 'var(--muted)', marginTop:40, padding:'15px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)'}}>
@@ -2927,4 +2911,3 @@
   </script>
 </body>
 </html>
-
