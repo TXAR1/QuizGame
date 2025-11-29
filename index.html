@@ -1375,52 +1375,50 @@
             <div className="host-main-inner">
                 {/* NEW: Round Start Screen for Host - 16:9 TV optimized */}
                 {meta.phase === 'roundStart' && (
-                  <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', textAlign:'center', padding:'60px 120px'}}>
+                  <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', textAlign:'center', padding:'40px'}}>
 
-                    {/* Top: Logo and Round Number in one row */}
-                    <div style={{display:'flex', alignItems:'center', gap:80, marginBottom:80}}>
-                      <RTLLogo size="lg" />
-                      <div style={{fontSize:'10rem', fontWeight:900, color:'white', textTransform:'uppercase', letterSpacing:20}}>
-                        RUNDE {meta.round}
+                    {/* Logo */}
+                    <RTLLogo size="lg" style={{marginBottom:40}} />
+
+                    {/* Round Number */}
+                    <div style={{fontSize:'6rem', fontWeight:900, color:'white', textTransform:'uppercase', letterSpacing:10, marginBottom:50}}>
+                      RUNDE {meta.round}
+                    </div>
+
+                    <div style={{width:'80%', height:'2px', background:'linear-gradient(90deg, transparent, var(--rtl-orange), transparent)', marginBottom:50}}></div>
+
+                    {/* Category */}
+                    <div style={{padding:'40px 70px', border:'4px solid var(--rtl-orange)', marginBottom:50, minWidth:'400px'}}>
+                      <div style={{fontSize:'1.5rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:3, fontWeight:700, marginBottom:15}}>
+                        Kategorie
+                      </div>
+                      <div style={{fontSize:'3.5rem', fontWeight:900, color:'var(--rtl-orange)', letterSpacing:2}}>
+                        {meta.currentCategory || 'Allgemein'}
                       </div>
                     </div>
 
-                    {/* Middle: Category and Info in horizontal layout */}
-                    <div style={{display:'flex', alignItems:'center', gap:100, width:'100%', justifyContent:'center', marginBottom:80}}>
-
-                      {/* Left: Category */}
-                      <div style={{padding:'50px 80px', border:'4px solid var(--rtl-orange)', minWidth:'500px'}}>
-                        <div style={{fontSize:'1.8rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:4, fontWeight:700, marginBottom:20}}>
-                          Kategorie
+                    {/* Points and Questions */}
+                    <div style={{display:'flex', gap:40, marginBottom:50}}>
+                      <div style={{textAlign:'center', padding:'30px 40px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)', minWidth:'200px'}}>
+                        <div style={{fontSize:'1.1rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:12}}>
+                          Punkte pro Antwort
                         </div>
-                        <div style={{fontSize:'4.5rem', fontWeight:900, color:'var(--rtl-orange)', letterSpacing:3}}>
-                          {meta.currentCategory || 'Allgemein'}
+                        <div style={{fontSize:'4rem', fontWeight:900, color:'white', lineHeight:1}}>
+                          {ROUND_POINTS[meta.round || 1]}
                         </div>
                       </div>
-
-                      {/* Right: Points and Questions side by side */}
-                      <div style={{display:'flex', gap:60}}>
-                        <div style={{textAlign:'center', padding:'40px 50px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)'}}>
-                          <div style={{fontSize:'1.4rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:15}}>
-                            Punkte pro Antwort
-                          </div>
-                          <div style={{fontSize:'5rem', fontWeight:900, color:'white', lineHeight:1}}>
-                            {ROUND_POINTS[meta.round || 1]}
-                          </div>
+                      <div style={{textAlign:'center', padding:'30px 40px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)', minWidth:'200px'}}>
+                        <div style={{fontSize:'1.1rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:12}}>
+                          Fragen
                         </div>
-                        <div style={{textAlign:'center', padding:'40px 50px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)'}}>
-                          <div style={{fontSize:'1.4rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:15}}>
-                            Fragen
-                          </div>
-                          <div style={{fontSize:'5rem', fontWeight:900, color:'white', lineHeight:1}}>
-                            {QUESTIONS_PER_ROUND}
-                          </div>
+                        <div style={{fontSize:'4rem', fontWeight:900, color:'white', lineHeight:1}}>
+                          {QUESTIONS_PER_ROUND}
                         </div>
                       </div>
                     </div>
 
-                    {/* Bottom: Start Button */}
-                    <button className="btn btn-host" onClick={startQuestionFromRoundStart} style={{fontSize:40, padding:'35px 90px'}}>
+                    {/* Start Button */}
+                    <button className="btn btn-host" onClick={startQuestionFromRoundStart} style={{fontSize:32, padding:'25px 70px'}}>
                       FRAGE STARTEN ▶
                     </button>
                   </div>
@@ -2153,30 +2151,32 @@
               <div className="round-start-content">
                 <RTLLogo size="md" style={{marginBottom:30}} />
 
-                <h2>Runde {meta.round}</h2>
+                <div style={{fontSize:'3.5rem', fontWeight:900, color:'white', textTransform:'uppercase', letterSpacing:8, marginBottom:40}}>
+                  RUNDE {meta.round}
+                </div>
 
                 <div style={{width:'100%', height:'2px', background:'linear-gradient(90deg, transparent, var(--rtl-orange), transparent)', margin:'30px 0'}}></div>
 
-                <div style={{padding:'25px 40px', background:'rgba(255,102,0,0.1)', border:'2px solid rgba(255,102,0,0.3)', marginBottom:30}}>
-                  <div style={{fontSize:'1.5rem', color:'var(--muted)', marginBottom:10, textTransform:'uppercase', letterSpacing:3, fontWeight:700}}>
+                <div style={{padding:'30px 50px', border:'4px solid var(--rtl-orange)', marginBottom:30}}>
+                  <div style={{fontSize:'1.2rem', color:'var(--muted)', marginBottom:12, textTransform:'uppercase', letterSpacing:3, fontWeight:700}}>
                     Kategorie
                   </div>
-                  <div style={{fontSize:'3rem', fontWeight:900, color:'white', letterSpacing:1}}>
+                  <div style={{fontSize:'2.5rem', fontWeight:900, color:'var(--rtl-orange)', letterSpacing:2}}>
                     {meta.currentCategory || 'Allgemein'}
                   </div>
                 </div>
 
                 <div style={{display:'flex', justifyContent:'center', gap:20, marginBottom:30}}>
-                  <div style={{textAlign:'center', padding:'15px 30px', background:'rgba(0,0,0,0.5)', border:'2px solid rgba(255,255,255,0.1)', flex:1}}>
-                    <div style={{fontSize:'0.9rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:1.5, marginBottom:8}}>
-                      Punkte
+                  <div style={{textAlign:'center', padding:'20px 35px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)', flex:1}}>
+                    <div style={{fontSize:'0.9rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:10}}>
+                      Punkte pro Antwort
                     </div>
-                    <div style={{fontSize:'3rem', fontWeight:900, color:'var(--rtl-orange)', lineHeight:1}}>
+                    <div style={{fontSize:'3rem', fontWeight:900, color:'white', lineHeight:1}}>
                       {ROUND_POINTS[meta.round || 1]}
                     </div>
                   </div>
-                  <div style={{textAlign:'center', padding:'15px 30px', background:'rgba(0,0,0,0.5)', border:'2px solid rgba(255,255,255,0.1)', flex:1}}>
-                    <div style={{fontSize:'0.9rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:1.5, marginBottom:8}}>
+                  <div style={{textAlign:'center', padding:'20px 35px', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.2)', flex:1}}>
+                    <div style={{fontSize:'0.9rem', color:'var(--muted)', textTransform:'uppercase', letterSpacing:2, marginBottom:10}}>
                       Fragen
                     </div>
                     <div style={{fontSize:'3rem', fontWeight:900, color:'white', lineHeight:1}}>
@@ -2772,5 +2772,4 @@
   </script>
 </body>
 </html>
-
 
