@@ -2490,7 +2490,7 @@
 
                     {/* Regel-Infobox */}
                     <div style={{
-                      background:'rgba(155, 89, 182, 0.1)',
+                      background:'#000',
                       border:'2px solid #9b59b6',
                       padding:'25px',
                       marginBottom:30,
@@ -2499,7 +2499,7 @@
                       <h3 style={{fontSize:18, fontWeight:900, color:'#9b59b6', marginBottom:15, textTransform:'uppercase', letterSpacing:1}}>
                         📋 Regeln
                       </h3>
-                      <ul style={{margin:0, padding:'0 0 0 20px', color:'var(--muted)', fontSize:14, lineHeight:1.8}}>
+                      <ul style={{margin:0, padding:'0 0 0 20px', color:'white', fontSize:14, lineHeight:1.8}}>
                         <li><strong style={{color:'white'}}>Startscore:</strong> 50% deiner aktuellen Punkte</li>
                         <li><strong style={{color:'white'}}>Fragen:</strong> {FINAL_QUESTIONS} offene Fragen</li>
                         <li><strong style={{color:'white'}}>Wager:</strong> Setze pro Frage Punkte ein (0 - aktueller Score)</li>
@@ -2528,6 +2528,9 @@
     if(meta.phase === 'finalQuestion'){
        const question = (game.finalQuestions||[])[meta.finalQuestionIndex||0];
        if(!player.isFinalist) return <div className="min-h-screen flex items-center justify-center p-4"><div className="card"><h2>Finale läuft...</h2></div></div>;
+
+       // If question hasn't loaded yet, show loading screen
+       if(!question) return <div className="min-h-screen flex items-center justify-center p-4"><div className="card"><h2>Lade Frage...</h2></div></div>;
 
        const qIndex = meta.finalQuestionIndex || 0;
        const hasAnswered = player.finalAnswers && player.finalAnswers[qIndex];
@@ -2739,11 +2742,12 @@
                  const handleAnswerClick = () => {
                    if(isFrozen) return;
 
-                   // If Focus is active and this answer is not yet locked
-                   if(hasFocus && !isMyAnswer) {
-                     setFocusTestedAnswer(i); // Test this answer (shows ✓/✗)
+                   // If Focus is active and this answer is not yet tested or locked
+                   if(hasFocus && !isMyAnswer && !isTested) {
+                     // First click: Test this answer (shows ✓/✗)
+                     setFocusTestedAnswer(i);
                    } else {
-                     // Lock the answer
+                     // Second click (or no Focus active): Lock the answer
                      db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i);
                      setFocusTestedAnswer(null); // Clear test after locking
                    }
@@ -3264,5 +3268,4 @@
   </script>
 </body>
 </html>
-
 
