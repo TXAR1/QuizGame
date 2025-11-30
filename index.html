@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RTL AdAlliance Quiz - Item System V9</title>
+  <title>RTL AdAlliance Quiz</title>
 
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
@@ -1357,45 +1357,114 @@
     return (
       <div className="host-screen">
         {isLobby ? (
-          <div style={{display:'flex', flexDirection:'column', width:'100%', height:'100vh', background:'#000'}}>
-             <div style={{flex: '0 0 60%', display:'flex', alignItems:'center', justifyContent:'center', borderBottom:'2px solid rgba(255,255,255,0.1)', background:'radial-gradient(circle at center, #111 0%, #000 100%)'}}>
-                <div style={{display:'flex', alignItems:'center', gap:80, transform:'scale(1.1)'}}>
-                    <div style={{padding:20, background:'white'}}>
-                        <img src={qrUrlForGame(gameId)} alt="QR" style={{width:'40vh', height:'40vh'}} />
+          <div style={{display:'flex', width:'100%', height:'100vh', background:'linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a0a1a 100%)', position:'relative', overflow:'hidden'}}>
+             {/* Animated background elements */}
+             <div style={{position:'absolute', top:0, left:0, right:0, bottom:0, opacity:0.03, background:'repeating-linear-gradient(45deg, transparent, transparent 100px, var(--rtl-orange) 100px, var(--rtl-orange) 102px)'}} />
+
+             {/* Left side - QR Code & Game Info */}
+             <div style={{flex:'0 0 45%', display:'flex', flexDirection:'column', padding:'60px', background:'rgba(0,0,0,0.4)', borderRight:'3px solid rgba(255,102,0,0.3)', boxShadow:'0 0 50px rgba(255,102,0,0.1)'}}>
+                <div style={{marginBottom:60}}>
+                    <RTLLogo size="lg" />
+                    <div style={{fontSize:'4rem', fontWeight:900, color:'var(--rtl-orange)', marginTop:20, letterSpacing:3, textShadow:'0 0 30px rgba(255,102,0,0.5)'}}>QUIZ</div>
+                </div>
+
+                <div style={{display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', flex:1, gap:40}}>
+                    <div style={{padding:30, background:'white', boxShadow:'0 10px 50px rgba(255,102,0,0.3)', border:'5px solid var(--rtl-orange)', transform:'scale(1.05)'}}>
+                        <img src={qrUrlForGame(gameId)} alt="QR" style={{width:'35vh', height:'35vh', display:'block'}} />
                     </div>
-                    <div style={{display:'flex', flexDirection:'column', gap:10}}>
-                        <RTLLogo size="lg" />
-                        <div style={{fontSize:'2rem', color:'var(--muted)', letterSpacing:2, marginTop:20}}>SPIEL-CODE:</div>
-                        <div style={{fontSize:'8rem', fontWeight:900, lineHeight:1, color:'white', letterSpacing:10}}>{gameId}</div>
+
+                    <div style={{textAlign:'center'}}>
+                        <div style={{fontSize:'1.5rem', color:'rgba(255,255,255,0.6)', letterSpacing:3, marginBottom:15, textTransform:'uppercase'}}>Spiel-Code</div>
+                        <div style={{fontSize:'7rem', fontWeight:900, lineHeight:1, color:'white', letterSpacing:15, textShadow:'0 0 20px rgba(255,102,0,0.8), 0 5px 10px rgba(0,0,0,0.5)'}}>{gameId}</div>
                     </div>
+                </div>
+
+                <div style={{textAlign:'center', padding:'20px', background:'rgba(255,102,0,0.1)', border:'2px solid rgba(255,102,0,0.3)', marginTop:30}}>
+                    <div style={{fontSize:'1.2rem', color:'rgba(255,255,255,0.8)'}}>📱 Scanne den QR-Code oder gehe zu</div>
+                    <div style={{fontSize:'2rem', fontWeight:700, color:'var(--rtl-orange)', marginTop:5}}>rtl-quiz.web.app</div>
                 </div>
              </div>
-             
-             <div style={{flex:1, background:'#0a0a0a', display:'flex', flexDirection:'column'}}>
-                <div style={{display:'flex', justifyContent:'space-between', padding:'20px 40px', borderBottom:'1px solid rgba(255,255,255,0.1)', background:'#111'}}>
-                    <div style={{display:'flex', alignItems:'center', gap:20}}>
-                        <RTLLogo size="sm" />
-                        <div style={{fontSize:24, fontWeight:900, color:'var(--rtl-orange)'}}>LOBBY</div>
-                    </div>
-                    <div style={{display:'flex', alignItems:'center', gap:30}}>
-                        <div style={{fontSize:24, fontWeight:700}}>Spieler: {playersArr.length}</div>
-                         <div style={{display:'flex', alignItems:'center', gap:10, padding:'5px 15px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)'}}>
-                            <span style={{fontSize:'14px', fontWeight:700}}>Finale?</span>
-                            <label className="toggle-switch" style={{transform:'scale(0.8)'}}>
-                              <input type="checkbox" checked={finaleEnabled} onChange={toggleFinale} />
-                              <span className="toggle-slider"></span>
-                            </label>
-                          </div>
-                        <button className="btn btn-host" onClick={startGame} style={{fontSize:20, padding:'10px 30px'}}>START ▶</button>
+
+             {/* Right side - Players & Controls */}
+             <div style={{flex:1, display:'flex', flexDirection:'column'}}>
+                {/* Header Bar */}
+                <div style={{padding:'30px 50px', background:'linear-gradient(90deg, rgba(255,102,0,0.15) 0%, rgba(123,44,191,0.15) 100%)', borderBottom:'3px solid rgba(255,102,0,0.4)', boxShadow:'0 5px 30px rgba(0,0,0,0.5)'}}>
+                    <div style={{display:'flex', alignItems:'center', justifyContent:'space-between'}}>
+                        <div>
+                            <div style={{fontSize:'1rem', color:'rgba(255,255,255,0.5)', letterSpacing:2, marginBottom:5}}>MULTIPLAYER LOBBY</div>
+                            <div style={{fontSize:'2.5rem', fontWeight:900, color:'white', letterSpacing:1}}>
+                                <span style={{color:'var(--rtl-orange)'}}>{playersArr.length}</span> Spieler bereit
+                            </div>
+                        </div>
+
+                        <div style={{display:'flex', alignItems:'center', gap:25}}>
+                            <div style={{padding:'15px 25px', background:'rgba(0,0,0,0.5)', border:'2px solid rgba(255,255,255,0.2)', borderRadius:'8px'}}>
+                                <div style={{fontSize:'0.9rem', color:'rgba(255,255,255,0.6)', marginBottom:5}}>Finale Aktivieren</div>
+                                <label className="toggle-switch" style={{transform:'scale(1.1)'}}>
+                                  <input type="checkbox" checked={finaleEnabled} onChange={toggleFinale} />
+                                  <span className="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <button className="btn btn-host" onClick={startGame} style={{fontSize:24, padding:'20px 50px', fontWeight:900, boxShadow:'0 5px 20px rgba(255,102,0,0.4)', textTransform:'uppercase', letterSpacing:2}}>
+                                ▶ START
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div className="scroll-area lobby-grid">
-                   {playersArr.map(p => (
-                       <div key={p.pid} className="lobby-player-chip">
-                           <span>{p.name}</span>
-                           <span style={{color:'var(--rtl-orange)'}}>●</span>
-                       </div>
-                   ))}
+
+                {/* Players Grid */}
+                <div className="scroll-area" style={{flex:1, padding:'40px 50px'}}>
+                    {playersArr.length === 0 ? (
+                        <div style={{display:'flex', alignItems:'center', justifyContent:'center', height:'100%', flexDirection:'column', gap:20}}>
+                            <div style={{fontSize:'4rem', opacity:0.3}}>👥</div>
+                            <div style={{fontSize:'2rem', color:'rgba(255,255,255,0.4)', fontWeight:700}}>Warte auf Spieler...</div>
+                            <div style={{fontSize:'1.2rem', color:'rgba(255,255,255,0.3)'}}>Spieler können über QR-Code oder Game-Code beitreten</div>
+                        </div>
+                    ) : (
+                        <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(280px, 1fr))', gap:20}}>
+                           {playersArr.map((p, idx) => (
+                               <div key={p.pid} className="lobby-player-chip-animated" style={{
+                                   background:'linear-gradient(135deg, rgba(255,102,0,0.15) 0%, rgba(123,44,191,0.15) 100%)',
+                                   border:'2px solid rgba(255,102,0,0.4)',
+                                   padding:'20px 25px',
+                                   display:'flex',
+                                   alignItems:'center',
+                                   gap:15,
+                                   fontSize:22,
+                                   fontWeight:700,
+                                   position:'relative',
+                                   overflow:'hidden',
+                                   boxShadow:'0 5px 15px rgba(0,0,0,0.3)',
+                                   animation:`playerSlideIn 0.4s ease-out ${idx * 0.05}s both`
+                               }}>
+                                   <div style={{
+                                       position:'absolute',
+                                       top:0,
+                                       left:0,
+                                       right:0,
+                                       bottom:0,
+                                       background:'linear-gradient(90deg, transparent 0%, rgba(255,102,0,0.1) 50%, transparent 100%)',
+                                       animation:'shine 3s infinite',
+                                       animationDelay:`${idx * 0.2}s`
+                                   }} />
+                                   <div style={{
+                                       width:12,
+                                       height:12,
+                                       background:'#00ff00',
+                                       borderRadius:'50%',
+                                       boxShadow:'0 0 10px #00ff00',
+                                       animation:'pulse 2s infinite',
+                                       flexShrink:0,
+                                       zIndex:1
+                                   }} />
+                                   <span style={{flex:1, zIndex:1, color:'white'}}>{p.name}</span>
+                                   <span style={{fontSize:12, padding:'4px 10px', background:'rgba(255,102,0,0.3)', border:'1px solid var(--rtl-orange)', color:'var(--rtl-orange)', fontWeight:900, zIndex:1}}>
+                                       #{idx+1}
+                                   </span>
+                               </div>
+                           ))}
+                        </div>
+                    )}
                 </div>
              </div>
           </div>
@@ -2988,3 +3057,4 @@
   </script>
 </body>
 </html>
+
