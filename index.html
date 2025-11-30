@@ -1961,6 +1961,12 @@
     // NEW: Mirror effect state
     const [mirrorAnswer, setMirrorAnswer] = useState(null);
 
+    // NEW: Focus test state - tracks which answer was tested
+    const [focusTestedAnswer, setFocusTestedAnswer] = useState(null);
+
+    // NEW: Finale wager state
+    const [wagerAmount, setWagerAmount] = useState(0);
+
     useEffect(() => { if(playerId && gameId) { sessionStorage.setItem(`quiz_pid_${gameId}`, playerId); } }, [playerId, gameId]);
 
     useEffect(()=>{
@@ -1979,6 +1985,7 @@
         setTimeReductionApplied(false);
         setIsActivatingItem(false);
         setMirrorAnswer(null);
+        setFocusTestedAnswer(null); // Reset focus test
     }, [meta?.questionIndex]);
 
     // FIX: Removed automatic round start screen - now using separate phase
@@ -2477,14 +2484,42 @@
         if(!player.isFinalist) return <div className="min-h-screen flex items-center justify-center p-4"><div className="card"><h2>Finale</h2><p>Du bist Zuschauer.</p></div></div>;
         return (
             <div className="min-h-screen p-4 flex items-center justify-center">
-                <div className="card" style={{textAlign:'center', width:'100%', maxWidth:'600px', display:'flex', flexDirection:'column', justifyContent:'center', padding:'60px 40px'}}>
-                    <RTLLogo size="lg" style={{marginBottom:50}} />
-                    <h2 style={{fontSize:'4rem', marginBottom:40, fontWeight:900, letterSpacing:4}}>FINALE!</h2>
-                    <p style={{marginBottom:50, fontSize:'1.5rem'}}>Bist du bereit?</p>
+                <div className="card" style={{textAlign:'center', width:'100%', maxWidth:'600px', display:'flex', flexDirection:'column', justifyContent:'center', padding:'40px 30px'}}>
+                    <RTLLogo size="md" style={{marginBottom:30}} />
+                    <h2 style={{fontSize:'3rem', marginBottom:30, fontWeight:900, letterSpacing:4, color:'var(--rtl-orange)'}}>FINALE</h2>
+
+                    {/* Regel-Infobox */}
+                    <div style={{
+                      background:'rgba(155, 89, 182, 0.1)',
+                      border:'2px solid #9b59b6',
+                      padding:'25px',
+                      marginBottom:30,
+                      textAlign:'left'
+                    }}>
+                      <h3 style={{fontSize:18, fontWeight:900, color:'#9b59b6', marginBottom:15, textTransform:'uppercase', letterSpacing:1}}>
+                        📋 Regeln
+                      </h3>
+                      <ul style={{margin:0, padding:'0 0 0 20px', color:'var(--muted)', fontSize:14, lineHeight:1.8}}>
+                        <li><strong style={{color:'white'}}>Startscore:</strong> 50% deiner aktuellen Punkte</li>
+                        <li><strong style={{color:'white'}}>Fragen:</strong> {FINAL_QUESTIONS} offene Fragen</li>
+                        <li><strong style={{color:'white'}}>Wager:</strong> Setze pro Frage Punkte ein (0 - aktueller Score)</li>
+                        <li><strong style={{color:'white'}}>Richtig:</strong> +Einsatz | <strong style={{color:'white'}}>Falsch:</strong> -Einsatz</li>
+                        <li><strong style={{color:'white'}}>Sieg:</strong> Höchster Endscore gewinnt</li>
+                      </ul>
+                    </div>
+
+                    <div style={{marginBottom:30, fontSize:16, color:'var(--muted)'}}>
+                      Dein Startscore: <strong style={{color:'var(--rtl-orange)', fontSize:20}}>{Math.floor((player.score || 0) * 0.5)}</strong> Punkte
+                    </div>
+
                     {!player.finalistReady ? (
-                        <button className="btn btn-host w-full" style={{padding:'40px 30px', fontSize:'2rem', fontWeight:900}} onClick={()=>db.ref(`games/${gameId}/players/${playerId}/finalistReady`).set(true)}>ICH BIN BEREIT</button>
+                        <button className="btn btn-host w-full" style={{padding:'20px 30px', fontSize:'1.5rem', fontWeight:900}} onClick={()=>db.ref(`games/${gameId}/players/${playerId}/finalistReady`).set(true)}>
+                          ICH BIN BEREIT ▶
+                        </button>
                     ) : (
-                        <div style={{color:'var(--rtl-orange)', fontSize:'2rem', fontWeight:900, padding:'40px 0'}}>WARTEN AUF GEGNER...</div>
+                        <div style={{color:'var(--rtl-orange)', fontSize:'1.5rem', fontWeight:900, padding:'20px 0', background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.1)'}}>
+                          ✓ BEREIT - WARTE AUF GEGNER...
+                        </div>
                     )}
                 </div>
             </div>
@@ -2498,7 +2533,13 @@
        const hasAnswered = player.finalAnswers && player.finalAnswers[qIndex];
        const hasWagered = player.finalWagers && player.finalWagers[qIndex] !== undefined;
        const currentScore = player.finalCurrentScore || 0;
-       const [wagerAmount, setWagerAmount] = React.useState(hasWagered ? player.finalWagers[qIndex] : 0);
+
+       // Initialize wager if not set
+       React.useEffect(() => {
+         if(hasWagered && wagerAmount === 0) {
+           setWagerAmount(player.finalWagers[qIndex]);
+         }
+       }, [hasWagered]);
 
        const submitWagerAndAnswer = async () => {
          if(!finalAnswer.trim()) return;
@@ -2691,13 +2732,28 @@
                  const hasFocus = player?.activeEffects?.focus;
                  const isMyAnswer = player.currentAnswer === i;
                  const isCorrectAnswer = i === question.correct;
-                 const showFocusIndicator = hasFocus; // Zeigt für ALLE Antworten ob richtig/falsch
+                 const isTested = focusTestedAnswer === i;
+                 const showFocusIndicator = hasFocus && isTested; // Nur bei getesteter Antwort
+
+                 // NEW: Click handler with Focus test mode
+                 const handleAnswerClick = () => {
+                   if(isFrozen) return;
+
+                   // If Focus is active and this answer is not yet locked
+                   if(hasFocus && !isMyAnswer) {
+                     setFocusTestedAnswer(i); // Test this answer (shows ✓/✗)
+                   } else {
+                     // Lock the answer
+                     db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i);
+                     setFocusTestedAnswer(null); // Clear test after locking
+                   }
+                 };
 
                  return (
                    <button
                       key={i}
                       disabled={hasAnswered||timeLeft<=0||isFrozen||is5050Eliminated}
-                      onClick={()=>!isFrozen && db.ref(`games/${gameId}/players/${playerId}/currentAnswer`).set(i)}
+                      onClick={handleAnswerClick}
                       style={{
                           padding:'18px 16px',
                           background:player.currentAnswer===i?'var(--rtl-orange)':(is5050Eliminated ? '#333' : 'white'),
@@ -3208,4 +3264,5 @@
   </script>
 </body>
 </html>
+
 
