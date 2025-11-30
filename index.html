@@ -779,31 +779,38 @@
   const ITEM_SLOTS = 2; // Each player has 2 slots
 
   const ITEM_TYPES = {
-    // OFFENSIVE
-    GIFTPFEIL: { id: 'giftpfeil', name: 'Attacke', icon: 'icons/Attacke.png', rarity: 'common', effect: 'poison', needsTarget: true, description: 'Reduziert die Punkte eines Gegners um 25%' },
-    FREEZE: { id: 'freeze', name: 'Stillmacher', icon: 'icons/Stillmacher.png', rarity: 'uncommon', effect: 'freeze', needsTarget: true, description: 'Friert einen Gegner für 8 Sekunden ein' },
+    // DEFENSIVE (Common - für TOP Spieler)
+    SCHILD: { id: 'schild', name: 'Schild', icon: 'icons/Schild.png', rarity: 'common', effect: 'shield', needsTarget: false, description: 'Schützt dich vor allen Angriffen und reflektiert Attacken mit 10% Schaden' },
+    MAGNET: { id: 'magnet', name: 'Magnet', icon: 'icons/Punktemagnet.png', rarity: 'common', effect: 'magnet', needsTarget: false, description: 'Bonus wenn andere richtig: +15% pro Spieler' },
+    FOKUS: { id: 'fokus', name: 'Fokus', icon: 'icons/Fragezeichen.png', rarity: 'common', effect: 'focus', needsTarget: false, description: 'Zeigt an ob deine Antwort richtig ist, bevor du bestätigst' },
+
+    // STRATEGISCH (Uncommon - für MID Spieler)
+    SPIEGELGLAS: { id: 'spiegelglas', name: 'Geistesblitz', icon: 'icons/Geistesblitz.png', rarity: 'uncommon', effect: 'mirror', needsTarget: false, description: 'Zeigt die meistgewählte Antwort' },
+    ZAPFER: { id: 'zapfer', name: 'Frage-Zapfer', icon: 'icons/Fragezeichen.png', rarity: 'uncommon', effect: '5050', needsTarget: false, description: 'Eliminiert 2 falsche Antworten (50/50)' },
+    SCANNER: { id: 'scanner', name: 'Antwort-Scanner', icon: 'icons/Antwort-Scanner.png', rarity: 'uncommon', effect: 'scanner', needsTarget: true, description: 'Zeigt dir die Antwort eines anderen Spielers' },
+
+    // AGGRESSIV (Rare - für LOW Spieler zum Aufholen)
+    GIFTPFEIL: { id: 'giftpfeil', name: 'Attacke', icon: 'icons/Attacke.png', rarity: 'rare', effect: 'poison', needsTarget: true, description: 'Reduziert die Punkte eines Gegners um 25%' },
     ZEITSCHNAPPER: { id: 'zeitschnapper', name: 'Zeitschnapper', icon: 'icons/Zeitschnapper.png', rarity: 'rare', effect: 'time_reduce', needsTarget: true, description: 'Reduziert die Zeit eines Gegners um 20 Sekunden (min. 10s bleiben)' },
+    NEHMER: { id: 'nehmer', name: 'Nehmer', icon: 'icons/Fragezeichen.png', rarity: 'rare', effect: 'steal_item', needsTarget: true, description: 'Stiehlt ein zufälliges Item von einem Gegner (keine legendären)' },
+    TURBO: { id: 'turbo', name: 'Turbo-Boost', icon: 'icons/Boost.png', rarity: 'rare', effect: 'boost', needsTarget: false, description: 'Erhöht deine Punkte bei richtiger Antwort um 30%' },
+    FREEZE: { id: 'freeze', name: 'Stillmacher', icon: 'icons/Stillmacher.png', rarity: 'rare', effect: 'freeze', needsTarget: true, description: 'Friert einen Gegner für 8 Sekunden ein' },
 
-    // DEFENSIVE
-    SCHILD: { id: 'schild', name: 'Schild', icon: 'icons/Schild.png', rarity: 'uncommon', effect: 'shield', needsTarget: false, description: 'Schützt dich vor allen Angriffen und reflektiert Attacken mit 10% Schaden' },
-    SPIEGELGLAS: { id: 'spiegelglas', name: 'Geistesblitz', icon: 'icons/Geistesblitz.png', rarity: 'rare', effect: 'mirror', needsTarget: false, description: 'Zeigt die meistgewählte Antwort' },
-
-    // BOOST
-    TURBO: { id: 'turbo', name: 'Turbo-Boost', icon: 'icons/Boost.png', rarity: 'common', effect: 'boost', needsTarget: false, description: 'Erhöht deine Punkte bei richtiger Antwort um 30%' },
-    MAGNET: { id: 'magnet', name: 'Magnet', icon: 'icons/Punktemagnet.png', rarity: 'uncommon', effect: 'magnet', needsTarget: false, description: 'Bonus wenn andere richtig: +15% pro Spieler' },
-    ZAPFER: { id: 'zapfer', name: 'Frage-Zapfer', icon: 'icons/Fragezeichen.png', rarity: 'rare', effect: '5050', needsTarget: false, description: 'Eliminiert 2 falsche Antworten (50/50)' },
-
-    // CHAOS
-    PLATZTAUSCHER: { id: 'platztauscher', name: 'Platztauscher', icon: 'icons/Punktetausch.png', rarity: 'legendary', effect: 'swap_points', needsTarget: false, description: 'Tauscht deine Punkte mit einem zufälligen Spieler' },
-    SCANNER: { id: 'scanner', name: 'Antwort-Scanner', icon: 'icons/Antwort-Scanner.png', rarity: 'rare', effect: 'scanner', needsTarget: true, description: 'Zeigt dir die Antwort eines anderen Spielers' },
-    NEHMER: { id: 'nehmer', name: 'Nehmer', icon: 'icons/Fragezeichen.png', rarity: 'rare', effect: 'steal_item', needsTarget: true, description: 'Stiehlt ein zufälliges Item von einem Gegner (keine legendären)' }
+    // CHAOS (Legendary)
+    PLATZTAUSCHER: { id: 'platztauscher', name: 'Platztauscher', icon: 'icons/Punktetausch.png', rarity: 'legendary', effect: 'swap_points', needsTarget: false, description: 'Tauscht deine Punkte mit einem zufälligen Spieler' }
   };
 
   // Rarity weights for item distribution (catch-up mechanic)
+  // Je schlechter die Platzierung, desto seltener die Items!
   const RARITY_WEIGHTS = {
-    top: { common: 75, uncommon: 20, rare: 5, legendary: 0 },
-    mid: { common: 55, uncommon: 30, rare: 13, legendary: 2 },
-    low: { common: 35, uncommon: 35, rare: 25, legendary: 5 }
+    // TOP 1/3 - Hauptsächlich Common Items (Position verteidigen)
+    top: { common: 70, uncommon: 25, rare: 5, legendary: 0 },
+
+    // MIDDLE 1/3 - Mix mit mehr Uncommon
+    mid: { common: 40, uncommon: 45, rare: 12, legendary: 3 },
+
+    // LOW 1/3 - Viel Rare & Legendary! (Starke Aufholchance)
+    low: { common: 15, uncommon: 30, rare: 40, legendary: 15 }
   };
 
   function getRandomItem(playerPosition) {
@@ -2187,6 +2194,9 @@
           const toEliminate = shuffle(wrong).slice(0, 2);
           setEliminated5050(toEliminate);
         }
+      } else if(item.id === 'fokus') {
+        // NEW: Fokus - Shows if your answer is correct
+        updates[`games/${gameId}/players/${playerId}/activeEffects/focus`] = true;
       } else if(item.id === 'scanner' && targetId) {
         const targetPlayer = game.players?.[targetId];
         if(targetPlayer && targetPlayer.currentAnswer !== null && targetPlayer.currentAnswer !== undefined) {
@@ -2484,6 +2494,11 @@
                  const is5050Eliminated = eliminated5050.includes(i);
                  const isScanned = Object.values(scannedAnswers).includes(i);
                  const isMirrorAnswer = mirrorAnswer === i;
+                 const hasFocus = player?.activeEffects?.focus;
+                 const isMyAnswer = player.currentAnswer === i;
+                 const isCorrectAnswer = i === question.correct;
+                 const showFocusIndicator = hasFocus && isMyAnswer;
+
                  return (
                    <button
                       key={i}
@@ -2511,6 +2526,16 @@
                       <span style={{flex:1}}>{a}</span>
                       {isScanned && <span style={{color:'var(--rtl-orange)', fontSize:20, flexShrink:0}}>👁️</span>}
                       {isMirrorAnswer && <span style={{color:'var(--rtl-purple)', fontSize:22, flexShrink:0}}>🔮</span>}
+                      {showFocusIndicator && (
+                        <span style={{
+                          color: isCorrectAnswer ? '#00ff00' : '#ff0000',
+                          fontSize: 24,
+                          flexShrink: 0,
+                          fontWeight: 900
+                        }}>
+                          {isCorrectAnswer ? '✓' : '✗'}
+                        </span>
+                      )}
                    </button>
                  )
                })}
@@ -2760,10 +2785,10 @@
   // Items Info Modal Component
   function ItemsInfoModal({ onClose }) {
     const categories = {
-      'Angriff': ['GIFTPFEIL', 'FREEZE', 'ZEITSCHNAPPER'],
-      'Verteidigung': ['SCHILD', 'SPIEGELGLAS'],
-      'Verstärkung': ['TURBO', 'MAGNET', 'ZAPFER'],
-      'Chaos': ['PLATZTAUSCHER', 'SCANNER', 'NEHMER']
+      'Defensive': ['SCHILD', 'MAGNET', 'FOKUS'],
+      'Strategisch': ['SPIEGELGLAS', 'ZAPFER', 'SCANNER'],
+      'Aggressiv': ['GIFTPFEIL', 'ZEITSCHNAPPER', 'NEHMER', 'TURBO', 'FREEZE'],
+      'Chaos': ['PLATZTAUSCHER']
     };
 
     return (
