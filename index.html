@@ -1988,6 +1988,13 @@
         setFocusTestedAnswer(null); // Reset focus test
     }, [meta?.questionIndex]);
 
+    // Reset wager amount when finale question changes
+    useEffect(() => {
+        if(meta?.phase === 'finalQuestion') {
+            setWagerAmount(0);
+        }
+    }, [meta?.finalQuestionIndex]);
+
     // FIX: Removed automatic round start screen - now using separate phase
 
     // FIX: Time reduction tracking - store actual start time
@@ -2536,13 +2543,6 @@
        const hasAnswered = player.finalAnswers && player.finalAnswers[qIndex];
        const hasWagered = player.finalWagers && player.finalWagers[qIndex] !== undefined;
        const currentScore = player.finalCurrentScore || 0;
-
-       // Initialize wager if not set
-       React.useEffect(() => {
-         if(hasWagered && wagerAmount === 0) {
-           setWagerAmount(player.finalWagers[qIndex]);
-         }
-       }, [hasWagered]);
 
        const submitWagerAndAnswer = async () => {
          if(!finalAnswer.trim()) return;
@@ -3268,4 +3268,5 @@
   </script>
 </body>
 </html>
+
 
