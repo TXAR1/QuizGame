@@ -1378,7 +1378,7 @@
                 </div>
 
                 <div style={{textAlign:'center', padding:'20px', background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', marginTop:30}}>
-                    <div style={{fontSize:'1.2rem', color:'var(--muted)'}}>Scanne den QR-Code oder gehe zu</div>
+                    <div style={{fontSize:'1.2rem', color:'var(--muted)'}}>📱 Scanne den QR-Code oder gehe zu</div>
                     <div style={{fontSize:'2rem', fontWeight:700, color:'var(--rtl-orange)', marginTop:5}}>rtl-quiz.web.app</div>
                 </div>
              </div>
@@ -2413,7 +2413,7 @@
                   }}
                   style={{marginTop:15, fontSize:13, padding:'10px 18px', background:'rgba(255,255,255,0.1)'}}
                 >
-                  Vollbild
+                  📱 Vollbild
                 </button>
               </div>
             </div>
@@ -2824,7 +2824,7 @@
             }}
             style={{fontSize:14, padding:'10px 20px', background:'rgba(255,255,255,0.1)'}}
           >
-            Vollbild
+            📱 Vollbild
           </button>
         </div>
       </div>
@@ -2903,21 +2903,45 @@
     };
 
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{background:'var(--bg)'}}>
-        <div style={{marginBottom: 30, display:'flex', flexDirection:'column', alignItems:'center'}}>
-            <RTLLogo size="md" />
-            <h1 style={{marginTop:15, fontSize:'clamp(20px, 5vw, 24px)', fontWeight:900, color:'var(--tile)', letterSpacing:1}}>AdAlliance Quiz</h1>
+      <div style={{
+        minHeight:'100vh',
+        display:'flex',
+        flexDirection:'column',
+        alignItems:'center',
+        padding:'40px 20px',
+        background:'#000'
+      }}>
+        {/* Header - weiter oben positioniert */}
+        <div style={{marginBottom:40, textAlign:'center'}}>
+            <RTLLogo size="lg" />
+            <div style={{fontSize:'2rem', fontWeight:900, color:'var(--rtl-orange)', marginTop:15, letterSpacing:2}}>AdAlliance Quiz</div>
         </div>
-        <div className="card" style={{width:'100%', maxWidth:480, textAlign:'center'}}>
-          <h2 style={{fontSize:'clamp(18px, 4vw, 22px)', fontWeight:900, color:'var(--rtl-orange)', marginBottom:25, textTransform:'uppercase', letterSpacing:2}}>
+
+        {/* Login Card - kompakter */}
+        <div style={{
+          width:'100%',
+          maxWidth:500,
+          padding:30,
+          background:'#111',
+          border:'2px solid rgba(255,255,255,0.2)'
+        }}>
+          <h2 style={{
+            fontSize:24,
+            fontWeight:900,
+            color:'var(--rtl-orange)',
+            marginBottom:30,
+            textTransform:'uppercase',
+            letterSpacing:2,
+            textAlign:'center'
+          }}>
             Spieler Login
           </h2>
+
           <div style={{marginBottom:25}}>
              <label style={{
                display:'block',
-               textAlign:'left',
-               marginBottom:12,
-               fontSize:'clamp(13px, 3vw, 15px)',
+               marginBottom:10,
+               fontSize:14,
                color:'var(--muted)',
                fontWeight:700,
                textTransform:'uppercase',
@@ -2929,48 +2953,49 @@
                 value={name}
                 onChange={e=>setName(e.target.value)}
                 onKeyPress={e => e.key === 'Enter' && name && handleJoin()}
-                placeholder="z.B. Max Power"
+                placeholder="Name eingeben..."
                 maxLength={12}
                 autoFocus
                 style={{
                   width:'100%',
-                  padding:'16px 20px',
-                  fontSize:'clamp(16px, 4vw, 20px)',
+                  padding:'18px 20px',
+                  fontSize:20,
                   fontWeight:700,
-                  border:'3px solid rgba(255,255,255,0.15)',
-                  borderRadius:8,
+                  border:'2px solid rgba(255,255,255,0.2)',
                   background:'rgba(255,255,255,0.05)',
                   color:'white',
-                  textAlign:'center',
-                  transition:'all 0.2s ease',
-                  outline:'none'
-                }}
-                onFocus={(e) => {
-                  e.target.style.border = '3px solid var(--rtl-orange)';
-                  e.target.style.background = 'rgba(255,102,0,0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.border = '3px solid rgba(255,255,255,0.15)';
-                  e.target.style.background = 'rgba(255,255,255,0.05)';
+                  textAlign:'center'
                 }}
              />
           </div>
+
           <button
-            className="btn btn-host w-full"
+            className="btn btn-host"
             onClick={handleJoin}
             disabled={!name}
             style={{
-              fontSize:'clamp(18px, 4vw, 22px)',
+              width:'100%',
+              fontSize:22,
               padding:'18px 24px',
               fontWeight:900,
               letterSpacing:2,
-              boxShadow: name ? '0 8px 30px rgba(255,102,0,0.4)' : 'none',
-              transform: name ? 'scale(1)' : 'scale(0.98)',
-              transition:'all 0.2s ease'
+              opacity: name ? 1 : 0.5
             }}
           >
             BEITRETEN ▶
           </button>
+        </div>
+
+        {/* Info Text unten */}
+        <div style={{
+          marginTop:30,
+          padding:20,
+          textAlign:'center',
+          color:'var(--muted)',
+          fontSize:14,
+          maxWidth:500
+        }}>
+          Gib deinen Namen ein und trete dem Spiel bei
         </div>
       </div>
     );
