@@ -1273,9 +1273,14 @@
       await db.ref(`games/${gameId}/finalQuestions`).set(shuffle(FINAL_QUESTION_POOL).slice(0, FINAL_QUESTIONS));
       const updates = {};
       Object.keys(pObj).forEach(pid => {
-        updates[`games/${gameId}/players/${pid}/isFinalist`] = top2.includes(pid);
+        const isFinalist = top2.includes(pid);
+        const baseScore = isFinalist ? Math.floor((pObj[pid].score || 0) * 0.5) : 0; // 50% Base Score
+        updates[`games/${gameId}/players/${pid}/isFinalist`] = isFinalist;
         updates[`games/${gameId}/players/${pid}/finalAnswers`] = {};
         updates[`games/${gameId}/players/${pid}/finalistReady`] = false;
+        updates[`games/${gameId}/players/${pid}/finalBaseScore`] = baseScore;
+        updates[`games/${gameId}/players/${pid}/finalCurrentScore`] = baseScore; // Start with base score
+        updates[`games/${gameId}/players/${pid}/finalWagers`] = {};
       });
       await db.ref().update(updates);
       await db.ref(`games/${gameId}/meta`).update({ phase: 'finalIntro', finalists: top2 });
@@ -1293,8 +1298,16 @@
       const reviewIndex = snap.val()?.meta?.finalReviewIndex || 0;
       const player = snap.val()?.players?.[playerId];
       if(!player) return;
-      const points = correct ? (FINAL_ROUND_POINTS[reviewIndex] || 2000) : 0;
-      await db.ref(`games/${gameId}/players/${playerId}`).update({ score: (player.score || 0) + points, [`finalScores/${reviewIndex}`]: points });
+
+      const wager = player.finalWagers?.[reviewIndex] || 0;
+      const currentScore = player.finalCurrentScore || 0;
+      const pointChange = correct ? wager : -wager;
+      const newScore = Math.max(0, currentScore + pointChange); // Can't go below 0
+
+      await db.ref(`games/${gameId}/players/${playerId}`).update({
+        finalCurrentScore: newScore,
+        [`finalScores/${reviewIndex}`]: pointChange
+      });
     };
     const nextFinalReview = async () => {
       const snap = await db.ref(`games/${gameId}`).get();
@@ -1832,7 +1845,9 @@
     const question = (game.finalQuestions || [])[reviewIndex];
     const finalists = (meta.finalists || []).map(pid => ({ pid, ...(game.players?.[pid] || {}) }));
     const [judged, setJudged] = useState({});
+    const [showAnswers, setShowAnswers] = useState(false);
     const handleJudge = async (pid, ok) => { await onJudge(pid, ok); setJudged(prev => ({...prev, [pid]: ok})); };
+
     return (
       <div className="results-split-view" style={{width:'100%'}}>
         <div className="results-col" style={{justifyContent:'center', padding:40}}>
@@ -1844,24 +1859,56 @@
            </div>
         </div>
         <div className="results-col" style={{justifyContent:'center', padding:40}}>
-           {finalists.map(f => (
-              <div key={f.pid} style={{padding:30, background:'rgba(255,255,255,0.05)', marginBottom:20}}>
-                 <div style={{display:'flex', justifyContent:'space-between', marginBottom:15}}>
-                    <span style={{fontWeight:900, fontSize:24}}>{f.name}</span>
-                    <span style={{color:'var(--muted)', fontSize:20}}>{f.score} Pkt</span>
-                 </div>
-                 <div style={{fontSize:28, padding:20, background:'rgba(0,0,0,0.5)', marginBottom:20, fontStyle:'italic'}}>"{f.finalAnswers?.[reviewIndex] || '---'}"</div>
-                 {judged[f.pid] === undefined ? (
-                    <div style={{display:'flex', gap:20}}>
-                       <button className="btn" style={{flex:1, background:'white', color:'black', border:'2px solid white', fontSize:20}} onClick={()=>handleJudge(f.pid, true)}>KORREKT</button>
-                       <button className="btn" style={{flex:1, background:'transparent', border:'2px solid rgba(255,255,255,0.2)', color:'white'}} onClick={()=>handleJudge(f.pid, false)}>FALSCH</button>
+           {!showAnswers ? (
+              <>
+                <h3 style={{fontSize:28, fontWeight:900, marginBottom:30, color:'var(--rtl-orange)', textAlign:'center'}}>GESETZTE PUNKTE</h3>
+                {finalists.map(f => {
+                  const wager = f.finalWagers?.[reviewIndex] || 0;
+                  const currentScore = f.finalCurrentScore || 0;
+                  return (
+                    <div key={f.pid} style={{padding:30, background:'rgba(155, 89, 182, 0.1)', border:'2px solid #9b59b6', marginBottom:20}}>
+                       <div style={{display:'flex', justifyContent:'space-between', marginBottom:15}}>
+                          <span style={{fontWeight:900, fontSize:24}}>{f.name}</span>
+                          <span style={{color:'var(--muted)', fontSize:16}}>Score: {currentScore}</span>
+                       </div>
+                       <div style={{textAlign:'center', padding:30, background:'rgba(0,0,0,0.5)'}}>
+                          <div style={{fontSize:16, color:'var(--muted)', marginBottom:10}}>Einsatz</div>
+                          <div style={{fontSize:64, fontWeight:900, color:'#9b59b6'}}>{wager}</div>
+                          <div style={{fontSize:16, color:'var(--muted)', marginTop:10}}>Punkte</div>
+                       </div>
                     </div>
-                 ) : (
-                    <div style={{textAlign:'center', fontWeight:900, color: judged[f.pid] ? 'var(--rtl-orange)' : 'var(--rtl-orange)', fontSize:20}}>{judged[f.pid] ? 'PUNKTE VERGEBEN' : 'ALS FALSCH GEWERTET'}</div>
-                 )}
-              </div>
-           ))}
-           {Object.keys(judged).length === finalists.length && <button className="btn btn-host" onClick={()=>{ setJudged({}); onNext(); }} style={{marginTop:30, fontSize:24, padding:'20px 40px'}}>WEITER ▶</button>}
+                  );
+                })}
+                <button className="btn btn-host" onClick={()=>setShowAnswers(true)} style={{width:'100%', fontSize:24, padding:'20px 40px', marginTop:20}}>ANTWORTEN ANZEIGEN ▶</button>
+              </>
+           ) : (
+              <>
+                <h3 style={{fontSize:28, fontWeight:900, marginBottom:30, textAlign:'center'}}>ANTWORTEN BEWERTEN</h3>
+                {finalists.map(f => {
+                  const wager = f.finalWagers?.[reviewIndex] || 0;
+                  return (
+                    <div key={f.pid} style={{padding:30, background:'rgba(255,255,255,0.05)', marginBottom:20}}>
+                       <div style={{display:'flex', justifyContent:'space-between', marginBottom:15}}>
+                          <span style={{fontWeight:900, fontSize:24}}>{f.name}</span>
+                          <span style={{color:'#9b59b6', fontSize:20, fontWeight:900}}>{wager} Pkt gesetzt</span>
+                       </div>
+                       <div style={{fontSize:28, padding:20, background:'rgba(0,0,0,0.5)', marginBottom:20, fontStyle:'italic'}}>"{f.finalAnswers?.[reviewIndex] || '---'}"</div>
+                       {judged[f.pid] === undefined ? (
+                          <div style={{display:'flex', gap:20}}>
+                             <button className="btn" style={{flex:1, background:'white', color:'black', border:'2px solid white', fontSize:20}} onClick={()=>handleJudge(f.pid, true)}>✓ KORREKT</button>
+                             <button className="btn" style={{flex:1, background:'transparent', border:'2px solid rgba(255,255,255,0.2)', color:'white'}} onClick={()=>handleJudge(f.pid, false)}>✗ FALSCH</button>
+                          </div>
+                       ) : (
+                          <div style={{textAlign:'center', fontWeight:900, color:'var(--rtl-orange)', fontSize:20}}>
+                            {judged[f.pid] ? `✓ RICHTIG (+${wager} Punkte)` : `✗ FALSCH (-${wager} Punkte)`}
+                          </div>
+                       )}
+                    </div>
+                  );
+                })}
+                {Object.keys(judged).length === finalists.length && <button className="btn btn-host" onClick={()=>{ setJudged({}); setShowAnswers(false); onNext(); }} style={{marginTop:30, fontSize:24, padding:'20px 40px'}}>WEITER ▶</button>}
+              </>
+           )}
         </div>
       </div>
     );
@@ -2239,8 +2286,14 @@
       } else if(item.id === 'zapfer') {
         const q = (game.questions || [])[meta.questionIndex || 0];
         if(q) {
+          // Check if player is top player
+          const playersArr = Object.entries(game.players || {}).map(([pid, p]) => ({pid, score: p.score || 0}));
+          playersArr.sort((a, b) => b.score - a.score);
+          const isTopPlayer = playersArr.length > 0 && playersArr[0].pid === playerId;
+
           const wrong = q.answers.map((_, i) => i).filter(i => i !== q.correct);
-          const toEliminate = shuffle(wrong).slice(0, 2);
+          const eliminateCount = isTopPlayer ? 1 : 2; // Top-Spieler: nur 1 falsche, andere: 2 falsche
+          const toEliminate = shuffle(wrong).slice(0, eliminateCount);
           setEliminated5050(toEliminate);
         }
       } else if(item.id === 'fokus') {
@@ -2440,10 +2493,102 @@
     if(meta.phase === 'finalQuestion'){
        const question = (game.finalQuestions||[])[meta.finalQuestionIndex||0];
        if(!player.isFinalist) return <div className="min-h-screen flex items-center justify-center p-4"><div className="card"><h2>Finale läuft...</h2></div></div>;
-       const hasAnswered = player.finalAnswers && player.finalAnswers[meta.finalQuestionIndex||0];
+
+       const qIndex = meta.finalQuestionIndex || 0;
+       const hasAnswered = player.finalAnswers && player.finalAnswers[qIndex];
+       const hasWagered = player.finalWagers && player.finalWagers[qIndex] !== undefined;
+       const currentScore = player.finalCurrentScore || 0;
+       const [wagerAmount, setWagerAmount] = React.useState(hasWagered ? player.finalWagers[qIndex] : 0);
+
+       const submitWagerAndAnswer = async () => {
+         if(!finalAnswer.trim()) return;
+         await db.ref(`games/${gameId}/players/${playerId}`).update({
+           [`finalWagers/${qIndex}`]: wagerAmount,
+           [`finalAnswers/${qIndex}`]: finalAnswer
+         });
+         setFinalAnswer('');
+       };
+
        return (
-          <div className="min-h-screen p-4"><div className="card"><RTLLogo size="sm" style={{marginBottom:20}} /><h2>Frage {meta.finalQuestionIndex+1}</h2><p>{question?.question}</p>
-          {!hasAnswered ? <><input className="w-full p-3 mt-4" value={finalAnswer} onChange={e=>setFinalAnswer(e.target.value)}/><button className="btn btn-host w-full mt-2" onClick={()=>{db.ref(`games/${gameId}/players/${playerId}/finalAnswers/${meta.finalQuestionIndex}`).set(finalAnswer); setFinalAnswer('');}}>Senden</button></> : <p>Antwort gesendet.</p>}</div></div>
+          <div className="min-h-screen p-4" style={{display:'flex', alignItems:'center', justifyContent:'center'}}>
+            <div className="card" style={{maxWidth:600, width:'100%'}}>
+              <RTLLogo size="sm" style={{marginBottom:20}} />
+
+              <div style={{marginBottom:30}}>
+                <div style={{fontSize:14, color:'var(--muted)', marginBottom:5}}>FINALE - FRAGE {qIndex+1} VON {FINAL_QUESTIONS}</div>
+                <div style={{fontSize:16, fontWeight:900, color:'var(--rtl-orange)'}}>Aktueller Score: {currentScore} Punkte</div>
+              </div>
+
+              <h2 style={{fontSize:24, fontWeight:900, marginBottom:30}}>{question?.question}</h2>
+
+              {!hasAnswered ? (
+                <>
+                  {/* Wager Slider */}
+                  <div style={{marginBottom:30}}>
+                    <label style={{display:'block', marginBottom:15, fontSize:16, fontWeight:700, color:'var(--muted)'}}>
+                      Wie viele Punkte setzt du ein?
+                    </label>
+                    <div style={{marginBottom:15}}>
+                      <div style={{fontSize:36, fontWeight:900, color:'#9b59b6', textAlign:'center', marginBottom:10}}>
+                        {wagerAmount} Punkte
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max={currentScore}
+                        value={wagerAmount}
+                        onChange={e => setWagerAmount(parseInt(e.target.value))}
+                        style={{
+                          width: '100%',
+                          height: 20,
+                          WebkitAppearance: 'none',
+                          background: `linear-gradient(to right, #9b59b6 0%, #9b59b6 ${(wagerAmount/currentScore)*100}%, rgba(255,255,255,0.1) ${(wagerAmount/currentScore)*100}%, rgba(255,255,255,0.1) 100%)`,
+                          outline: 'none',
+                          borderRadius: 0,
+                          border: '2px solid #9b59b6'
+                        }}
+                      />
+                      <div style={{display:'flex', justifyContent:'space-between', marginTop:8, fontSize:12, color:'var(--muted)'}}>
+                        <span>0</span>
+                        <span>{currentScore}</span>
+                      </div>
+                    </div>
+                    <div style={{fontSize:13, color:'var(--muted)', textAlign:'center', fontStyle:'italic'}}>
+                      ✓ Richtig → +{wagerAmount} Punkte | ✗ Falsch → -{wagerAmount} Punkte
+                    </div>
+                  </div>
+
+                  {/* Answer Input */}
+                  <div style={{marginBottom:20}}>
+                    <label style={{display:'block', marginBottom:10, fontSize:14, fontWeight:700, color:'var(--muted)'}}>
+                      Deine Antwort
+                    </label>
+                    <input
+                      className="w-full p-3"
+                      value={finalAnswer}
+                      onChange={e => setFinalAnswer(e.target.value)}
+                      placeholder="Antwort eingeben..."
+                      style={{fontSize:18}}
+                    />
+                  </div>
+
+                  <button
+                    className="btn btn-host w-full"
+                    onClick={submitWagerAndAnswer}
+                    disabled={!finalAnswer.trim()}
+                    style={{fontSize:20, padding:'18px', opacity: finalAnswer.trim() ? 1 : 0.5}}
+                  >
+                    ANTWORT SENDEN ▶
+                  </button>
+                </>
+              ) : (
+                <div style={{textAlign:'center', padding:40, background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.1)'}}>
+                  <div style={{fontSize:18, fontWeight:900, color:'var(--rtl-orange)', marginBottom:10}}>✓ ANTWORT GESENDET</div>
+                  <div style={{fontSize:14, color:'var(--muted)'}}>Eingesetzt: {player.finalWagers[qIndex]} Punkte</div>
+                </div>
+              )}
+            </div>
+          </div>
        );
     }
 
@@ -2546,7 +2691,7 @@
                  const hasFocus = player?.activeEffects?.focus;
                  const isMyAnswer = player.currentAnswer === i;
                  const isCorrectAnswer = i === question.correct;
-                 const showFocusIndicator = hasFocus && isMyAnswer;
+                 const showFocusIndicator = hasFocus; // Zeigt für ALLE Antworten ob richtig/falsch
 
                  return (
                    <button
@@ -2692,6 +2837,7 @@
     }
 
     if(meta.phase === 'finished') {
+      const finalScore = player.isFinalist ? (player.finalCurrentScore || 0) : (player.score || 0);
       return (
         <div className="min-h-screen flex items-center justify-center p-4">
           <div className="card" style={{textAlign:'center'}}>
@@ -2700,7 +2846,7 @@
             <p style={{fontSize:16, color:'var(--muted)', marginBottom:25}}>Danke fürs Spielen!</p>
             <div style={{marginTop:20, padding:25, background:'rgba(255,255,255,0.05)', border:'2px solid rgba(255,255,255,0.1)'}}>
                 <div style={{fontSize:14, color:'var(--muted)', marginBottom:10, textTransform:'uppercase', letterSpacing:1}}>Dein Endergebnis</div>
-                <div style={{fontSize:48, fontWeight:900, color:'var(--rtl-orange)'}}>{player.score}</div>
+                <div style={{fontSize:48, fontWeight:900, color:'var(--rtl-orange)'}}>{finalScore}</div>
                 <div style={{fontSize:14, color:'var(--muted)', marginTop:5}}>Punkte</div>
             </div>
           </div>
@@ -3062,6 +3208,4 @@
   </script>
 </body>
 </html>
-
-
 
