@@ -1384,7 +1384,13 @@
     if(!meta || !game) return <div className="min-h-screen flex items-center justify-center">Lade Spiel...</div>;
 
     const isLobby = meta.phase === 'lobby';
-    const playersArr = Object.entries(game.players || {}).map(([pid,p])=>({pid,...p})).sort((a,b)=>(b.score||0)-(a.score||0));
+    const isFinalFinished = meta.phase === 'finished';
+    const playersArr = Object.entries(game.players || {}).map(([pid,p])=>({pid,...p})).sort((a,b)=>{
+      // Use finalCurrentScore for finished phase, otherwise use regular score
+      const scoreA = isFinalFinished && a.finalCurrentScore !== undefined ? a.finalCurrentScore : (a.score || 0);
+      const scoreB = isFinalFinished && b.finalCurrentScore !== undefined ? b.finalCurrentScore : (b.score || 0);
+      return scoreB - scoreA;
+    });
     const qIndex = meta.questionIndex || 0;
     const question = (game.questions || [])[qIndex];
     const countdownClass = timeLeft <= 10 ? 'danger' : timeLeft <= 20 ? 'warning' : '';
@@ -1757,7 +1763,7 @@
                                   {playersArr[1] && (
                                       <div className="podium-place podium-2" style={{animationDelay:'0.2s'}}>
                                           <div className="winner-name">{playersArr[1].name}</div>
-                                          <div className="winner-score">{playersArr[1].score} Punkte</div>
+                                          <div className="winner-score">{playersArr[1].finalCurrentScore !== undefined ? playersArr[1].finalCurrentScore : playersArr[1].score} Punkte</div>
                                           <div className="podium-bar">2</div>
                                       </div>
                                   )}
@@ -1765,14 +1771,14 @@
                                       <div className="podium-place podium-1" style={{animationDelay:'0s'}}>
                                           <div style={{fontSize:'5rem', marginBottom:20}}>👑</div>
                                           <div className="winner-name">{playersArr[0].name}</div>
-                                          <div className="winner-score">{playersArr[0].score} Punkte</div>
+                                          <div className="winner-score">{playersArr[0].finalCurrentScore !== undefined ? playersArr[0].finalCurrentScore : playersArr[0].score} Punkte</div>
                                           <div className="podium-bar">1</div>
                                       </div>
                                   )}
                                   {playersArr[2] && (
                                       <div className="podium-place podium-3" style={{animationDelay:'0.4s'}}>
                                           <div className="winner-name">{playersArr[2].name}</div>
-                                          <div className="winner-score">{playersArr[2].score} Punkte</div>
+                                          <div className="winner-score">{playersArr[2].finalCurrentScore !== undefined ? playersArr[2].finalCurrentScore : playersArr[2].score} Punkte</div>
                                           <div className="podium-bar">3</div>
                                       </div>
                                   )}
@@ -3302,5 +3308,6 @@
   </script>
 </body>
 </html>
+
 
 
