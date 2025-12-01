@@ -73,6 +73,25 @@
     ::-webkit-scrollbar-thumb:hover { background: #ff8533; }
 
     input, textarea, select { background: white !important; color: #0b0b0b !important; border: 1px solid rgba(0,0,0,0.1); padding: 12px; font-weight: 600; }
+
+    /* Wager Slider Thumb - Simple 2D Style */
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 30px;
+      height: 46px;
+      background: #fff;
+      border: 4px solid #9b59b6;
+      cursor: pointer;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 30px;
+      height: 46px;
+      background: #fff;
+      border: 4px solid #9b59b6;
+      cursor: pointer;
+      border-radius: 0;
+    }
     
     .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:900; padding:14px 28px; cursor:pointer; border:none; background:rgba(255,255,255,0.1); color:var(--tile); font-size:18px; text-transform: uppercase; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.1); }
     .btn:hover { background:rgba(255,255,255,0.25); }
@@ -985,7 +1004,7 @@
           const elapsed = Math.floor((Date.now() - start)/1000);
           const rem = Math.max(0, duration - elapsed);
           setTimeLeft(rem);
-          if(rem === 0) { isFinal ? await nextFinalQuestion() : await showResultsNow(); }
+          if(rem === 0) { isFinal ? await showFinalResults() : await showResultsNow(); }
         };
         tick();
         clearInterval(timerRef.current);
@@ -1287,33 +1306,42 @@
     };
 
     const startFinalQuestion = async () => db.ref(`games/${gameId}/meta`).update({ phase: 'finalQuestion', finalQuestionIndex: 0, finalQuestionStartTime: Date.now() });
-    const nextFinalQuestion = async () => {
+
+    const showFinalResults = async () => {
       const snap = await db.ref(`games/${gameId}`).get();
-      const currentIndex = (snap.val()?.meta?.finalQuestionIndex || 0) + 1;
-      if(currentIndex >= FINAL_QUESTIONS) await db.ref(`games/${gameId}/meta`).update({ phase: 'finalReview', finalReviewIndex: 0 });
-      else await db.ref(`games/${gameId}/meta`).update({ finalQuestionIndex: currentIndex, finalQuestionStartTime: Date.now() });
+      const currentIndex = snap.val()?.meta?.finalQuestionIndex || 0;
+      await db.ref(`games/${gameId}/meta`).update({ phase: 'finalReview' });
     };
+
     const judgeFinalAnswer = async (playerId, correct) => {
       const snap = await db.ref(`games/${gameId}`).get();
-      const reviewIndex = snap.val()?.meta?.finalReviewIndex || 0;
+      const qIndex = snap.val()?.meta?.finalQuestionIndex || 0;
       const player = snap.val()?.players?.[playerId];
       if(!player) return;
 
-      const wager = player.finalWagers?.[reviewIndex] || 0;
+      const wager = player.finalWagers?.[qIndex] || 0;
       const currentScore = player.finalCurrentScore || 0;
       const pointChange = correct ? wager : -wager;
-      const newScore = Math.max(0, currentScore + pointChange); // Can't go below 0
+      const newScore = Math.max(0, currentScore + pointChange);
 
       await db.ref(`games/${gameId}/players/${playerId}`).update({
         finalCurrentScore: newScore,
-        [`finalScores/${reviewIndex}`]: pointChange
+        [`finalScores/${qIndex}`]: pointChange
       });
     };
-    const nextFinalReview = async () => {
+
+    const nextFinalQuestion = async () => {
       const snap = await db.ref(`games/${gameId}`).get();
-      const reviewIndex = (snap.val()?.meta?.finalReviewIndex || 0) + 1;
-      if(reviewIndex >= FINAL_QUESTIONS) await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
-      else await db.ref(`games/${gameId}/meta`).update({ finalReviewIndex: reviewIndex });
+      const currentIndex = (snap.val()?.meta?.finalQuestionIndex || 0) + 1;
+      if(currentIndex >= FINAL_QUESTIONS) {
+        await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+      } else {
+        await db.ref(`games/${gameId}/meta`).update({
+          phase: 'finalQuestion',
+          finalQuestionIndex: currentIndex,
+          finalQuestionStartTime: Date.now()
+        });
+      }
     };
 
     const startGame = async ()=>{
@@ -1717,8 +1745,8 @@
                 {['finalIntro', 'finalQuestion', 'finalReview', 'finished'].includes(meta.phase) && (
                     <div style={{flex:1, display:'flex', justifyContent:'center', alignItems:'center', flexDirection:'column'}}>
                         {meta.phase === 'finalIntro' && <FinalIntroHostView game={game} meta={meta} onStart={startFinalQuestion} />}
-                        {meta.phase === 'finalQuestion' && <FinalQuestionHostView game={game} meta={meta} timeLeft={timeLeft} onNext={nextFinalQuestion} />}
-                        {meta.phase === 'finalReview' && <FinalReviewHostView game={game} meta={meta} onJudge={judgeFinalAnswer} onNext={nextFinalReview} />}
+                        {meta.phase === 'finalQuestion' && <FinalQuestionHostView game={game} meta={meta} timeLeft={timeLeft} onShowResults={showFinalResults} />}
+                        {meta.phase === 'finalReview' && <FinalReviewHostView game={game} meta={meta} onJudge={judgeFinalAnswer} onNext={nextFinalQuestion} />}
                         {meta.phase === 'finished' && (
                            <div style={{width:'100%', height:'100%', position:'relative', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'space-between', padding:'60px 40px'}}>
                               <div style={{zIndex:10, textAlign:'center'}}>
@@ -1811,47 +1839,50 @@
     );
   }
 
-  function FinalQuestionHostView({ game, meta, timeLeft, onNext }){
+  function FinalQuestionHostView({ game, meta, timeLeft, onShowResults }){
     const finalQIndex = meta.finalQuestionIndex || 0;
     const question = (game.finalQuestions || [])[finalQIndex];
     const finalists = (meta.finalists || []).map(pid => ({ pid, ...(game.players?.[pid] || {}) }));
     const allAnswered = finalists.every(f => f.finalAnswers?.[finalQIndex]);
 
-    const buttonText = finalQIndex + 1 >= FINAL_QUESTIONS ? 'ZUR AUSWERTUNG' : 'NÄCHSTE FRAGE';
-
     return (
       <div style={{textAlign:'center', width:'100%', maxWidth:1400}}>
         <h2 style={{fontSize:'4.5rem', fontWeight:900, lineHeight:1.3, marginBottom:80}}>{question?.question}</h2>
         <div style={{display:'flex', gap:40}}>
-          {finalists.map(f => (
+          {finalists.map(f => {
+            const wager = f.finalWagers?.[finalQIndex] || 0;
+            const currentScore = f.finalCurrentScore || 0;
+            return (
              <div key={f.pid} style={{flex:1, padding:40, background:'rgba(255,255,255,0.05)',
                  border: f.finalAnswers?.[finalQIndex] ? '5px solid var(--rtl-orange)' : '2px solid rgba(255,255,255,0.1)'
              }}>
                 <div style={{fontWeight:900, fontSize:36}}>{f.name}</div>
+                <div style={{marginTop:10, fontSize:18, color:'var(--muted)'}}>Score: {currentScore}</div>
+                <div style={{marginTop:15, fontSize:20, color:'#9b59b6', fontWeight:900}}>Einsatz: {wager} Pkt</div>
                 <div style={{marginTop:20, fontSize:24,
                     color: f.finalAnswers?.[finalQIndex] ? 'var(--rtl-orange)' : 'var(--muted)'}}>
                    {f.finalAnswers?.[finalQIndex] ? 'ANTWORT DA' : 'Tippt...'}
                 </div>
              </div>
-          ))}
+            );
+          })}
         </div>
-        {(timeLeft === 0 || allAnswered) && <button className="btn btn-host" onClick={onNext} style={{marginTop:60, fontSize:28, padding:'20px 40px'}}>{buttonText}</button>}
+        {(timeLeft === 0 || allAnswered) && <button className="btn btn-host" onClick={onShowResults} style={{marginTop:60, fontSize:28, padding:'20px 40px'}}>AUFLÖSUNG ANZEIGEN ▶</button>}
       </div>
     );
   }
 
   function FinalReviewHostView({ game, meta, onJudge, onNext }){
-    const reviewIndex = meta.finalReviewIndex || 0;
-    const question = (game.finalQuestions || [])[reviewIndex];
+    const qIndex = meta.finalQuestionIndex || 0;
+    const question = (game.finalQuestions || [])[qIndex];
     const finalists = (meta.finalists || []).map(pid => ({ pid, ...(game.players?.[pid] || {}) }));
     const [judged, setJudged] = useState({});
-    const [showAnswers, setShowAnswers] = useState(false);
     const handleJudge = async (pid, ok) => { await onJudge(pid, ok); setJudged(prev => ({...prev, [pid]: ok})); };
 
     return (
       <div className="results-split-view" style={{width:'100%'}}>
         <div className="results-col" style={{justifyContent:'center', padding:40}}>
-           <h3 style={{color:'var(--muted)', textTransform:'uppercase', fontWeight:900, fontSize:24, marginBottom:30}}>Frage {reviewIndex+1}</h3>
+           <h3 style={{color:'var(--muted)', textTransform:'uppercase', fontWeight:900, fontSize:24, marginBottom:30}}>Frage {qIndex+1} von {FINAL_QUESTIONS}</h3>
            <div style={{fontSize:'3.5rem', fontWeight:900, marginBottom:50, lineHeight:1.2}}>{question?.question}</div>
            <div style={{padding:40, background:'#fff', color:'#000'}}>
               <div style={{fontSize:18, fontWeight:900, color:'var(--rtl-orange)'}}>LÖSUNG</div>
@@ -1859,56 +1890,38 @@
            </div>
         </div>
         <div className="results-col" style={{justifyContent:'center', padding:40}}>
-           {!showAnswers ? (
-              <>
-                <h3 style={{fontSize:28, fontWeight:900, marginBottom:30, color:'var(--rtl-orange)', textAlign:'center'}}>GESETZTE PUNKTE</h3>
-                {finalists.map(f => {
-                  const wager = f.finalWagers?.[reviewIndex] || 0;
-                  const currentScore = f.finalCurrentScore || 0;
-                  return (
-                    <div key={f.pid} style={{padding:30, background:'rgba(155, 89, 182, 0.1)', border:'2px solid #9b59b6', marginBottom:20}}>
-                       <div style={{display:'flex', justifyContent:'space-between', marginBottom:15}}>
-                          <span style={{fontWeight:900, fontSize:24}}>{f.name}</span>
-                          <span style={{color:'var(--muted)', fontSize:16}}>Score: {currentScore}</span>
-                       </div>
-                       <div style={{textAlign:'center', padding:30, background:'rgba(0,0,0,0.5)'}}>
-                          <div style={{fontSize:16, color:'var(--muted)', marginBottom:10}}>Einsatz</div>
-                          <div style={{fontSize:64, fontWeight:900, color:'#9b59b6'}}>{wager}</div>
-                          <div style={{fontSize:16, color:'var(--muted)', marginTop:10}}>Punkte</div>
-                       </div>
+          <h3 style={{fontSize:28, fontWeight:900, marginBottom:30, textAlign:'center'}}>ANTWORTEN BEWERTEN</h3>
+          {finalists.map(f => {
+            const wager = f.finalWagers?.[qIndex] || 0;
+            const currentScore = f.finalCurrentScore || 0;
+            return (
+              <div key={f.pid} style={{padding:30, background:'rgba(255,255,255,0.05)', marginBottom:20}}>
+                 <div style={{display:'flex', justifyContent:'space-between', marginBottom:15}}>
+                    <span style={{fontWeight:900, fontSize:24}}>{f.name}</span>
+                    <div style={{textAlign:'right'}}>
+                      <div style={{color:'var(--muted)', fontSize:14}}>Aktuell: {currentScore}</div>
+                      <div style={{color:'#9b59b6', fontSize:18, fontWeight:900}}>Einsatz: {wager}</div>
                     </div>
-                  );
-                })}
-                <button className="btn btn-host" onClick={()=>setShowAnswers(true)} style={{width:'100%', fontSize:24, padding:'20px 40px', marginTop:20}}>ANTWORTEN ANZEIGEN ▶</button>
-              </>
-           ) : (
-              <>
-                <h3 style={{fontSize:28, fontWeight:900, marginBottom:30, textAlign:'center'}}>ANTWORTEN BEWERTEN</h3>
-                {finalists.map(f => {
-                  const wager = f.finalWagers?.[reviewIndex] || 0;
-                  return (
-                    <div key={f.pid} style={{padding:30, background:'rgba(255,255,255,0.05)', marginBottom:20}}>
-                       <div style={{display:'flex', justifyContent:'space-between', marginBottom:15}}>
-                          <span style={{fontWeight:900, fontSize:24}}>{f.name}</span>
-                          <span style={{color:'#9b59b6', fontSize:20, fontWeight:900}}>{wager} Pkt gesetzt</span>
-                       </div>
-                       <div style={{fontSize:28, padding:20, background:'rgba(0,0,0,0.5)', marginBottom:20, fontStyle:'italic'}}>"{f.finalAnswers?.[reviewIndex] || '---'}"</div>
-                       {judged[f.pid] === undefined ? (
-                          <div style={{display:'flex', gap:20}}>
-                             <button className="btn" style={{flex:1, background:'white', color:'black', border:'2px solid white', fontSize:20}} onClick={()=>handleJudge(f.pid, true)}>✓ KORREKT</button>
-                             <button className="btn" style={{flex:1, background:'transparent', border:'2px solid rgba(255,255,255,0.2)', color:'white'}} onClick={()=>handleJudge(f.pid, false)}>✗ FALSCH</button>
-                          </div>
-                       ) : (
-                          <div style={{textAlign:'center', fontWeight:900, color:'var(--rtl-orange)', fontSize:20}}>
-                            {judged[f.pid] ? `✓ RICHTIG (+${wager} Punkte)` : `✗ FALSCH (-${wager} Punkte)`}
-                          </div>
-                       )}
+                 </div>
+                 <div style={{fontSize:28, padding:20, background:'rgba(0,0,0,0.5)', marginBottom:20, fontStyle:'italic'}}>"{f.finalAnswers?.[qIndex] || '---'}"</div>
+                 {judged[f.pid] === undefined ? (
+                    <div style={{display:'flex', gap:20}}>
+                       <button className="btn" style={{flex:1, background:'white', color:'black', border:'2px solid white', fontSize:20}} onClick={()=>handleJudge(f.pid, true)}>✓ KORREKT</button>
+                       <button className="btn" style={{flex:1, background:'transparent', border:'2px solid rgba(255,255,255,0.2)', color:'white'}} onClick={()=>handleJudge(f.pid, false)}>✗ FALSCH</button>
                     </div>
-                  );
-                })}
-                {Object.keys(judged).length === finalists.length && <button className="btn btn-host" onClick={()=>{ setJudged({}); setShowAnswers(false); onNext(); }} style={{marginTop:30, fontSize:24, padding:'20px 40px'}}>WEITER ▶</button>}
-              </>
-           )}
+                 ) : (
+                    <div style={{textAlign:'center', fontWeight:900, color:'var(--rtl-orange)', fontSize:20}}>
+                      {judged[f.pid] ? `✓ RICHTIG (+${wager} Punkte)` : `✗ FALSCH (-${wager} Punkte)`}
+                    </div>
+                 )}
+              </div>
+            );
+          })}
+          {Object.keys(judged).length === finalists.length && (
+            <button className="btn btn-host" onClick={()=>{ setJudged({}); onNext(); }} style={{marginTop:30, fontSize:24, padding:'20px 40px'}}>
+              {qIndex + 1 >= FINAL_QUESTIONS ? 'SIEGER VERKÜNDEN ▶' : 'NÄCHSTE FRAGE ▶'}
+            </button>
+          )}
         </div>
       </div>
     );
@@ -2573,32 +2586,53 @@
                       Wie viele Punkte setzt du ein?
                     </label>
                     <div style={{marginBottom:15}}>
-                      <div style={{fontSize:36, fontWeight:900, color:'#9b59b6', textAlign:'center', marginBottom:10}}>
-                        {wagerAmount} Punkte
+                      <div style={{fontSize:48, fontWeight:900, color:'#9b59b6', textAlign:'center', marginBottom:15, letterSpacing:2}}>
+                        {wagerAmount}
                       </div>
-                      <input
-                        type="range"
-                        min="0"
-                        max={currentScore}
-                        value={wagerAmount}
-                        onChange={e => setWagerAmount(parseInt(e.target.value))}
-                        style={{
-                          width: '100%',
-                          height: 20,
-                          WebkitAppearance: 'none',
-                          background: `linear-gradient(to right, #9b59b6 0%, #9b59b6 ${(wagerAmount/currentScore)*100}%, rgba(255,255,255,0.1) ${(wagerAmount/currentScore)*100}%, rgba(255,255,255,0.1) 100%)`,
-                          outline: 'none',
-                          borderRadius: 0,
-                          border: '2px solid #9b59b6'
-                        }}
-                      />
-                      <div style={{display:'flex', justifyContent:'space-between', marginTop:8, fontSize:12, color:'var(--muted)'}}>
+
+                      {/* Custom Slider Track */}
+                      <div style={{position:'relative', height:40, background:'#000', border:'3px solid #9b59b6'}}>
+                        {/* Filled portion */}
+                        <div style={{
+                          position:'absolute',
+                          left:0,
+                          top:0,
+                          bottom:0,
+                          width:`${(wagerAmount/currentScore)*100}%`,
+                          background:'#9b59b6',
+                          transition:'width 0.1s'
+                        }} />
+
+                        {/* Native range input overlay */}
+                        <input
+                          type="range"
+                          min={0}
+                          max={currentScore}
+                          value={wagerAmount}
+                          onChange={e => setWagerAmount(parseInt(e.target.value))}
+                          style={{
+                            position:'absolute',
+                            width:'100%',
+                            height:'100%',
+                            top:0,
+                            left:0,
+                            WebkitAppearance:'none',
+                            appearance:'none',
+                            background:'transparent',
+                            outline:'none',
+                            margin:0,
+                            cursor:'pointer'
+                          }}
+                        />
+                      </div>
+
+                      <div style={{display:'flex', justifyContent:'space-between', marginTop:10, fontSize:14, color:'var(--muted)', fontWeight:700}}>
                         <span>0</span>
                         <span>{currentScore}</span>
                       </div>
                     </div>
-                    <div style={{fontSize:13, color:'var(--muted)', textAlign:'center', fontStyle:'italic'}}>
-                      ✓ Richtig → +{wagerAmount} Punkte | ✗ Falsch → -{wagerAmount} Punkte
+                    <div style={{fontSize:13, color:'var(--muted)', textAlign:'center'}}>
+                      Richtig: <span style={{color:'#00ff00'}}>+{wagerAmount}</span> • Falsch: <span style={{color:'#ff0000'}}>-{wagerAmount}</span>
                     </div>
                   </div>
 
