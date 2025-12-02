@@ -127,7 +127,7 @@
     
     .host-screen{ display:flex; width: 100%; height:100vh; overflow:hidden; position: relative; background: var(--bg); }
     .host-main{ flex:1; display:flex; flex-direction:column; height: 100%; position: relative; }
-    
+
     .host-main-inner {
         padding: 40px;
         height: 100%;
@@ -144,6 +144,74 @@
         background: #000;
         border-bottom: 2px solid rgba(255,255,255,0.08);
         height: 130px;
+        flex-shrink: 0;
+    }
+
+    /* Responsive adjustments for different aspect ratios */
+    @media (max-aspect-ratio: 3/2) {
+      /* For taller screens like Surface, iPad Pro, etc. */
+      .host-main-inner {
+        padding: 20px;
+      }
+
+      .game-top-bar {
+        height: 100px;
+        padding: 15px 20px;
+        flex-wrap: wrap;
+      }
+
+      .question-area {
+        padding: 15px 30px !important;
+      }
+
+      .question-text {
+        font-size: 4.5vh !important;
+      }
+
+      .answers-grid {
+        height: auto !important;
+        min-height: 30vh !important;
+        gap: 16px !important;
+      }
+
+      .answer-btn {
+        padding: 20px !important;
+        font-size: 1.4rem !important;
+      }
+    }
+
+    @media (max-aspect-ratio: 4/3) {
+      /* For even more square formats */
+      .game-top-bar {
+        height: 90px;
+        padding: 10px 20px;
+      }
+
+      .question-text {
+        font-size: 4vh !important;
+      }
+
+      .countdown-badge {
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 2rem !important;
+      }
+
+      .answers-grid {
+        gap: 12px !important;
+        min-height: 25vh !important;
+      }
+    }
+
+    @media (min-aspect-ratio: 21/9) {
+      /* For ultra-wide screens */
+      .results-split-view {
+        gap: 60px !important;
+      }
+
+      .host-main-inner {
+        padding: 60px;
+      }
     }
 
     .countdown-badge{ width:90px; height:90px; display:flex; align-items:center; justify-content:center; font-size:2.8rem; font-weight:900; color:var(--tile); border:4px solid rgba(255,255,255,0.15); background:#000; }
@@ -170,6 +238,21 @@
     .results-split-view { display: grid; grid-template-columns: 4fr 3fr; gap: 40px; height: 100%; overflow: hidden; }
     .results-col { display: flex; flex-direction: column; gap: 16px; overflow: hidden; max-height: 100%; }
     .scroll-area { overflow-y: auto; padding-right: 8px; }
+
+    /* Responsive results view for different aspect ratios */
+    @media (max-aspect-ratio: 3/2) {
+      .results-split-view {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 20px !important;
+      }
+    }
+
+    @media (max-aspect-ratio: 4/3) {
+      .results-split-view {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+      }
+    }
 
     .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.95); display:flex; align-items:center; justify-content:center; z-index:9999; }
     .modal-card{ width:95%; max-width:600px; background:#000; border:3px solid var(--rtl-orange); padding:40px; color:var(--tile); }
@@ -226,8 +309,130 @@
         font-weight: 700;
     }
 
+    .lobby-container {
+        display: flex;
+        width: 100%;
+        height: 100vh;
+        background: #000;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .lobby-left {
+        flex: 0 0 45%;
+        display: flex;
+        flex-direction: column;
+        padding: 60px;
+        background: #0a0a0a;
+        border-right: 2px solid rgba(255,255,255,0.1);
+    }
+
+    .lobby-right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 60px 50px;
+        background: #000;
+        overflow: hidden;
+    }
+
+    /* Responsive lobby layout */
+    @media (max-aspect-ratio: 3/2) {
+      .lobby-container {
+        flex-direction: column;
+      }
+
+      .lobby-left {
+        flex: 0 0 auto;
+        padding: 30px;
+        border-right: none;
+        border-bottom: 2px solid rgba(255,255,255,0.1);
+      }
+
+      .lobby-left > div:first-child {
+        margin-bottom: 30px !important;
+      }
+
+      .lobby-right {
+        padding: 30px;
+        flex: 1;
+      }
+    }
+
+    @media (max-aspect-ratio: 4/3) {
+      .lobby-left {
+        padding: 20px;
+      }
+
+      .lobby-right {
+        padding: 20px;
+      }
+    }
+
     .podium-container { display: flex; align-items: flex-end; justify-content: center; gap: 60px; margin-top: 80px; padding: 0 40px; }
     .podium-place { display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; animation: podiumRise 0.8s ease-out; }
+
+    /* Responsive podium for different screen ratios */
+    @media (max-aspect-ratio: 3/2) {
+      .podium-container {
+        gap: 30px !important;
+        margin-top: 40px !important;
+        padding: 0 20px !important;
+      }
+
+      .podium-bar {
+        width: 140px !important;
+        font-size: 80px !important;
+      }
+
+      .podium-1 .podium-bar {
+        height: 280px !important;
+      }
+
+      .podium-2 .podium-bar {
+        height: 200px !important;
+      }
+
+      .podium-3 .podium-bar {
+        height: 150px !important;
+      }
+
+      .winner-name {
+        font-size: 1.8rem !important;
+      }
+
+      .podium-1 .winner-name {
+        font-size: 2rem !important;
+      }
+
+      .winner-score {
+        font-size: 1.4rem !important;
+      }
+    }
+
+    @media (max-aspect-ratio: 4/3) {
+      .podium-container {
+        gap: 20px !important;
+        margin-top: 30px !important;
+      }
+
+      .podium-bar {
+        width: 120px !important;
+        font-size: 60px !important;
+      }
+
+      .podium-1 .podium-bar {
+        height: 220px !important;
+      }
+
+      .podium-2 .podium-bar {
+        height: 160px !important;
+      }
+
+      .podium-3 .podium-bar {
+        height: 120px !important;
+      }
+    }
 
     @keyframes podiumRise {
       from { transform: translateY(100px); opacity: 0; }
@@ -1404,10 +1609,10 @@
     return (
       <div className="host-screen">
         {isLobby ? (
-          <div style={{display:'flex', width:'100%', height:'100vh', background:'#000', position:'relative', overflow:'hidden'}}>
+          <div className="lobby-container">
 
              {/* Left side - QR Code & Game Info */}
-             <div style={{flex:'0 0 45%', display:'flex', flexDirection:'column', padding:'60px', background:'#0a0a0a', borderRight:'2px solid rgba(255,255,255,0.1)'}}>
+             <div className="lobby-left">
                 <div style={{marginBottom:60}}>
                     <RTLLogo size="lg" />
                     <div style={{fontSize:'2.5rem', fontWeight:900, color:'var(--rtl-orange)', marginTop:20, letterSpacing:2}}>AdAlliance Quiz</div>
@@ -1431,7 +1636,7 @@
              </div>
 
              {/* Right side - Players & Controls */}
-             <div style={{flex:1, display:'flex', flexDirection:'column'}}>
+             <div className="lobby-right">
                 {/* Header Bar */}
                 <div style={{padding:'30px 50px', background:'#111', borderBottom:'2px solid rgba(255,255,255,0.1)'}}>
                     <div style={{display:'flex', alignItems:'center', justifyContent:'space-between'}}>
@@ -1754,12 +1959,12 @@
                         {meta.phase === 'finalQuestion' && <FinalQuestionHostView game={game} meta={meta} timeLeft={timeLeft} onShowResults={showFinalResults} />}
                         {meta.phase === 'finalReview' && <FinalReviewHostView game={game} meta={meta} onJudge={judgeFinalAnswer} onNext={nextFinalQuestion} />}
                         {meta.phase === 'finished' && (
-                           <div style={{width:'100%', height:'100%', position:'relative', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'space-between', padding:'60px 40px'}}>
-                              <div style={{zIndex:10, textAlign:'center'}}>
+                           <div style={{width:'100%', height:'100%', position:'relative', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'60px 40px'}}>
+                              <div style={{zIndex:10, textAlign:'center', marginBottom:'auto'}}>
                                   <RTLLogo size="xl" style={{marginBottom:50}} />
                                   <h1 style={{fontSize:'6rem', fontWeight:900, margin:0, color:'var(--rtl-orange)', textTransform:'uppercase', letterSpacing:8, textShadow:'0 0 40px rgba(255,119,0,0.5)'}}>SIEGEREHRUNG</h1>
                               </div>
-                              <div className="podium-container" style={{zIndex:10}}>
+                              <div className="podium-container" style={{zIndex:10, marginBottom:80}}>
                                   {playersArr[1] && (
                                       <div className="podium-place podium-2" style={{animationDelay:'0.2s'}}>
                                           <div className="winner-name">{playersArr[1].name}</div>
@@ -1783,7 +1988,7 @@
                                       </div>
                                   )}
                               </div>
-                              <button className="btn btn-host" style={{zIndex:10, fontSize:'1.8rem', padding:'25px 60px', background:'var(--rtl-orange)', color:'#000', fontWeight:900}} onClick={backToLobby}>ZURÜCK ZUR LOBBY</button>
+                              <button className="btn btn-host" style={{zIndex:10, fontSize:'1.8rem', padding:'25px 60px', background:'var(--rtl-orange)', color:'#000', fontWeight:900, marginTop:'auto'}} onClick={backToLobby}>ZURÜCK ZUR LOBBY</button>
                            </div>
                         )}
                     </div>
@@ -2493,8 +2698,18 @@
                 <button
                   className="btn"
                   onClick={() => {
-                    if(document.documentElement.requestFullscreen) {
-                      document.documentElement.requestFullscreen();
+                    const elem = document.documentElement;
+                    if(elem.requestFullscreen) {
+                      elem.requestFullscreen();
+                    } else if(elem.webkitRequestFullscreen) {
+                      elem.webkitRequestFullscreen();
+                    } else if(elem.mozRequestFullScreen) {
+                      elem.mozRequestFullScreen();
+                    } else if(elem.msRequestFullscreen) {
+                      elem.msRequestFullscreen();
+                    } else {
+                      // iOS Safari doesn't support fullscreen API, try viewport meta workaround
+                      window.scrollTo(0, 1);
                     }
                   }}
                   style={{marginTop:15, fontSize:13, padding:'10px 18px', background:'rgba(255,255,255,0.1)'}}
@@ -3064,8 +3279,18 @@
           <button
             className="btn"
             onClick={() => {
-              if(document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen();
+              const elem = document.documentElement;
+              if(elem.requestFullscreen) {
+                elem.requestFullscreen();
+              } else if(elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+              } else if(elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+              } else if(elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+              } else {
+                // iOS Safari doesn't support fullscreen API, try viewport meta workaround
+                window.scrollTo(0, 1);
               }
             }}
             style={{fontSize:14, padding:'10px 20px', background:'rgba(255,255,255,0.1)'}}
@@ -3308,6 +3533,5 @@
   </script>
 </body>
 </html>
-
 
 
