@@ -166,6 +166,7 @@
 
       .question-text {
         font-size: 4.5vh !important;
+        line-height: 1.15 !important;
       }
 
       .answers-grid {
@@ -177,6 +178,7 @@
       .answer-btn {
         padding: 20px !important;
         font-size: 1.4rem !important;
+        min-height: 80px;
       }
     }
 
@@ -189,6 +191,7 @@
 
       .question-text {
         font-size: 4vh !important;
+        line-height: 1.15 !important;
       }
 
       .countdown-badge {
@@ -201,6 +204,46 @@
         gap: 12px !important;
         min-height: 25vh !important;
       }
+
+      .answer-btn {
+        padding: 18px !important;
+        font-size: 1.3rem !important;
+        min-height: 70px;
+      }
+    }
+
+    @media (max-aspect-ratio: 1/1) {
+      /* For square or portrait screens */
+      .host-main-inner {
+        padding: 15px;
+      }
+
+      .game-top-bar {
+        height: 80px;
+        padding: 10px 15px;
+      }
+
+      .question-text {
+        font-size: 3.5vh !important;
+        line-height: 1.1 !important;
+      }
+
+      .answers-grid {
+        gap: 10px !important;
+        min-height: 20vh !important;
+      }
+
+      .answer-btn {
+        padding: 15px !important;
+        font-size: 1.2rem !important;
+        min-height: 60px;
+      }
+
+      .countdown-badge {
+        width: 60px !important;
+        height: 60px !important;
+        font-size: 1.6rem !important;
+      }
     }
 
     @media (min-aspect-ratio: 21/9) {
@@ -211,6 +254,27 @@
 
       .host-main-inner {
         padding: 60px;
+      }
+
+      .question-area {
+        padding: 20px 100px !important;
+      }
+
+      .answers-grid {
+        max-width: 90%;
+        margin: 0 auto;
+      }
+    }
+
+    @media (min-aspect-ratio: 2/1) {
+      /* For very wide screens */
+      .question-area {
+        padding: 20px 80px !important;
+      }
+
+      .answers-grid {
+        max-width: 85%;
+        margin: 0 auto;
       }
     }
 
@@ -357,6 +421,12 @@
         padding: 30px;
         flex: 1;
       }
+
+      .lobby-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+        gap: 12px !important;
+        padding: 15px !important;
+      }
     }
 
     @media (max-aspect-ratio: 4/3) {
@@ -366,6 +436,49 @@
 
       .lobby-right {
         padding: 20px;
+      }
+
+      .lobby-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+        gap: 10px !important;
+        padding: 12px !important;
+      }
+
+      .lobby-player-chip {
+        padding: 12px 15px !important;
+        font-size: 18px !important;
+      }
+    }
+
+    @media (max-aspect-ratio: 1/1) {
+      .lobby-left {
+        padding: 15px;
+      }
+
+      .lobby-right {
+        padding: 15px;
+      }
+
+      .lobby-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+        gap: 8px !important;
+        padding: 10px !important;
+      }
+
+      .lobby-player-chip {
+        padding: 10px 12px !important;
+        font-size: 16px !important;
+      }
+    }
+
+    @media (min-aspect-ratio: 21/9) {
+      .lobby-left {
+        flex: 0 0 40%;
+        padding: 80px;
+      }
+
+      .lobby-right {
+        padding: 80px 70px;
       }
     }
 
@@ -431,6 +544,65 @@
 
       .podium-3 .podium-bar {
         height: 120px !important;
+      }
+
+      .winner-name {
+        font-size: 1.6rem !important;
+      }
+
+      .podium-1 .winner-name {
+        font-size: 1.8rem !important;
+      }
+
+      .winner-score {
+        font-size: 1.2rem !important;
+      }
+    }
+
+    @media (max-aspect-ratio: 1/1) {
+      .podium-container {
+        gap: 15px !important;
+        margin-top: 20px !important;
+        padding: 0 10px !important;
+      }
+
+      .podium-bar {
+        width: 100px !important;
+        font-size: 50px !important;
+      }
+
+      .podium-1 .podium-bar {
+        height: 180px !important;
+      }
+
+      .podium-2 .podium-bar {
+        height: 130px !important;
+      }
+
+      .podium-3 .podium-bar {
+        height: 100px !important;
+      }
+
+      .winner-name {
+        font-size: 1.4rem !important;
+      }
+
+      .podium-1 .winner-name {
+        font-size: 1.6rem !important;
+      }
+
+      .winner-score {
+        font-size: 1.1rem !important;
+      }
+    }
+
+    @media (min-aspect-ratio: 21/9) {
+      .podium-container {
+        gap: 80px !important;
+        margin-top: 100px !important;
+        max-width: 90%;
+        margin-left: auto;
+        margin-right: auto;
       }
     }
 
@@ -1538,6 +1710,29 @@
     const nextFinalQuestion = async () => {
       const snap = await db.ref(`games/${gameId}`).get();
       const currentIndex = (snap.val()?.meta?.finalQuestionIndex || 0) + 1;
+      const finalists = snap.val()?.meta?.finalists || [];
+      const players = snap.val()?.players || {};
+
+      // Check if game should end early (mathematically impossible to catch up)
+      const finalistScores = finalists.map(pid => ({
+        pid,
+        score: players[pid]?.finalCurrentScore || 0
+      })).sort((a, b) => b.score - a.score);
+
+      const remainingQuestions = FINAL_QUESTIONS - currentIndex;
+      if(finalistScores.length >= 2 && remainingQuestions > 0) {
+        const leader = finalistScores[0];
+        const secondPlace = finalistScores[1];
+        const maxPossibleGain = remainingQuestions * secondPlace.score; // Maximum points second place can gain
+        const scoreDifference = leader.score - secondPlace.score;
+
+        // If the leader's advantage is greater than what second place can possibly gain, end the game
+        if(scoreDifference > maxPossibleGain) {
+          await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
+          return;
+        }
+      }
+
       if(currentIndex >= FINAL_QUESTIONS) {
         await db.ref(`games/${gameId}/meta`).update({ phase: 'finished' });
       } else {
@@ -1942,7 +2137,7 @@
                                <div style={{display:'flex', alignItems:'center', gap:40}}>
                                   <div style={{fontSize:20, color:'var(--muted)', display:'flex', gap:10}}>
                                     {(p.itemSlots || []).map((item, idx) => (
-                                      <img key={idx} src={item.icon} alt={item.name} style={{width: 32, height: 32}} />
+                                      <img key={idx} src={item.icon} alt={item.name} style={{width: 32, height: 32, objectFit: 'contain'}} />
                                     ))}
                                   </div>
                                   <div style={{fontSize:36, fontWeight:900, color:'var(--tile)'}}>{p.score}</div>
@@ -2069,7 +2264,7 @@
              }}>
                 <div style={{fontWeight:900, fontSize:36}}>{f.name}</div>
                 <div style={{marginTop:10, fontSize:18, color:'var(--muted)'}}>Score: {currentScore}</div>
-                <div style={{marginTop:15, fontSize:20, color:'#9b59b6', fontWeight:900}}>Einsatz: {wager} Pkt</div>
+                <div style={{marginTop:15, fontSize:20, color:'white', fontWeight:900}}>Einsatz: {wager} Pkt</div>
                 <div style={{marginTop:20, fontSize:24,
                     color: f.finalAnswers?.[finalQIndex] ? 'var(--rtl-orange)' : 'var(--muted)'}}>
                    {f.finalAnswers?.[finalQIndex] ? 'ANTWORT DA' : 'Tippt...'}
@@ -2111,7 +2306,7 @@
                     <span style={{fontWeight:900, fontSize:24}}>{f.name}</span>
                     <div style={{textAlign:'right'}}>
                       <div style={{color:'var(--muted)', fontSize:14}}>Aktuell: {currentScore}</div>
-                      <div style={{color:'#9b59b6', fontSize:18, fontWeight:900}}>Einsatz: {wager}</div>
+                      <div style={{color:'white', fontSize:18, fontWeight:900}}>Einsatz: {wager}</div>
                     </div>
                  </div>
                  <div style={{fontSize:28, padding:20, background:'rgba(0,0,0,0.5)', marginBottom:20, fontStyle:'italic'}}>"{f.finalAnswers?.[qIndex] || '---'}"</div>
@@ -2807,12 +3002,12 @@
                       Wie viele Punkte setzt du ein?
                     </label>
                     <div style={{marginBottom:15}}>
-                      <div style={{fontSize:48, fontWeight:900, color:'#9b59b6', textAlign:'center', marginBottom:15, letterSpacing:2}}>
+                      <div style={{fontSize:48, fontWeight:900, color:'white', textAlign:'center', marginBottom:15, letterSpacing:2}}>
                         {wagerAmount}
                       </div>
 
                       {/* Custom Slider Track */}
-                      <div style={{position:'relative', height:40, background:'#000', border:'3px solid #9b59b6'}}>
+                      <div style={{position:'relative', height:40, background:'#000', border:'3px solid white'}}>
                         {/* Filled portion */}
                         <div style={{
                           position:'absolute',
@@ -2820,7 +3015,7 @@
                           top:0,
                           bottom:0,
                           width:`${(wagerAmount/currentScore)*100}%`,
-                          background:'#9b59b6',
+                          background:'white',
                           transition:'width 0.1s'
                         }} />
 
@@ -2853,7 +3048,7 @@
                       </div>
                     </div>
                     <div style={{fontSize:13, color:'var(--muted)', textAlign:'center'}}>
-                      Richtig: <span style={{color:'#00ff00'}}>+{wagerAmount}</span> • Falsch: <span style={{color:'#ff0000'}}>-{wagerAmount}</span>
+                      Richtig: <span style={{color:'white'}}>+{wagerAmount}</span> • Falsch: <span style={{color:'white'}}>-{wagerAmount}</span>
                     </div>
                   </div>
 
@@ -3127,7 +3322,7 @@
                         <h3 style={{textAlign:'center', marginBottom:15, fontSize:22, fontWeight:900, color:'var(--rtl-orange)', letterSpacing:1}}>DU WÄHLST DIE KATEGORIE</h3>
                         <p style={{textAlign:'center', marginBottom:25, color:'var(--muted)', fontSize:15}}>Als Letztplatzierter darfst du die nächste Kategorie bestimmen.</p>
                         <div style={{display:'flex', flexDirection:'column', gap:10}}>
-                            {displayCats.slice(0, 3).map(c => (<button key={c} className="btn btn-host" style={{padding:16, fontSize:18}} onClick={()=>pickCategory(c)}>{c}</button>))}
+                            {displayCats.slice(0, 2).map(c => (<button key={c} className="btn btn-host" style={{padding:16, fontSize:18}} onClick={()=>pickCategory(c)}>{c}</button>))}
                             <button className="btn" style={{padding:16, fontSize:18}} onClick={()=>pickCategory(displayCats[0])}>🎲 ZUFALL</button>
                         </div>
                     </div>
@@ -3533,5 +3728,6 @@
   </script>
 </body>
 </html>
+
 
 
